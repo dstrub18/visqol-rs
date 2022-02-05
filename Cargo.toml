@@ -1,0 +1,17 @@
+[package]
+name = "visqol-rs"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+ndarray = "0.15.4"
+ndarray-linalg = "0.14.1"
+hound = "3.4.0"
+fftw = "0.7.0"
+clap = "3.0.10"
+libsvm-sys = "3.24.0"
+approx = "0.5.1"
+more-asserts = "0.2.2"
+num = "0.4.0"
