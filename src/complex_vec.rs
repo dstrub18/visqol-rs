@@ -3,7 +3,7 @@ use num::complex::Complex;
 #[derive(Debug)]
 pub struct ComplexVec
 {
-    pub v: Vec<Complex<f64>>
+    pub v: Vec<Complex<f64>>,
 }
 
 #[allow(unused)]
@@ -44,10 +44,10 @@ impl ComplexVec
 
     pub fn new_from_complex_vector( vec: &Vec<Complex<f64>>) -> Self
     {
-        let mut cv = Self::new();
+        let mut cv = Self::new_with_len(vec.len());
         for i in 0..vec.len()
         {
-            cv.push(vec[i]);
+            cv[i] = vec[i];
         }
         cv
     }
@@ -131,7 +131,6 @@ impl ComplexVec
         }
         out
     }
-
 }
 
 impl std::ops::Index<usize> for ComplexVec

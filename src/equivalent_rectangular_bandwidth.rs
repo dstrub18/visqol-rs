@@ -3,6 +3,7 @@ pub mod equivalent_rectangular_bandwidth
 {
     use num::complex::Complex;
     use crate::complex_vec::ComplexVec;
+    use ndarray::{Array1, Array2};
     #[allow(unused)]
     // returns ErbFiltersResult
     pub fn make_filters(sample_rate: usize, num_channels: usize, low_freq: f64, high_freq: f64) ->ErbFiltersResult
@@ -89,19 +90,33 @@ pub mod equivalent_rectangular_bandwidth
         let a_2 = vec![0.0;num_channels];
         let b_0 = vec![1.0;num_channels];
 
-        let mut vf_coeffs = Vec::<Vec<f64>>::new();
-        
-        
-        vf_coeffs.push(a_0);
-        vf_coeffs.push(a_11.to_real_vector());
-        vf_coeffs.push(a_12.to_real_vector());
-        vf_coeffs.push(a_13.to_real_vector());
-        vf_coeffs.push(a_14.to_real_vector());
-        vf_coeffs.push(a_2);
-        vf_coeffs.push(b_0);
-        vf_coeffs.push(b_1.to_real_vector());
-        vf_coeffs.push(b_2.to_real_vector());
-        vf_coeffs.push(gain);
+        use ndarray::{Array, Array2, Axis};
+        let mut vf_coeffs = ndarray::Array2::<f64>::zeros((10, num_channels));
+        // Continue here
+        for i in 0..num_channels
+        {
+            vf_coeffs[(0, i)] = a_0[i];
+            vf_coeffs[(1, i)] = a_11[i].re;
+            vf_coeffs[(2, i)] = a_12[i].re;
+            vf_coeffs[(3, i)] = a_13[i].re;
+            vf_coeffs[(4, i)] = a_14[i].re;
+            vf_coeffs[(5, i)] = a_2[i];
+            vf_coeffs[(6, i)] = b_0[i];
+            vf_coeffs[(7, i)] = b_2[i].re;
+            vf_coeffs[(8, i)] = b_2[i].re;
+            vf_coeffs[(9, i)] = gain[i];
+
+        }
+        //vf_coeffs.push(Axis(0), Array::from_vec(a_0));
+        //vf_coeffs.push(Axis(0), a_11.to_real_vector());
+        //vf_coeffs.push(Axis(0), a_12.to_real_vector());
+        //vf_coeffs.push(Axis(0), a_13.to_real_vector());
+        //vf_coeffs.push(Axis(0), a_14.to_real_vector());
+        //vf_coeffs.push(Axis(0), a_2);
+        //vf_coeffs.push(Axis(0), b_0);
+        //vf_coeffs.push(Axis(0), b_1.to_real_vector());
+        //vf_coeffs.push(Axis(0), b_2.to_real_vector());
+        //vf_coeffs.push(Axis(0), gain);
 
         ErbFiltersResult
         {
@@ -130,11 +145,11 @@ pub mod equivalent_rectangular_bandwidth
         }
         coefficients
     }
+
     #[allow(unused)]
     pub struct ErbFiltersResult
     {
-        filter_coeffs: Vec<Vec<f64>>,
-        center_freqs: Vec<f64>
+        pub filter_coeffs: Array2::<f64>,
+        pub center_freqs: Vec<f64>
     }
 }
-

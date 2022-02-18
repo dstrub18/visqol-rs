@@ -7,11 +7,13 @@ edition = "2021"
 
 [dependencies]
 ndarray = "0.15.4"
-ndarray-linalg = "0.14.1"
+ndarray-linalg = { version = "0.10" }
 hound = "3.4.0"
-fftw = "0.7.0"
+pffft_rust = "0.1.2"
+rustfft = "6.0.1"
 clap = "3.0.10"
 libsvm-sys = "3.24.0"
 approx = "0.5.1"
 more-asserts = "0.2.2"
 num = "0.4.0"
+itertools = "0.10.3"
