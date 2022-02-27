@@ -26,6 +26,24 @@
         {
             "type": "lldb",
             "request": "launch",
+            "name": "Debug Conv2d",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--",
+                    "test_2d_convolution"
+                ],
+                "filter": {
+                    "name": "visqol-rs",
+                    "kind": "lib"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
             "name": "Debug executable 'visqol-rs'",
             "cargo": {
                 "args": [
