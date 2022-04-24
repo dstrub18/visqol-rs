@@ -32,7 +32,7 @@ fn analysis_window_test()
     assert_eq!(calculate_temporal_window(sr_48k, window_size), temporal_window);
 
     let window_size = AnalysisWindow::new(sr_96k, overlap, window_dur).size;
-assert_eq!(calculate_temporal_window(sr_96k, window_size), temporal_window);
+    assert_eq!(calculate_temporal_window(sr_96k, window_size), temporal_window);
 }
 
 fn calculate_temporal_window(sr: u32, window_size: usize) -> f64

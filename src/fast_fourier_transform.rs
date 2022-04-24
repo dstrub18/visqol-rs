@@ -1,0 +1,41 @@
+use ndarray::{Array2, Axis, Array1};
+use num::complex::Complex64;
+use crate::audio_channel::AudioChannel;
+use crate::fft_manager::FftManager;
+use crate::misc_audio;
+
+pub fn forward_1d_from_matrix(fft_manager: &mut FftManager, in_matrix: &Array2::<f64>)
+-> ndarray::ArrayBase<ndarray::OwnedRepr<num::Complex<f64>>, ndarray::Dim<[usize; 2]>> {
+  let in_num_cols = in_matrix.ncols();
+
+  let mut temp_time_buffer = AudioChannel::<f64>::new(fft_manager.samples_per_channel);
+  temp_time_buffer.aligned_buffer = in_matrix.clone().remove_axis(Axis(1)).to_vec();
+  let mut temp_freq_buffer = AudioChannel::<Complex64>::new(fft_manager.fft_size / 2 + 1);
+
+  fft_manager.freq_from_time_domain(&mut temp_time_buffer, &mut temp_freq_buffer);
+  
+  misc_audio::mirror_spectrum(&mut temp_freq_buffer.aligned_buffer);
+
+  Array2::from_shape_vec((temp_freq_buffer.get_size(), in_num_cols), temp_freq_buffer.aligned_buffer).unwrap()
+}
+
+pub fn forward_1d_from_points(fft_manager: &mut FftManager, in_matrix: &mut Array2::<f64>, points: usize)
+-> ndarray::ArrayBase<ndarray::OwnedRepr<num::Complex<f64>>, ndarray::Dim<[usize; 2]>> {
+  assert!(points > in_matrix.nrows());
+  let num_points_to_append = points - in_matrix.nrows();
+  
+  let z = Array1::<f64>::zeros(num_points_to_append);
+
+  in_matrix.push(Axis(0), z.view()).unwrap();
+  forward_1d_from_matrix(fft_manager, in_matrix)
+}
+
+pub fn inverse_1d(fft_manager: &mut FftManager, in_matrix: &mut Array2::<Complex64>)
+{
+  
+}
+
+pub fn inverse_1d_conj_sym()
+{
+
+}

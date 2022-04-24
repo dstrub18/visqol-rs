@@ -17,7 +17,7 @@ pub fn normalize_2d_matrix(mat: &mut Array2<f64>) -> Array2<f64>
 }
 
 #[allow(unused)]
-pub fn next_pow_two(input: &u32) -> u32
+pub fn next_pow_two(input: &usize) -> usize
 {
     let mut number = input - 1;
 
