@@ -121,15 +121,16 @@ pub fn prepare_spectrograms_for_comparison(reference: &mut Spectrogram, degraded
 
 pub fn mirror_spectrum(spectrum: &mut Vec<Complex64>)
 {
-    let nyquist_bin = Complex64::new(spectrum.last().unwrap().re.clone(), 0.0);
-    let zero_hz_bin = Complex64::new(spectrum[0].re.clone(), 0.0);
+    let nyquist_bin = Complex64::new(spectrum.last().unwrap().re.clone(), 0.0); // Copy Nyqvist real part
+    let zero_hz_bin = Complex64::new(spectrum[0].re.clone(), 0.0); // Copy 0 hz bin
     
-    spectrum.pop();
-    spectrum.remove(0);
+    spectrum.pop(); //  Remove Nyqvist
+    spectrum.remove(0); // Remove 0 hz
 
     let mut mirrored_spectrum = spectrum.clone();
     mirrored_spectrum.reverse();
     mirrored_spectrum.iter_mut().for_each(|element|{element.im = -1.0 * element.im;});
+    // Push Nyqivst in middle of Vec
     spectrum.push(nyquist_bin);
     spectrum.extend(mirrored_spectrum);
     spectrum.insert(0, zero_hz_bin);

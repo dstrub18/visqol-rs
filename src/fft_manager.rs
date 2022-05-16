@@ -52,16 +52,17 @@ impl FftManager
     pub fn time_from_freq_domain(&mut self, freq_channel: &mut AudioChannel<Complex64>, time_channel: &mut AudioChannel<f64>)
     {
         let complex_to_real = self.planner.plan_fft_inverse(self.fft_size);
-        assert!(freq_channel.get_size() == self.fft_size);
 
         if time_channel.get_size() == self.fft_size
         {
-            complex_to_real.process(freq_channel.aligned_buffer.as_mut_slice(), time_channel.aligned_buffer.as_mut_slice()).unwrap();
+            complex_to_real.process(&mut freq_channel.aligned_buffer[..self.samples_per_channel], time_channel.aligned_buffer.as_mut_slice()).unwrap();
+
         }
+
         else
         {
-            freq_channel.aligned_buffer.resize(self.fft_size, Complex64::zero());
-            complex_to_real.process(freq_channel.aligned_buffer.as_mut_slice(), time_channel.aligned_buffer.as_mut_slice()).unwrap();
+            time_channel.aligned_buffer.resize(self.fft_size, f64::zero());
+            complex_to_real.process(&mut freq_channel.aligned_buffer[..self.samples_per_channel], time_channel.aligned_buffer.as_mut_slice()).unwrap();
         }
     }
     

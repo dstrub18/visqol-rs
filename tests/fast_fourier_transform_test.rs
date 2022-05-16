@@ -1,7 +1,7 @@
 use num::complex::Complex64;
 use visqol_rs::fast_fourier_transform;
 use visqol_rs::fft_manager::FftManager;
-use visqol_rs::test_utility::compare_complex_matrix;
+use visqol_rs::test_utility::{compare_complex_matrix, compare_real_matrix};
 use ndarray::Array2;
 
 #[test]
@@ -323,4 +323,109 @@ fn test_forward_1d_from_points()
     let out_matrix = fast_fourier_transform::forward_1d_from_points(&mut fft_manager, &mut samples_mat, num_points);
     assert_eq!(expected_matrix.nrows(), out_matrix.nrows());
     compare_complex_matrix(&expected_matrix, &out_matrix, tolerance);
+}
+
+
+#[test]
+fn test_inverse_1d()
+{
+    let tolerance = 0.0001;
+    let samples = vec![0.000150529f64, 5.89739e-05,
+    -9.36187e-05, -9.36187e-05, 0.000394677, 0.000303122, -9.36187e-05,
+    0.000303122, 8.94924e-05, 0.000150529, -2.06314e-06, -0.000154656,
+    2.84554e-05, 0.000272603, -0.000185174, 5.89739e-05, 0.000364159,
+    0.000425196, 0.000120011, 5.89739e-05, 0.000120011, 0.000211566,
+    0.000150529, 2.84554e-05, 0.000120011, 0.000150529, 8.94924e-05,
+    -9.36187e-05, 0.000242085, 0.000486233, 8.94924e-05, 0.000120011,
+    8.94924e-05, 8.94924e-05, 0.000150529, -0.000154656, -2.06314e-06,
+    2.84554e-05, 0.000150529, -3.25817e-05, 5.89739e-05, 5.89739e-05,
+    -0.000124137, 5.89739e-05, 2.84554e-05, 0.000181048, -0.000124137,
+    -0.000368285, -9.36187e-05, -0.000246211, -3.25817e-05, 2.84554e-05,
+    -6.31002e-05, -9.36187e-05, -2.06314e-06, -2.06314e-06, -0.000185174,
+    -0.000124137, 2.84554e-05, 8.94924e-05, -0.00027673, -6.31002e-05,
+    -0.000215693, 0.000425196, 8.94924e-05];
+
+    let mut samples_mat = Array2::from_shape_vec((samples.len(), 1), samples).unwrap();
+
+    let mut fft_manager = FftManager::new(samples_mat.len());
+
+    let mut spectrum = fast_fourier_transform::forward_1d_from_matrix(&mut fft_manager, &mut samples_mat);
+
+    let inverse = fast_fourier_transform::inverse_1d_conj_sym(&mut fft_manager, &mut spectrum);
+    
+    compare_real_matrix(&samples_mat, &inverse, tolerance);
+}
+
+#[test]
+fn test_complex_inverse_1d()
+{
+    let tolerance = 0.0001;
+    let samples = vec![0.000150529f64, 5.89739e-05,
+    -9.36187e-05, -9.36187e-05, 0.000394677, 0.000303122, -9.36187e-05,
+    0.000303122, 8.94924e-05, 0.000150529, -2.06314e-06, -0.000154656,
+    2.84554e-05, 0.000272603, -0.000185174, 5.89739e-05, 0.000364159,
+    0.000425196, 0.000120011, 5.89739e-05, 0.000120011, 0.000211566,
+    0.000150529, 2.84554e-05, 0.000120011, 0.000150529, 8.94924e-05,
+    -9.36187e-05, 0.000242085, 0.000486233, 8.94924e-05, 0.000120011,
+    8.94924e-05, 8.94924e-05, 0.000150529, -0.000154656, -2.06314e-06,
+    2.84554e-05, 0.000150529, -3.25817e-05, 5.89739e-05, 5.89739e-05,
+    -0.000124137, 5.89739e-05, 2.84554e-05, 0.000181048, -0.000124137,
+    -0.000368285, -9.36187e-05, -0.000246211, -3.25817e-05, 2.84554e-05,
+    -6.31002e-05, -9.36187e-05, -2.06314e-06, -2.06314e-06, -0.000185174,
+    -0.000124137, 2.84554e-05, 8.94924e-05, -0.00027673, -6.31002e-05,
+    -0.000215693, 0.000425196, 8.94924e-05];
+
+    let mut samples_mat = Array2::from_shape_vec((samples.len(), 1), samples).unwrap();
+
+    let expected_complex_samples = vec![Complex64::new(0.000150529, 0.0), Complex64::new(5.89739e-05, 0.0),
+    Complex64::new(-9.36187e-05, 0.0), Complex64::new(-9.36187e-05, 0.0), Complex64::new(0.000394677, 0.0),
+    Complex64::new(0.000303122, 0.0), Complex64::new(-9.36187e-05, 0.0), Complex64::new(0.000303122, 0.0),
+    Complex64::new(8.94924e-05, 0.0), Complex64::new(0.000150529, 0.0), Complex64::new(-2.06314e-06, 0.0),
+    Complex64::new(-0.000154656, 0.0), Complex64::new(2.84554e-05, 0.0), Complex64::new(0.000272603, 0.0),
+    Complex64::new(-0.000185174, 0.0), Complex64::new(5.89739e-05, 0.0), Complex64::new(0.000364159, 0.0),
+    Complex64::new(0.000425196, 0.0), Complex64::new(0.000120011, 0.0), Complex64::new(5.89739e-05, 0.0),
+    Complex64::new(0.000120011, 0.0), Complex64::new(0.000211566, 0.0), Complex64::new(0.000150529, 0.0),
+    Complex64::new(2.84554e-05, 0.0), Complex64::new(0.000120011, 0.0), Complex64::new(0.000150529, 0.0),
+    Complex64::new(8.94924e-05, 0.0), Complex64::new(-9.36187e-05, 0.0), Complex64::new(0.000242085, 0.0),
+    Complex64::new(0.000486233, 0.0), Complex64::new(8.94924e-05, 0.0), Complex64::new(0.000120011, 0.0),
+    Complex64::new(8.94924e-05, 0.0), Complex64::new(8.94924e-05, 0.0), Complex64::new(0.000150529, 0.0),
+    Complex64::new(-0.000154656, 0.0), Complex64::new(-2.06314e-06, 0.0), Complex64::new(2.84554e-05, 0.0),
+    Complex64::new(0.000150529, 0.0), Complex64::new(-3.25817e-05, 0.0), Complex64::new(5.89739e-05, 0.0),
+    Complex64::new(5.89739e-05, 0.0), Complex64::new(-0.000124137, 0.0), Complex64::new(5.89739e-05, 0.0),
+    Complex64::new(2.84554e-05, 0.0), Complex64::new(0.000181048, 0.0), Complex64::new(-0.000124137, 0.0),
+    Complex64::new(-0.000368285, 0.0), Complex64::new(-9.36187e-05, 0.0), Complex64::new(-0.000246211, 0.0),
+    Complex64::new(-3.25817e-05, 0.0), Complex64::new(2.84554e-05, 0.0), Complex64::new(-6.31002e-05, 0.0),
+    Complex64::new(-9.36187e-05, 0.0), Complex64::new(-2.06314e-06, 0.0), Complex64::new(-2.06314e-06, 0.0),
+    Complex64::new(-0.000185174, 0.0), Complex64::new(-0.000124137, 0.0), Complex64::new(2.84554e-05, 0.0),
+    Complex64::new(8.94924e-05, 0.0), Complex64::new(-0.00027673, 0.0), Complex64::new(-6.31002e-05, 0.0),
+    Complex64::new(-0.000215693, 0.0), Complex64::new(0.000425196, 0.0), Complex64::new(8.94924e-05, 0.0)];
+    let expected_complex_samples_mat = Array2::from_shape_vec((expected_complex_samples.len(), 1), expected_complex_samples).unwrap();
+
+    let length = 65;
+    let mut fft_manager = FftManager::new(length);
+    let mut spectrum = fast_fourier_transform::forward_1d_from_matrix(&mut fft_manager, &mut samples_mat);
+    let complex_samples_result = fast_fourier_transform::inverse_1d(&mut fft_manager, &mut spectrum);
+    
+    compare_complex_matrix(&expected_complex_samples_mat, &complex_samples_result, tolerance);
+}
+
+#[test]
+fn test_zeros()
+{
+    let tolerance = 0.0001;
+
+    let zeros = vec![0.0f64, 0.0f64, 0.0f64, 0.0f64, 0.0f64, 0.0f64, 0.0f64,
+    0.0f64, 0.0f64, 0.0f64, 0.0f64, 0.0f64, 0.0f64, 0.0f64, 0.0f64, 0.0f64, 0.0f64, 0.0f64, 0.0f64, 0.0f64, 0.0f64, 0.0f64, 0.0f64, 0.0f64, 0.0f64, 0.0f64, 0.0f64, 0.0f64, 0.0f64, 0.0f64, 0.0f64, 0.0f64, 0.0f64, 0.0f64,
+    0.0f64, 0.0f64, 0.0f64, 0.0f64, 0.0f64, 0.0f64, 0.0f64, 0.0f64, 0.0f64, 0.0f64, 0.0f64, 0.0f64, 0.0f64, 0.0f64, 0.0f64, 0.0f64, 0.0f64, 0.0f64, 0.0f64, 0.0f64, 0.0f64, 0.0f64, 0.0f64, 0.0f64, 0.0f64, 0.0f64, 0.0f64,
+    0.0f64, 0.0f64, 0.0f64, 0.0f64];
+
+    let mut samples_mat = Array2::from_shape_vec((zeros.len(), 1), zeros).unwrap();
+
+    let mut manager = FftManager::new(samples_mat.len());
+
+    let mut spectrum = fast_fourier_transform::forward_1d_from_matrix(&mut manager, &mut samples_mat);
+
+    let result = fast_fourier_transform::inverse_1d_conj_sym(&mut manager, &mut spectrum);
+
+    compare_real_matrix(&samples_mat, &result, tolerance);
 }

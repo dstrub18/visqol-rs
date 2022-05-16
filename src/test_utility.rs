@@ -28,12 +28,25 @@ pub fn compare_complex_matrix(matrix_a: &Array2::<Complex<f64>>, matrix_b: &Arra
 
 pub fn compare_complex_vec(vec_a: &Vec<Complex<f64>>, vec_b: &Vec<Complex<f64>>, tolerance: f64)
 {
+    assert_eq!(vec_a.len(), vec_b.len());
     vec_a.iter()
          .zip(vec_b)
          .for_each
          (|(a, b)|
          {
             assert_abs_diff_eq!(a.re, b.re, epsilon=tolerance);
-            assert_abs_diff_eq!(a.im, b.im, epsilon=tolerance)
+            assert_abs_diff_eq!(a.im, b.im, epsilon=tolerance);
+         });
+}
+
+pub fn compare_real_vec(vec_a: &Vec<f64>, vec_b: &Vec<f64>, tolerance: f64)
+{
+    assert_eq!(vec_a.len(), vec_b.len());
+    vec_a.iter()
+         .zip(vec_b)
+         .for_each
+         (|(a, b)|
+         {
+            assert_abs_diff_eq!(a, b, epsilon=tolerance);
          });
 }

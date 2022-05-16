@@ -7,7 +7,6 @@ const MIN_ELEM : f64 = -53.2;
 const FLOOR : f64 = 0.1;
 
 #[test]
-#[ignore = "Not implemented yet"]
 fn convert_to_db_test()
 {
     let elements = Array2::<f64>::from_shape_vec((10, 1), vec![10.21, -4.63, 0.54,
