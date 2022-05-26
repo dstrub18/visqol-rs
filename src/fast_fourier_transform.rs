@@ -25,9 +25,11 @@ pub fn forward_1d_from_points(fft_manager: &mut FftManager, in_matrix: &mut Arra
   assert!(points > in_matrix.nrows());
   let num_points_to_append = points - in_matrix.nrows();
   
-  let z = Array1::<f64>::zeros(num_points_to_append);
-
-  in_matrix.push(Axis(0), z.view()).unwrap();
+  let z = Array1::<f64>::zeros(1);
+  for _ in 0..num_points_to_append
+  {
+    in_matrix.push(Axis(0), z.view()).unwrap();
+  }
   forward_1d_from_matrix(fft_manager, in_matrix)
 }
 
@@ -52,7 +54,6 @@ pub fn inverse_1d(fft_manager: &mut FftManager, in_matrix: &mut Array2::<Complex
 pub fn inverse_1d_conj_sym(fft_manager: &mut FftManager, in_matrix: &mut Array2::<Complex64>)
 -> ndarray::ArrayBase<ndarray::OwnedRepr<f64>, ndarray::Dim<[usize; 2]>> 
 {
-
   let inverse = inverse_1d(fft_manager, in_matrix);
 
   let mut time_signal = Vec::<f64>::with_capacity(in_matrix.len());

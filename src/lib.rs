@@ -20,3 +20,5 @@ pub mod fft_manager;
 pub mod fast_fourier_transform;
 pub mod image_patch_creator;
 pub mod vad_patch_creator;
+pub mod envelope;
+pub mod xcorr;

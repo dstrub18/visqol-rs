@@ -4,6 +4,8 @@ use num::Zero;
 use num::complex::Complex64;
 use realfft::RealFftPlanner;
 
+
+
 // Constants
 const MIN_FFT_SIZE: usize = 32;
 pub struct FftManager
@@ -58,10 +60,11 @@ impl FftManager
             complex_to_real.process(&mut freq_channel.aligned_buffer[..self.samples_per_channel], time_channel.aligned_buffer.as_mut_slice()).unwrap();
 
         }
-
         else
         {
             time_channel.aligned_buffer.resize(self.fft_size, f64::zero());
+            let _i = complex_to_real.make_input_vec();
+            let _o = complex_to_real.make_output_vec();
             complex_to_real.process(&mut freq_channel.aligned_buffer[..self.samples_per_channel], time_channel.aligned_buffer.as_mut_slice()).unwrap();
         }
     }

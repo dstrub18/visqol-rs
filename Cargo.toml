@@ -18,5 +18,7 @@ approx = "0.5.1"
 more-asserts = "0.2.2"
 num = "0.4.0"
 itertools = "0.10.3"
+num-traits = "0.2.15"
+rustfft = "6.0.1"
 
 #![feature(portable_simd)]
