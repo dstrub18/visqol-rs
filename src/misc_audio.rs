@@ -4,7 +4,8 @@ use crate::misc_math;
 use crate::spectrogram::Spectrogram;
 use ndarray::{Array2, ShapeBuilder};
 use num::complex::Complex64;
-
+use num_traits::Zero;
+use std::f64;
 // Constants
 const NUM_CHANNELS_MONO: usize = 1;
 const SPL_REFERENCE_POINT: f64 = 0.00002;
@@ -117,6 +118,30 @@ pub fn prepare_spectrograms_for_comparison(reference: &mut Spectrogram, degraded
 
     reference.raise_floor(lowest_floor);
     degraded.raise_floor(lowest_floor);
+}
+
+pub fn float_vec_to_real_valued_complex_vec(float_vector: &Vec<f64>)
+-> Vec<Complex64> 
+{
+    let mut complex_vec = vec![Complex64::zero(); float_vector.len()];
+
+    complex_vec.iter_mut().enumerate().for_each(
+        |(index, element)|
+        {element.re = float_vector[index];});
+    
+    complex_vec
+}
+
+pub fn real_valued_complex_vec_to_float_vec(complex_vector: &Vec<Complex64>)
+-> Vec<f64>
+{
+    let mut real_vec = vec![f64::zero(); complex_vector.len()];
+
+    real_vec.iter_mut().enumerate().for_each(
+        |(index, element)|
+        {*element = complex_vector[index].re;});
+    
+    real_vec
 }
 
 pub fn mirror_spectrum(spectrum: &mut Vec<Complex64>)

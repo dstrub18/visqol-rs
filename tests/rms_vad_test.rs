@@ -44,7 +44,6 @@ use visqol_rs::rms_vad::RmsVad;
         
         for chunk in signal[..].chunks(signal_chunk_size)
         {
-            println!("{:?}", chunk);
             rms_vad.process_chunk(&chunk.to_vec());
         }
         let result = rms_vad.get_vad_results();

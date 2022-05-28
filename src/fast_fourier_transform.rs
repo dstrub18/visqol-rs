@@ -3,7 +3,6 @@ use num::Zero;
 use num::complex::Complex64;
 use crate::audio_channel::AudioChannel;
 use crate::fft_manager::FftManager;
-use crate::misc_audio;
 
 pub fn forward_1d_from_matrix(fft_manager: &mut FftManager, in_matrix: &Array2::<f64>)
 -> ndarray::ArrayBase<ndarray::OwnedRepr<num::Complex<f64>>, ndarray::Dim<[usize; 2]>> {
@@ -11,12 +10,10 @@ pub fn forward_1d_from_matrix(fft_manager: &mut FftManager, in_matrix: &Array2::
 
   let mut temp_time_buffer = AudioChannel::<f64>::new(fft_manager.samples_per_channel);
   temp_time_buffer.aligned_buffer = in_matrix.clone().remove_axis(Axis(1)).to_vec();
-  let mut temp_freq_buffer = AudioChannel::<Complex64>::new(fft_manager.fft_size / 2 + 1);
+  let mut temp_freq_buffer = AudioChannel::<Complex64>::new(fft_manager.fft_size);
 
   fft_manager.freq_from_time_domain(&mut temp_time_buffer, &mut temp_freq_buffer);
   
-  misc_audio::mirror_spectrum(&mut temp_freq_buffer.aligned_buffer);
-
   Array2::from_shape_vec((temp_freq_buffer.get_size(), in_num_cols), temp_freq_buffer.aligned_buffer).unwrap()
 }
 

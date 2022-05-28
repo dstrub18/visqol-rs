@@ -2,7 +2,7 @@ use visqol_rs::xcorr;
 use ndarray::Array2;
 
 #[test]
-#[ignore = "Not implemented yet"]
+
 fn test_best_lag_same_length()
 {
     let ref_signal = vec![2.0, 2.0, 1.0, 0.1, -3.0, 0.1, 1.0, 2.0, 2.0, 6.0, 8.0, 6.0, 2.0, 2.0];
@@ -19,7 +19,6 @@ fn test_best_lag_same_length()
 }
 
 #[test]
-#[ignore = "Not implemented yet"]
 fn test_best_lag_ref_shorter()
 {
     let ref_signal = vec![2.0, 2.0, 1.0, 0.1, -3.0, 0.1, 1.0, 2.0, 2.0, 6.0, 8.0, 6.0, 2.0, 2.0];
@@ -35,7 +34,6 @@ fn test_best_lag_ref_shorter()
 }
 
 #[test]
-#[ignore = "Not implemented yet"]
 fn test_best_lag_ref_longer()
 {
     let ref_signal = vec![2.0, 2.0, 1.0, 0.1, -3.0, 0.1, 1.0, 2.0, 2.0, 6.0, 8.0, 6.0, 2.0, 2.0];
@@ -50,7 +48,6 @@ fn test_best_lag_ref_longer()
     assert_eq!(best_lag, expected_result);
 }
 #[test]
-#[ignore = "Not implemented yet"]
 fn test_negative_best_lag()
 {
     let ref_signal = vec![2.0, 2.0, 1.0, 0.1, -3.0, 0.1, 1.0, 2.0, 2.0, 6.0, 8.0, 6.0, 2.0, 2.0];

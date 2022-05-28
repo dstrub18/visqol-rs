@@ -2,22 +2,21 @@ use crate::audio_channel::AudioChannel;
 use crate::misc_math;
 use num::Zero;
 use num::complex::Complex64;
-use realfft::RealFftPlanner;
-
-
-
+use rustfft::FftPlanner;
+use crate::misc_audio;
 // Constants
 const MIN_FFT_SIZE: usize = 32;
+
 pub struct FftManager
 {
-    planner: RealFftPlanner::<f64>,
+    planner: FftPlanner::<f64>,
     pub fft_size: usize,
     inverse_fft_scale: f64,
     pub samples_per_channel: usize,
     pub time_channel: AudioChannel<f64>,
     pub freq_channel: AudioChannel<Complex64>
 }
-
+ 
 impl FftManager
 {
     pub fn new(samples_per_channel: usize) -> Self
@@ -25,7 +24,7 @@ impl FftManager
         let fft_size = misc_math::next_pow_two(&samples_per_channel).max(MIN_FFT_SIZE);
         Self
         {
-            planner: RealFftPlanner::<f64>::new(),
+            planner: FftPlanner::<f64>::new(),
             fft_size,
             samples_per_channel,
             inverse_fft_scale: 1.0f64 / (fft_size as f64),
@@ -38,16 +37,20 @@ impl FftManager
     {
         let real_to_complex = self.planner.plan_fft_forward(self.fft_size);
         assert!(time_channel.get_size() <= self.fft_size);
-        
         if time_channel.get_size() == self.fft_size
         {
-            real_to_complex.process(time_channel.aligned_buffer.as_mut_slice(), freq_channel.aligned_buffer.as_mut_slice()).unwrap();
+            let mut complex_time_domain = misc_audio::float_vec_to_real_valued_complex_vec(&time_channel.aligned_buffer);
+            let mut scratch_buffer = vec![Complex64::zero();real_to_complex.get_outofplace_scratch_len()];
+            real_to_complex.process_outofplace_with_scratch(&mut complex_time_domain[..], &mut freq_channel.aligned_buffer[..], &mut scratch_buffer[..]);
         }
         else
         {
             time_channel.aligned_buffer.resize(self.fft_size, 0.0f64);
+            let mut complex_time_domain = misc_audio::float_vec_to_real_valued_complex_vec(&time_channel.aligned_buffer);
+            let mut scratch_buffer = vec![Complex64::zero();real_to_complex.get_outofplace_scratch_len()];
+            real_to_complex.process_outofplace_with_scratch(&mut complex_time_domain[..], &mut freq_channel.aligned_buffer[..], &mut scratch_buffer[..]);
             assert!(time_channel.aligned_buffer.len() == self.fft_size);
-            real_to_complex.process(time_channel.aligned_buffer.as_mut_slice(), freq_channel.aligned_buffer.as_mut_slice()).unwrap();
+            real_to_complex.process_outofplace_with_scratch(&mut complex_time_domain[..], &mut freq_channel.aligned_buffer[..], &mut scratch_buffer[..]);
         }
     }
     
@@ -57,15 +60,18 @@ impl FftManager
 
         if time_channel.get_size() == self.fft_size
         {
-            complex_to_real.process(&mut freq_channel.aligned_buffer[..self.samples_per_channel], time_channel.aligned_buffer.as_mut_slice()).unwrap();
-
+            let mut scratch_buffer = vec![Complex64::zero();complex_to_real.get_outofplace_scratch_len()];
+            let mut complex_td = misc_audio::float_vec_to_real_valued_complex_vec(&time_channel.aligned_buffer);
+            complex_to_real.process_outofplace_with_scratch(&mut freq_channel.aligned_buffer, &mut complex_td[..], &mut scratch_buffer[..]);
+            time_channel.aligned_buffer  = misc_audio::real_valued_complex_vec_to_float_vec(&complex_td);
         }
         else
         {
+            let mut scratch_buffer = vec![Complex64::zero();complex_to_real.get_outofplace_scratch_len()];
             time_channel.aligned_buffer.resize(self.fft_size, f64::zero());
-            let _i = complex_to_real.make_input_vec();
-            let _o = complex_to_real.make_output_vec();
-            complex_to_real.process(&mut freq_channel.aligned_buffer[..self.samples_per_channel], time_channel.aligned_buffer.as_mut_slice()).unwrap();
+            let mut complex_td = misc_audio::float_vec_to_real_valued_complex_vec(&time_channel.aligned_buffer);
+            complex_to_real.process_outofplace_with_scratch(&mut freq_channel.aligned_buffer, &mut complex_td[..], &mut scratch_buffer[..]);
+            time_channel.aligned_buffer  = misc_audio::real_valued_complex_vec_to_float_vec(&complex_td);
         }
     }
     
@@ -74,9 +80,4 @@ impl FftManager
         assert!(time_channel.get_size() == self.fft_size || time_channel.get_size() == self.fft_size);
         time_channel.aligned_buffer.iter_mut().for_each(|x|{*x = *x * self.inverse_fft_scale;});
     }
-
-    pub fn clear_freq_channel(&mut self)
-    {
-    }
-   
 }

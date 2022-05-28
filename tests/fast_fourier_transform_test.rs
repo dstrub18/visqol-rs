@@ -153,16 +153,13 @@ fn test_forward_1d()
     Complex64{re: -0.00103278592163890, im: 0.00340299713362453},
     Complex64{re: 0.00301682385173052, im: 0.00234848985608509}];
 
-    let expected_matrix = Array2::from_shape_vec((expected_complex_result.len(), 1), expected_complex_result).unwrap();
+    let mut expected_matrix = Array2::from_shape_vec((expected_complex_result.len(), 1), expected_complex_result).unwrap();
     let mut fft_manager = FftManager::new(samples_mat.len());
 
     let out_matrix = fast_fourier_transform::forward_1d_from_matrix(&mut fft_manager, &samples_mat);
 
     let tolerance = 0.00000001;
     compare_complex_matrix(&expected_matrix, &out_matrix, tolerance);
-    
-    println!("No runtime errors!");
-
 }
 
 #[test]

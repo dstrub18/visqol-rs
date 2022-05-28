@@ -13,7 +13,6 @@ pub fn calculate_best_leg(signal_1: &Array2<f64>, signal_2: &Array2<f64>)
 
     // Negative errors
     let mut corrs = point_wise_fft_vec[point_wise_fft_vec.len() - max_lag as usize..].to_vec();
-    corrs.reverse();
     // Positive errors
     let mut positives = point_wise_fft_vec[0.. max_lag as usize + 1].to_vec();
     
@@ -28,7 +27,7 @@ pub fn calculate_best_leg(signal_1: &Array2<f64>, signal_2: &Array2<f64>)
     .unwrap().clone();
 
     // Get maximum index
-    let best_corr_idx = corrs.iter().position(|r| *r == best_corr).unwrap();
+    let best_corr_idx = corrs.iter().position(|&r| r == best_corr).unwrap();
  
     best_corr_idx as i64 - max_lag
 }
@@ -66,7 +65,7 @@ fn calculate_fft_pointwise_product(signal_1: &Vec<f64>, signal_2: &Vec<f64>, man
     let mut fft_signal_2 = fast_fourier_transform::forward_1d_from_points(manager, &mut signal_2_mat, fft_points);
 
     fft_signal_2.iter_mut().for_each(|element|{*element = element.conj()});
-
+    
     let mut signal_1_mat = Array2::from_shape_vec((signal_1.len(), 1), signal_1.clone()).unwrap();
     let fft_signal_1 = fast_fourier_transform::forward_1d_from_points(manager, &mut signal_1_mat, fft_points);
 

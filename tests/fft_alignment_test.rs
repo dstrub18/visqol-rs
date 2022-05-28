@@ -217,12 +217,9 @@ fn rustfft_test()
     let fft = planner.plan_fft_forward(fft_length);
     samples.resize(fft_length, Complex64::zero());
     
-    // Transform should be reconstructible
     let expected_td_signal = samples.clone();
-    
-    
     fft.process(&mut samples);
-
+    // Check for double-sided spectrum
     assert_abs_diff_eq!(samples[1].re, samples.iter().last().unwrap().re);
     assert_abs_diff_eq!(samples[1].im, -samples.iter().last().unwrap().im);
 
