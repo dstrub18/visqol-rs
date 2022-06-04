@@ -125,7 +125,6 @@ pub mod equivalent_rectangular_bandwidth
         }
     }
 
-    // Returns vec<f64>
     fn calculate_uniform_center_freqs(low_freq: f64, high_freq: f64, num_channels: usize) -> Vec<f64>
     {
         // Glasberg and Moore Parameters
@@ -134,7 +133,7 @@ pub mod equivalent_rectangular_bandwidth
 
         let a = -(ear_q * min_bandwidth);
         let b = -((high_freq + ear_q * min_bandwidth).ln());
-        let c = -((low_freq + ear_q * min_bandwidth).ln());
+        let c = ((low_freq + ear_q * min_bandwidth).ln());
         let d = high_freq + ear_q * min_bandwidth;
         let e = (b + c) / num_channels as f64;
         let mut coefficients = Vec::<f64>::new();

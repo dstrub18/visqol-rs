@@ -10,15 +10,17 @@ ndarray = "0.15.4"
 ndarray-linalg = { version = "0.10" }
 ndarray-stats = "0.5.0"
 hound = "3.4.0"
-pffft_rust = "0.1.2"
-realfft = "3.0.0"
-clap = "3.0.10"
-libsvm = "0.2.1"
 approx = "0.5.1"
 more-asserts = "0.2.2"
 num = "0.4.0"
 itertools = "0.10.3"
 num-traits = "0.2.15"
 rustfft = "6.0.1"
+clap = { version = "3.1.18", features = ["derive"] }
+csv = "1.1.6"
+serde = { version = "1.0", features = ["derive"] }
+ffsvm = "0.8"
 
-#![feature(portable_simd)]
+[patch.crates-io]
+ffsvm = { path = "../../libs/ffsvm-rust"}
+simd_aligned = { path = "../../libs/simd_aligned_rust"}

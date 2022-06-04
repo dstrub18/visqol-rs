@@ -77,20 +77,18 @@ pub fn to_mono(signal: &AudioSignal) -> AudioSignal
     }
 }
 
-pub fn load_as_mono(file_path: String) -> AudioSignal
+pub fn load_as_mono(file_path: &str) -> AudioSignal
 {
     let mut wav_file = std::fs::File::open(file_path).expect("File not found!");
-    let wav_reader = WavReader::new(&mut wav_file);
+    let wav_reader = WavReader::open(file_path);
 
-    let mut data_vector = Vec::<i16>::new();
-    wav_reader.read_samples(&mut wav_file, &mut data_vector, 44);
-    let data_vector_float = misc_math::normalize_int16_to_double(&data_vector);
-    let final_signal = extract_multichannel(wav_reader.header.format.num_channels as usize, &data_vector_float);
+    let data_vector_float = misc_math::normalize_int16_to_double(&wav_reader.samples);
+    let final_signal = extract_multichannel(wav_reader.num_channels as usize, &data_vector_float);
 
     let signal =  AudioSignal
     {
         data_matrix: final_signal,
-        sample_rate: wav_reader.header.format.sample_rate
+        sample_rate: wav_reader.sample_rate
     };
     to_mono(&signal)
 }
@@ -99,7 +97,7 @@ pub fn extract_multichannel(num_channels: usize, interleaved_vector: &Vec<f64>) 
 {
     assert!(interleaved_vector.len() % num_channels as usize == 0);
     let sub_vector_size = interleaved_vector.len() / num_channels as usize;
-    Array2::from_shape_vec((sub_vector_size, num_channels).strides((1, num_channels)), interleaved_vector.clone()).unwrap()
+    Array2::from_shape_vec((sub_vector_size, num_channels).strides((num_channels, 1)), interleaved_vector.clone()).unwrap()
 }
 
 pub fn prepare_spectrograms_for_comparison(reference: &mut Spectrogram, degraded: &mut Spectrogram)

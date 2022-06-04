@@ -47,8 +47,6 @@ fn subtract_floor_test()
 
     spectrogram.subtract_floor(FLOOR);
     test_utility::compare_real_matrix(&spectrogram.data, &elements_floor_subtracted, TOLERANCE);
-    
-
 }
 
 #[test]

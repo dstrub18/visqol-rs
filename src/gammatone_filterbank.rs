@@ -50,7 +50,7 @@ impl GammatoneFilterbank
         }
     }
 
-    fn reset_filter_conditions(&mut self)
+    pub fn reset_filter_conditions(&mut self)
     {
         self.filter_conditions_1 = vec![vec![0.0, 0.0]; self.num_bands];
         self.filter_conditions_2 = vec![vec![0.0, 0.0]; self.num_bands];
@@ -58,7 +58,7 @@ impl GammatoneFilterbank
         self.filter_conditions_4 = vec![vec![0.0, 0.0]; self.num_bands];
     }
 
-    fn set_filter_coefficients(&mut self, filter_coeffs: &ndarray::Array2::<f64>)
+    pub fn set_filter_coefficients(&mut self, filter_coeffs: &ndarray::Array2::<f64>)
     {
         self.filter_coeff_a0 = filter_coeffs.column(0).to_vec();
         self.filter_coeff_a11 = filter_coeffs.column(1).to_vec();

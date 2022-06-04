@@ -1,4 +1,3 @@
-#![feature(portable_simd)]
 #[allow(dead_code)]
 #[allow(unused)]
 pub mod rms_vad;
@@ -22,3 +21,8 @@ pub mod image_patch_creator;
 pub mod vad_patch_creator;
 pub mod envelope;
 pub mod xcorr;
+pub mod alignment;
+pub mod command_line_parser;
+pub mod spectrogram_builder;
+pub mod gammatone_spectrogram_builder;
+pub mod misc_vector;

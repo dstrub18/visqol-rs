@@ -1,11 +1,10 @@
 use ndarray::Array2;
+use num::Complex;
 use crate::fft_manager::FftManager;
 use crate::fast_fourier_transform;
-use num::Zero;
-use num::Complex;
+use crate::misc_vector::array2_to_vec;
 
-
-pub fn calculate_best_leg(signal_1: &Array2<f64>, signal_2: &Array2<f64>)
+pub fn calculate_best_lag(signal_1: &Array2<f64>, signal_2: &Array2<f64>)
 -> i64  {
     let max_lag = ((signal_1.nrows().max(signal_2.nrows())) - 1) as i64;
 
@@ -80,18 +79,4 @@ pub fn frexp(s : f32) -> (f32, i32) {
         let exp = lg.floor() + 1.0;
         (s.signum() * x, exp as i32)
     }
-}
-
-fn array2_to_vec<T>(arr: &Array2<T>)
--> Vec<T> 
-where T: Clone + Zero + Copy
-{
-    assert!(arr.dim().1 == 1, "Array needs to have 1 column!");
-
-    let mut v = vec![T::zero(); arr.dim().0];
-    for i in 0..arr.dim().0
-    {
-        v[i] = arr[(i, 0)];
-    }
-    v
 }

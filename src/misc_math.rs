@@ -1,7 +1,7 @@
 use ndarray::{Array2};
 use itertools::Itertools;
 #[allow(unused)]
-pub fn normalize_2d_matrix(mat: &mut Array2<f64>) -> Array2<f64>
+pub fn normalize_2d_matrix(mat: & Array2<f64>) -> Array2<f64>
 {
     let mut normalized_mat = mat.clone();
     let max = get_max_in_2d_array(mat);

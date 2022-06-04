@@ -1,2 +1,79 @@
 #[allow(unused)]
-use crate::{analysis_window, audio_signal, misc_math, rms_vad};
+use crate::{analysis_window::AnalysisWindow, audio_signal::AudioSignal, misc_math, rms_vad};
+use ndarray::{Array2, s};
+
+pub struct VadPatchCreator
+{
+    patch_size: usize,
+    frames_with_va_threshold: f64
+}
+
+impl VadPatchCreator
+{
+    pub fn new(patch_size: usize) -> Self
+    {
+        Self
+        {
+            patch_size,
+            frames_with_va_threshold: 1.0
+        }
+    }
+    
+    pub fn get_voice_activity(&self, signal: &AudioSignal, start_sample: usize, total_samples: usize, frame_length: usize)
+    -> Vec<f64> {
+        let mut vad = rms_vad::RmsVad::default();
+    
+        let patch = signal.data_matrix.slice(s![start_sample..start_sample + total_samples - 1, ..]);
+    
+        let mut frame = Vec::<i16>::new();
+        frame.reserve(frame_length);
+        for float_val in patch.iter()
+        {
+            let mut scaled_val = *float_val  * ((1 << 15) as f64);
+            scaled_val = -1.0 * ((1 << 15) as f64).max(1.0 * ((1 << 15) - 1) as f64).min(scaled_val);
+            frame.push(scaled_val as i16);
+    
+            if frame.len() == frame_length
+            {
+                vad.process_chunk(&frame);
+                frame.fill(0);
+            }
+        }
+        vad.get_vad_results()
+    }
+
+    pub fn create_ref_patch_indices(&self, spectrogram: &Array2<f64>, ref_signal: &AudioSignal, window: &AnalysisWindow)
+    -> Vec<usize>
+    {
+        let norm_mat = misc_math::normalize_2d_matrix(&spectrogram);
+        let norm_sig = AudioSignal::new(norm_mat, ref_signal.sample_rate);
+    
+        let frame_size = window.size * window.overlap as usize;
+        let patch_sample_length = self.patch_size * frame_size;
+        let spectrum_length = spectrogram.ncols();
+        let first_patch_idx = self.patch_size / 2 - 1;
+        let patch_count  = (spectrum_length - first_patch_idx) / self.patch_size;
+        let total_sample_count = patch_count * patch_sample_length;
+
+        let mut ref_patch_indices = Vec::<usize>::new();
+        ref_patch_indices.reserve(patch_count);
+        
+        // Pass the reference signal to the VAD to determine which frames have voice
+        // activity.
+        let vad_res = self.get_voice_activity(&norm_sig, first_patch_idx, total_sample_count, frame_size);
+
+        for patch_idx in (0..patch_count).step_by(self.patch_size)
+        {
+            let frames_with_va = vad_res[patch_idx..patch_idx + self.patch_size].iter().sum::<f64>();
+
+            if frames_with_va >= self.frames_with_va_threshold
+            {
+                ref_patch_indices.push(patch_idx);
+            }
+        }
+
+        ref_patch_indices
+  
+    }
+
+}
