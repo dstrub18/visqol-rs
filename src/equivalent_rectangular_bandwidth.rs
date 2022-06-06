@@ -1,154 +1,188 @@
-#[allow(unused)]
-pub mod equivalent_rectangular_bandwidth
+#![allow(warnings)]
+#[allow(non_camel_case_types)]
+use num::{complex::Complex64, Zero};
+use ndarray::{Array2, ShapeBuilder, Axis};
+use crate::misc_audio::{float_vec_to_real_valued_complex_vec, real_valued_complex_vec_to_float_vec};
+// returns ErbFiltersResult
+pub fn make_filters(sample_rate: usize, num_bands: usize, low_freq: f64, high_freq: f64) ->ErbFiltersResult
 {
-    use num::complex::Complex;
-    use crate::complex_vec::ComplexVec;
-    use ndarray::{Array1, Array2};
-    #[allow(unused)]
-    // returns ErbFiltersResult
-    pub fn make_filters(sample_rate: usize, num_channels: usize, low_freq: f64, high_freq: f64) ->ErbFiltersResult
+    let pi = std::f64::consts::PI;
+    let cf = float_vec_to_real_valued_complex_vec(&calculate_uniform_center_freqs(low_freq, high_freq, num_bands));
+
+    let earQ = 9.26449f64;  // Glasberg and Moore Parameters
+    let minBW = 24.7f64;
+    let order = 1.0f64;
+
+    let mut B = vec![Complex64::zero(); num_bands];
+    let mut B1 = vec![Complex64::zero(); num_bands];
+
+    for (B_element, cf_element) in B.iter_mut().zip(&cf)
     {
-        let cf1 = calculate_uniform_center_freqs(low_freq, high_freq, num_channels);
-        let mut cf = ComplexVec::new();
-        for i in 0..cf1.len()
-        {
-            cf.push(Complex::new(cf1[i], 0.0));
-        }
-        let ear_q = 9.26449;  // Glasberg and Moore Parameters
-        let min_bw: f64 = 24.7;
-        let order = 1.0;
+        let erb = ((cf_element / earQ).powf(order) + minBW.powf(order)).powf(1.0 / order);
+        *B_element = 1.019 * 2.0 * pi * erb;
+    }
+    let t = 1.0 / sample_rate as f64;
 
-        let mut b = ComplexVec::new();
-        let mut b1 = ComplexVec::new();
+    let mut exp_bt = vec![Complex64::zero(); num_bands];
 
-        let pi = std::f64::consts::PI;
-        for i in &cf.v
-        {
-            let erb = ((i / ear_q).powf(order) + min_bw.powf(order)).powf(1.0 / order);
-            b.push(1.019 * 2.0 * pi * erb);
-        }
-        let t = 1.0 / sample_rate as f64;
-        
-        let mut exp_bt = ComplexVec::new();
-        for i in 0..b.len()
-        {
-            exp_bt.push((b[i] * t * -2.0).exp());
-        }
-        
-        for i in 0..b.len().clone()
-        {
-            b1.push(-2.0 * (2.0 * cf[i] * pi * t).cos() / &exp_bt[i]);
-        }
-        let bt: Vec<Complex<f64>> = b.v.clone().into_iter().map(|x|{x * t}).collect();
-        let bt = ComplexVec::new_from_complex_vector(&bt);
-        let mut b_2 = ComplexVec::new();
-        for i in 0..bt.len()
-        {
-            b_2.push((bt[i] * t * -2.0).exp());
-        }
-
-        let m = (((&cf * 2.0 * pi * t).sin()) * t);
-
-        let b_1 = ComplexVec::from(&(((&cf * 2.0 * pi * t).sin()) * t));
-        // debug here
-        let b_pos = &b_1 * 2.0 * (3.0 + 2.0f64.powf(1.5)).sqrt();
-        let b_neg = &b_1 * 2.0 * (3.0 + 2.0f64.powf(1.5)).sqrt();
-        let a = ComplexVec::from(&(((&cf * 2.0 * pi * t).cos()) * 2.0 * t));
-
-        let a_11 = -(&a / &exp_bt + &b_pos / &exp_bt) / 2.0;
-        let a_12 = -(&a / &exp_bt - &b_pos / &exp_bt) / 2.0;
-        let a_13 = -(&a / &exp_bt + &b_neg / &exp_bt) / 2.0;
-        let a_14 = -(&a / &exp_bt - &b_neg / &exp_bt) / 2.0;
-
-        // Setup gain variables
-        let i = Complex::<f64>::new(0.0, 1.0);
-        let p_1 = 2.0f64.powf(3.0 / 2.0);
-        let s_1 = (3.0 - p_1).sqrt();
-        let s_2 = (3.0 + p_1).sqrt();
-
-        let x_exp = (&cf * 4.0 * i * pi * t).exp();
-        let x_01 = &x_exp * -2.0 * t;
-        let x_02 = (-(&b * t) +  &cf * 2.0 * i * pi * t).exp() * t * 2.0;
-        let x_cos = (&cf * 2.0 * pi * t).cos();
-        let x_sin = (&cf * 2.0 * pi * t).sin();
-
-        // calculate gain
-        let x_12 = &x_cos - &(&x_sin * s_1);
-        let x_1 = &x_01 + &(&x_02 * &x_12);
-        let x_22 = &x_cos + &(&x_sin * s_1);
-        let x_2 = &x_01 + &(&x_02 * &x_22);
-        let x_32 = &x_cos - &(&x_sin * s_2);
-        let x_3 = &x_01 + &(&x_02 * &x_32);
-        let x_42 = &x_cos + &(&x_sin * s_2);
-        let x_4 = &x_01 + &(&x_02 * &x_42);
-
-        let x_5 = ((&b * 2.0 * t).exp() / 2.0) - &x_exp * 2.0 + ((&x_exp + 1.0) * 2.0) / (&b * t).exp();
-        
-        let gain = ((&x_1 * &x_2 * &x_3 * &x_4) / (x_5.powf(4.0))).abs();
-
-        let a_0 = vec![t;num_channels];
-        let a_2 = vec![0.0;num_channels];
-        let b_0 = vec![1.0;num_channels];
-
-        use ndarray::{Array, Array2, Axis};
-        let mut vf_coeffs = ndarray::Array2::<f64>::zeros((10, num_channels));
-        // Continue here
-        for i in 0..num_channels
-        {
-            vf_coeffs[(0, i)] = a_0[i];
-            vf_coeffs[(1, i)] = a_11[i].re;
-            vf_coeffs[(2, i)] = a_12[i].re;
-            vf_coeffs[(3, i)] = a_13[i].re;
-            vf_coeffs[(4, i)] = a_14[i].re;
-            vf_coeffs[(5, i)] = a_2[i];
-            vf_coeffs[(6, i)] = b_0[i];
-            vf_coeffs[(7, i)] = b_2[i].re;
-            vf_coeffs[(8, i)] = b_2[i].re;
-            vf_coeffs[(9, i)] = gain[i];
-
-        }
-        //vf_coeffs.push(Axis(0), Array::from_vec(a_0));
-        //vf_coeffs.push(Axis(0), a_11.to_real_vector());
-        //vf_coeffs.push(Axis(0), a_12.to_real_vector());
-        //vf_coeffs.push(Axis(0), a_13.to_real_vector());
-        //vf_coeffs.push(Axis(0), a_14.to_real_vector());
-        //vf_coeffs.push(Axis(0), a_2);
-        //vf_coeffs.push(Axis(0), b_0);
-        //vf_coeffs.push(Axis(0), b_1.to_real_vector());
-        //vf_coeffs.push(Axis(0), b_2.to_real_vector());
-        //vf_coeffs.push(Axis(0), gain);
-
-        ErbFiltersResult
-        {
-            center_freqs: cf.to_real_vector(),
-            filter_coeffs: vf_coeffs
-        }
+    for i in 0..exp_bt.len()
+    {
+        exp_bt[i] = (B[i] * t).exp();
+    }
+    
+    let mut b1 = vec![Complex64::zero(); num_bands];
+    for i in 0..b1.len()
+    {
+        b1[i] = -2.0 * (2.0 * cf[i] * pi * t).cos() / exp_bt[i];
     }
 
-    fn calculate_uniform_center_freqs(low_freq: f64, high_freq: f64, num_channels: usize) -> Vec<f64>
+    // b2
+    let mut B2= B.clone();
+    B2.iter_mut().for_each(|element|{*element = (*element * t * -2.0).exp()});
+    
+    
+    // b1
+    let mut b1 = cf.clone();
+    b1.iter_mut().for_each(|element|{*element = (*element * 2.0 * pi * t).sin() * t});
+    
+    let mut bPos = b1.clone();
+    bPos.iter_mut().for_each(|element|{*element = *element * 2.0 * (3.0 + 2.0f64.powf(1.5)).sqrt()});
+    
+    let mut bNeg = b1.clone();
+    bNeg.iter_mut().for_each(|element|{*element = *element * 2.0 * (3.0 + -(2.0f64.powf(1.5))).sqrt()});
+    
+    
+    let mut a = cf.clone();
+    a.iter_mut().for_each(|element|{*element = (*element * 2.0 * pi * t).cos() * 2.0 * t});
+    
+    let mut A11 = vec![Complex64::zero();a.len()];
+    A11.iter_mut().enumerate().for_each(|(i, element)|{*element = -(a[i] / exp_bt[i] + bPos[i] / exp_bt[i]) / 2.0f64});
+    
+    let mut A12 = vec![Complex64::zero();a.len()];
+    A12.iter_mut().enumerate().for_each(|(i, element)|{*element = -(a[i] / exp_bt[i] - bPos[i] / exp_bt[i]) / 2.0f64});
+    
+    let mut A13 = vec![Complex64::zero();a.len()];
+    A13.iter_mut().enumerate().for_each(|(i, element)|{*element = -(a[i] / exp_bt[i] + bNeg[i] / exp_bt[i]) / 2.0f64});
+    
+    let mut A14 = vec![Complex64::zero();a.len()];
+    A14.iter_mut().enumerate().for_each(|(i, element)|{*element = -(a[i] / exp_bt[i] - bNeg[i] / exp_bt[i]) / 2.0f64});
+    
+    // setup gain variables
+    let i = Complex64::new(0.0, 1.0);
+    let p1 = 2.0f64.powf(3.0 / 2.0);
+    let s1 = (3.0 - p1).sqrt();
+    let s2 = (3.0 + p1).sqrt();
+    let mut xExp = cf.clone();
+    xExp.iter_mut().for_each(|element|{*element = (4.0 * i * *element * pi * t).exp()});
+    
+    let mut x01 = xExp.clone();
+    x01.iter_mut().for_each(|element|{*element = -2.0 * *element * t});
+    
+    let mut x02 = cf.clone();
+    x02.iter_mut().zip(&B).for_each(|(x02_element, B_element)|{*x02_element = 2.0 * (-(B_element * t) + 2.0 * i * *x02_element * pi * t).exp() * t});
+    
+    let mut xcos = cf.clone();
+    xcos.iter_mut().for_each(|element|{*element = (2.0 * *element * pi * t).cos()});
+    let mut xsin = cf.clone();
+    xsin.iter_mut().for_each(|element|{*element = (2.0 * *element * pi * t).sin()});
+    
+    // calculate gain
+    let mut x12 = xcos.clone();
+    x12.iter_mut().zip(&xsin).for_each(|(cos_element, sin_element)|{*cos_element = *cos_element - (s1 * sin_element)});
+    
+    let mut x1 = x01.clone();
+    x1.iter_mut().zip(&x02).zip(x12).for_each(|((element, x02_element), x12_element)|{*element = *element + (x02_element * x12_element)});
+    
+    let mut x22 = xcos.clone();
+    x22.iter_mut().zip(&xsin).for_each(|(cos_element, sin_element)|{*cos_element = *cos_element + (s1 * sin_element)});
+    
+    let mut x2 = x01.clone();
+    x2.iter_mut().zip(&x02).zip(&x22).for_each(|((element, x02_element), x22_element)|{*element = *element + (x02_element * x22_element)});
+    
+    let mut x32 = xcos.clone();
+    x32.iter_mut().zip(&xsin).for_each(|(cos_element, sin_element)|{*cos_element = *cos_element - (s2 * sin_element)});
+    
+    let mut x3 = x01.clone();
+    x3.iter_mut().zip(&x02).zip(&x32).for_each(|((element, x02_element), x32_element)|{*element = *element + (x02_element * x32_element)});
+    
+    
+    let mut x42 = xcos.clone();
+    x42.iter_mut().zip(&xsin).for_each(|(cos_element, sin_element)|{*cos_element = *cos_element + (s2 * sin_element)});
+    
+    let mut x4 = x01.clone();
+    x4.iter_mut().zip(&x02).zip(&x42).for_each(|((element, x02_element), x42_element)|{*element = *element + (x02_element * x42_element)});
+    
+    let mut x5 = B.clone();
+    x5.iter_mut().zip(&xExp).for_each(|(element, xExp_element)|
+    {*element = (-2.0 / (2.0 * *element * t).exp()) - 2.0 * xExp_element + (2.0 * (1.0 + xExp_element)) / (*element * t).exp()});
+    
+    
+    
+    let mut y = x5.clone();
+    y.iter_mut().for_each(|element|{*element = element.powf(4.0)});
+    
+    let mut gain = vec![0.0f64;x01.len()];
+    for i in 0..gain.len()
     {
-        // Glasberg and Moore Parameters
-        let ear_q = 9.26449;
-        let min_bandwidth = 24.7;
-
-        let a = -(ear_q * min_bandwidth);
-        let b = -((high_freq + ear_q * min_bandwidth).ln());
-        let c = ((low_freq + ear_q * min_bandwidth).ln());
-        let d = high_freq + ear_q * min_bandwidth;
-        let e = (b + c) / num_channels as f64;
-        let mut coefficients = Vec::<f64>::new();
-        for i  in 0 .. num_channels
-        {
-            let f = ((i as f64 + 1.0) * e).exp() * d;
-            coefficients.push(a + f);
-        }
-        coefficients
+        gain[i] = ((x1[i] * x2[i] * x3[i] * x4[i]) / x5[i].powf(4.0)).norm();
     }
 
-    #[allow(unused)]
-    pub struct ErbFiltersResult
+    let A0 = vec![t; num_bands];
+    let A2 = vec![0.0f64; num_bands];
+    let B0 = vec![1.0f64; num_bands];
+    let mut vf_coeffs = ndarray::Array2::<f64>::zeros((num_bands, 10));
+    // Setup matrix
+    for i in 0..num_bands
     {
-        pub filter_coeffs: Array2::<f64>,
-        pub center_freqs: Vec<f64>
+        vf_coeffs[(i, 0)] = A0[i];
+        vf_coeffs[(i, 1)] = A11[i].re;
+        vf_coeffs[(i, 2)] = A12[i].re;
+        vf_coeffs[(i, 3)] = A13[i].re;
+        vf_coeffs[(i, 4)] = A14[i].re;
+        vf_coeffs[(i, 5)] = A2[i];
+        vf_coeffs[(i, 6)] = B0[i];
+        vf_coeffs[(i, 7)] = B1[i].re;
+        vf_coeffs[(i, 8)] = B2[i].re;
+        vf_coeffs[(i, 9)] = gain[i];
+    }
+    ErbFiltersResult::new(vf_coeffs, real_valued_complex_vec_to_float_vec(&cf))
+}
+
+fn calculate_uniform_center_freqs(low_freq: f64, high_freq: f64, num_channels: usize) -> Vec<f64>
+{
+    // Glasberg and Moore Parameters
+    let ear_q = 9.26449;
+    let min_bandwidth = 24.7;
+
+    let a = -(ear_q * min_bandwidth);
+    let b = -((high_freq + ear_q * min_bandwidth).ln());
+    let c = (low_freq + ear_q * min_bandwidth).ln();
+    let d = high_freq + ear_q * min_bandwidth;
+    let e = (b + c) / num_channels as f64;
+    let mut coefficients = Vec::<f64>::new();
+    for i  in 0 .. num_channels
+    {
+        let f = ((i as f64 + 1.0) * e).exp() * d;
+        coefficients.push(a + f);
+    }
+    coefficients
+}
+
+#[allow(unused)]
+pub struct ErbFiltersResult
+{
+    pub filter_coeffs: Array2::<f64>,
+    pub center_freqs: Vec<f64>
+}
+
+impl ErbFiltersResult
+{
+    pub fn new(filter_coeffs: Array2::<f64>, center_freqs: Vec<f64>) -> Self
+    {
+        Self
+        {
+            filter_coeffs,
+            center_freqs
+        }
     }
 }

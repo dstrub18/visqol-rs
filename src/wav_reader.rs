@@ -1,6 +1,3 @@
-use std::fs::File;
-use std::io::{Seek, SeekFrom, Read};
-use std::mem::{align_of, size_of};
 use hound;
 
 const _WAV_FORMAT_SIZE: usize = 24;
@@ -9,7 +6,6 @@ const _WAV_HEADER_SIZE: usize = 44;
 const _EXTENSIBLE_WAV_FORMAT: u16 = 0xfffe;
 const _PCM_FORMAT: u16 = 0x1;
 
-use num::Integer;
 #[allow(dead_code)]
 pub struct WavReader
 {

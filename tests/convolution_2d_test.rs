@@ -22,7 +22,6 @@ fn test_2d_convolution()
     42.8042, 42.7613, 42.1817, 42.4590, 43.2709, 42.9377];
     let expected_result = Array2::<f64>::from_shape_vec((5,4).f(),r ).unwrap();
 
-
     use approx::assert_abs_diff_eq;
     for i in 0..result.nrows()
     {

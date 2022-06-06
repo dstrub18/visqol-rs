@@ -1,7 +1,6 @@
 # Visqol RS
 * Reimplementation of Visqol algorithm for speech quality
 
-
 ## dev log
 - [x] alignment.cc
 - [x] amatrix.cc
@@ -13,7 +12,7 @@
 - [x] equivalent_rectangular_bandwidth.cc
 - [x] fast_fourier_transform.cc
 - [x] fft_manager.cc
-- [ ] gammatone_filterbank.cc
+- [x] gammatone_filterbank.cc
 - [ ] gammatone_spectrogram_builder.cc
 - [x] image_patch_creator.cc
 - [ ] libsvm_target_observation_convertor.cc

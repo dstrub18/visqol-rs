@@ -79,7 +79,6 @@ pub fn to_mono(signal: &AudioSignal) -> AudioSignal
 
 pub fn load_as_mono(file_path: &str) -> AudioSignal
 {
-    let mut wav_file = std::fs::File::open(file_path).expect("File not found!");
     let wav_reader = WavReader::open(file_path);
 
     let data_vector_float = misc_math::normalize_int16_to_double(&wav_reader.samples);
