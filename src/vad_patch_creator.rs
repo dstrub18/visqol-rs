@@ -23,20 +23,21 @@ impl VadPatchCreator
     -> Vec<f64> {
         let mut vad = rms_vad::RmsVad::default();
     
-        let patch = signal.data_matrix.slice(s![start_sample..start_sample + total_samples - 1, ..]);
-    
+        let patch = signal.data_matrix.slice(s![start_sample..start_sample + total_samples, ..]);
+        
         let mut frame = Vec::<i16>::new();
         frame.reserve(frame_length);
-        for float_val in patch.iter()
+        for (_index, float_val) in patch.iter().enumerate()
         {
-            let mut scaled_val = *float_val  * ((1 << 15) as f64);
-            scaled_val = -1.0 * ((1 << 15) as f64).max(1.0 * ((1 << 15) - 1) as f64).min(scaled_val);
+            // check bounds
+            let mut scaled_val = ((*float_val  * ((1 << 15) as f64)) as i16) as f64;
+            scaled_val =  (-1.0 * (1 << 15) as f64).max(1.0 * ((1 << 15) - 1) as f64).min(scaled_val);
             frame.push(scaled_val as i16);
     
             if frame.len() == frame_length
             {
                 vad.process_chunk(&frame);
-                frame.fill(0);
+                frame.clear();
             }
         }
         vad.get_vad_results()
@@ -45,10 +46,10 @@ impl VadPatchCreator
     pub fn create_ref_patch_indices(&self, spectrogram: &Array2<f64>, ref_signal: &AudioSignal, window: &AnalysisWindow)
     -> Vec<usize>
     {
-        let norm_mat = misc_math::normalize_2d_matrix(&spectrogram);
+        let norm_mat = misc_math::normalize_2d_matrix(&ref_signal.data_matrix);
         let norm_sig = AudioSignal::new(norm_mat, ref_signal.sample_rate);
     
-        let frame_size = window.size * window.overlap as usize;
+        let frame_size = (window.size as f64 * window.overlap) as usize;
         let patch_sample_length = self.patch_size * frame_size;
         let spectrum_length = spectrogram.ncols();
         let first_patch_idx = self.patch_size / 2 - 1;
@@ -62,16 +63,21 @@ impl VadPatchCreator
         // activity.
         let vad_res = self.get_voice_activity(&norm_sig, first_patch_idx, total_sample_count, frame_size);
 
-        for patch_idx in (0..patch_count).step_by(self.patch_size)
+        let mut patch_idx = first_patch_idx;
+        // Could be done more elegantly. :)
+        for i in 0..patch_count
         {
-            let frames_with_va = vad_res[patch_idx..patch_idx + self.patch_size].iter().sum::<f64>();
-
-            if frames_with_va >= self.frames_with_va_threshold
+            let first = i * self.patch_size;
+            let &frames_with_va = &vad_res[first..first + self.patch_size].iter().sum::<f64>();
+            
+            if frames_with_va >= self.frames_with_va_threshold 
             {
-                ref_patch_indices.push(patch_idx);
+                ref_patch_indices.push(patch_idx);    
             }
+            patch_idx += self.patch_size;
         }
-
+        let s = ref_patch_indices.len();
+        println!("{s:}");
         ref_patch_indices
   
     }

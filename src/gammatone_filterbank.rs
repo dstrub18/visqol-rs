@@ -85,7 +85,6 @@ impl GammatoneFilterbank
             let mut b = Vec::<f64>::new();
 
             
-            //println!("{chan:}");
             a1.push(self.filter_coeff_a0[band] / self.filter_coeff_gain[band]);
             a1.push(self.filter_coeff_a11[band] / self.filter_coeff_gain[band]);
             a1.push(self.filter_coeff_a2[band] / self.filter_coeff_gain[band]);

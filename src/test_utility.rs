@@ -10,9 +10,8 @@ pub fn compare_matrix_dimensions<T>(matrix_a: &Array2::<T>, matrix_b: &Array2::<
 pub fn compare_real_matrix(matrix_a: &Array2::<f64>, matrix_b: &Array2::<f64>, tolerance: f64)
 {
     compare_matrix_dimensions(matrix_a, matrix_b);
-    for ( idx,  (elements_a, elements_b)) in matrix_a.iter().zip(matrix_b).enumerate()
+    for ( _idx,  (elements_a, elements_b)) in matrix_a.iter().zip(matrix_b).enumerate()
     {
-        println!("idx is: {}, a is {}, b is {}", idx, elements_a, elements_b);
         assert_abs_diff_eq!(elements_a, elements_b, epsilon=tolerance);
     }
 }

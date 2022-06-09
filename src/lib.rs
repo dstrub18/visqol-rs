@@ -26,3 +26,5 @@ pub mod command_line_parser;
 pub mod spectrogram_builder;
 pub mod gammatone_spectrogram_builder;
 pub mod misc_vector;
+pub mod patch_similarity_comparator;
+pub mod support_vector_regression_model;

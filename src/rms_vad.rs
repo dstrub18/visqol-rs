@@ -13,12 +13,12 @@ impl RmsVad
 {
     pub fn default() -> Self
     {
-        let silent_chunk_count = 3;
+
         let mut rms_vad = RmsVad
         {
             voice_activity_present: 1.0,
             voice_activity_absent: 0.0,
-            silent_chunk_count: silent_chunk_count,
+            silent_chunk_count: 3,
             rms_threshold: 5000.0,
             each_chunk_result: Vec::new(),
             vad_results: Vec::new()

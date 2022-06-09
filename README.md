@@ -13,8 +13,8 @@
 - [x] fast_fourier_transform.cc
 - [x] fft_manager.cc
 - [x] gammatone_filterbank.cc
-- [ ] gammatone_spectrogram_builder.cc
-- [x] image_patch_creator.cc
+- [x] gammatone_spectrogram_builder.cc
+- [ ] image_patch_creator.cc
 - [ ] libsvm_target_observation_convertor.cc
 - [x] misc_audio.cc
 - [x] misc_math.cc
@@ -24,9 +24,9 @@
 - [x] signal_filter.cc
 - [x] spectrogram.cc
 - [ ] speech_similarity_to_quality_mapper.cc
-- [ ] support_vector_regression_model.cc
+- [x] support_vector_regression_model.cc
 - [ ] svr_similarity_to_quality_mapper.cc
-- [x] vad_patch_creator.cc (not tested)
+- [x] vad_patch_creator.cc
 - [ ] visqol.cc
 - [x] visqol_api.cc
 - [ ] visqol_manager.cc
