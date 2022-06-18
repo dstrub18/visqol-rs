@@ -16,7 +16,7 @@ impl SupportVectorRegressionModel
         }
     }
 
-    pub fn predict(&self, observation: &Vec<f64>) -> Solution
+    pub fn predict(&self, observation: &Vec<f64>) -> f32
     {
         let mut problem = DenseProblem::from(&self.model);
         let features = problem.features();
@@ -25,6 +25,12 @@ impl SupportVectorRegressionModel
             features[i] = *element as f32;  
         }
         self.model.predict_value(&mut problem).unwrap();
-        problem.solution()
+        let solution = problem.solution();
+        let mut score = 0.0;
+        if let Solution::Value(s) = solution
+        {
+            score = s
+        }
+        score
     }
 }

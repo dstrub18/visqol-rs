@@ -6,7 +6,7 @@
 - [x] amatrix.cc
 - [x] analysis_window.h
 - [x] commandline_parser.cc (all tests work, but the tests don't cover everything)
-- [ ] comparison_patches_selector.cc
+- [x] comparison_patches_selector.cc
 - [x] convolution_2d.cc
 - [x] envelope.cc
 - [x] equivalent_rectangular_bandwidth.cc
@@ -14,18 +14,18 @@
 - [x] fft_manager.cc
 - [x] gammatone_filterbank.cc
 - [x] gammatone_spectrogram_builder.cc
-- [ ] image_patch_creator.cc
-- [ ] libsvm_target_observation_convertor.cc
+- [x] image_patch_creator.cc
+- [x] libsvm_target_observation_convertor.cc (not needed)
 - [x] misc_audio.cc
 - [x] misc_math.cc
 - [x] misc_vector.cc
-- [ ] neurogram_similiarity_index_measure.cc
+- [x] neurogram_similiarity_index_measure.cc
 - [x] rms_vad.cc
 - [x] signal_filter.cc
 - [x] spectrogram.cc
-- [ ] speech_similarity_to_quality_mapper.cc
+- [x] speech_similarity_to_quality_mapper.cc
 - [x] support_vector_regression_model.cc
-- [ ] svr_similarity_to_quality_mapper.cc
+- [x] svr_similarity_to_quality_mapper.cc
 - [x] vad_patch_creator.cc
 - [ ] visqol.cc
 - [x] visqol_api.cc

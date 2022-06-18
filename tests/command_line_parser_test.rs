@@ -1,10 +1,8 @@
 use visqol_rs::{command_line_parser, file_path::FilePath};
-use clap::Parser;
 #[test]
 #[ignore = "Not finished"]
 fn test_parser()
 {
-    let args = command_line_parser::CommandLineArgs::parse();
 }
 
 #[test]
@@ -25,7 +23,4 @@ fn test_csv()
     assert_eq!(file_pairs[0].degraded.to_string_lossy(), deg_file_1);
     assert_eq!(file_pairs[1].reference.to_string_lossy(), ref_file_2);
     assert_eq!(file_pairs[1].degraded.to_string_lossy(), deg_file_2);
-
-    println!("hi!");
-
 }

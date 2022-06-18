@@ -29,7 +29,7 @@ pub fn next_pow_two(input: &usize) -> usize
     number + 1
 }
 
-pub fn exponential_from_fit(x: f64, a: f64, b: f64, x_0: f64) -> f64
+pub fn exponential_from_fit(x: f32, a: f32, b: f32, x_0: f32) -> f32
 {
     a + (b * (x - x_0)).exp()
 }

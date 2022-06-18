@@ -35,7 +35,7 @@ impl ImagePatchCreator
         for i in 0..num_patches
         {
             start_col = patch_indices[i];
-            end_col = start_col + self.patch_size - 1;
+            end_col = start_col + self.patch_size;
             patch = spectrogram.slice(s![.., start_col..end_col]).to_owned();
             patches.push(patch);
         }

@@ -1,16 +1,12 @@
 use visqol_rs::misc_audio::load_as_mono;
-use visqol_rs::vad_patch_creator::{VadPatchCreator, self};
+use visqol_rs::vad_patch_creator::{VadPatchCreator};
 use visqol_rs::analysis_window::AnalysisWindow;
 use visqol_rs::spectrogram::Spectrogram;
-use visqol_rs::gammatone_spectrogram_builder::GammatoneSpectrogramBuilder;
-use visqol_rs::gammatone_filterbank::{GammatoneFilterbank};
-use visqol_rs::spectrogram_builder::SpectrogramBuilder;
 
-use ndarray::{Array2, ShapeBuilder};
+use ndarray::{Array2};
 #[test]
 fn clean_speech_vad()
 {
-    
     const K_START_SAMPLE: usize = 14;
     const K_TOTAL_SAMPLE: usize = 115200;
     const K_FRAME_LEN: usize = 480;
@@ -34,11 +30,6 @@ fn patch_indices()
     let ref_signal = load_as_mono("/Users/danielstrubig/Documents/CodingProjects/rust/exercises/visqol/visqol-rs/test_data/clean_speech/CA01_01.wav");
 
     let window = AnalysisWindow::new(ref_signal.sample_rate, 0.25, 0.08);
-    
-    //let gammatone_filterbank = GammatoneFilterbank::new(K_NUM_BANDS, K_MINIMUM_FREQ);
-    //let mut spectro_builder = GammatoneSpectrogramBuilder::new(gammatone_filterbank, true);
-
-    //let spectro = spectro_builder.build(&ref_signal, &window).unwrap();
     
     let spectro_data_vec = vec![0.000004222896687767917,
     0.000005061946176676916,
@@ -2839,10 +2830,6 @@ fn patch_indices()
     let cfb = vec![50.0, 98.767, 156.063, 223.38, 302.471, 395.394, 504.57, 632.839, 783.543, 960.604, 1168.63, 1413.05, 1700.2, 2037.59, 2433.98, 2899.69, 3446.86, 4089.73, 4845.03, 5732.44, 6775.04];
     let spectro = Spectrogram::new(spectro_mat, cfb);
 
-
-
-
-
     let vad = VadPatchCreator::new(K_PATCH_SIZE);
     let patches = vad.create_ref_patch_indices(&spectro.data, &ref_signal, &window);
 
@@ -2851,9 +2838,4 @@ fn patch_indices()
     {
         assert_eq!(a, b);
     }
-
-    // all good Daniel, you got this :)
-
-    
-
 }

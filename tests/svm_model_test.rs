@@ -1,7 +1,6 @@
 // This is great so far, Daniel :) You'll wing it.
 // Continue with tests here
 
-use ffsvm::Solution;
 use visqol_rs::support_vector_regression_model::SupportVectorRegressionModel;
 use approx::assert_abs_diff_eq;
 #[test]
@@ -22,12 +21,7 @@ fn test_svn()
 
     let expected_score = 4.30533;
 
-    let solution = svm.predict(&observation);
-    let mut predicted_score = 0.0;
-    if let Solution::Value(s) = solution
-    {
-        predicted_score = s;
-    }
+    let predicted_score = svm.predict(&observation);
     assert_abs_diff_eq!(predicted_score, expected_score, epsilon=0.00001);
     
 }
