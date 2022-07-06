@@ -90,6 +90,7 @@ impl ComparisonPatchesSelector
             // This condition is true only if no matching patch was found for the given
             // reference patch. In this case, the matched patch is essentially set to
             // NULL (which is different from a silent patch).
+            
             if last_offset == backtrace[patch_index as usize][last_offset] 
             {
                 best_deg_patches[patch_index as usize].deg_patch_start_time = 0.0;
@@ -128,7 +129,7 @@ impl ComparisonPatchesSelector
         let ref_frame_index = ref_patch_indices[patch_index];
 
 
-        let mut sim_result = PatchSimilarityResult::empty();
+        let mut sim_result;
 
         let mut slide_offset = ref_frame_index as i32 - search_window as i32;
         while slide_offset <= ref_frame_index as i32 + search_window as i32
@@ -153,7 +154,6 @@ impl ComparisonPatchesSelector
             let deg_patch = &mut deg_patches[slide_offset as usize];
             //uh-oh. odd shapes give weird results.
             sim_result = self.sim_comparator.measure_patch_similarity(ref_patch, deg_patch);
-            
             let mut past_slide_offset = -1;
             let mut highest_sim = f64::MIN;
     
@@ -225,13 +225,12 @@ impl ComparisonPatchesSelector
 
     /// Note: Start and end time are in seconds
     pub fn slice(in_signal: &AudioSignal, start_time: f64, end_time: f64)
--> AudioSignal     
+-> AudioSignal
     {
         let start_index = ((start_time * in_signal.sample_rate as f64) as usize).max(0);
         let end_index = ((end_time * in_signal.sample_rate as f64) as usize).min(in_signal.data_matrix.nrows());
-
+        
         let mut sliced_matrix = in_signal.data_matrix.slice(s![start_index..end_index, ..]).to_owned();
-
         let end_time_diff = (end_time * in_signal.sample_rate as f64 - in_signal.data_matrix.nrows() as f64) as usize;
 
         if end_time_diff > 0
@@ -245,7 +244,6 @@ impl ComparisonPatchesSelector
             let pre_silence_matrix = Array2::<f64>::zeros(((-1.0 * start_time * in_signal.sample_rate as f64) as usize, 1));
             sliced_matrix = concatenate(Axis(0), &[pre_silence_matrix.view(), sliced_matrix.view()]).unwrap();
         }
-
         AudioSignal::new(sliced_matrix, in_signal.sample_rate)
 
     }
@@ -273,12 +271,15 @@ impl ComparisonPatchesSelector
         ref_signal: &AudioSignal, deg_signal: &AudioSignal,
         spect_builder: &mut dyn SpectrogramBuilder, analysis_window: &AnalysisWindow
     )
--> Vec<PatchSimilarityResult>     {
+    -> Vec<PatchSimilarityResult>     
+    {
+        
         // Case: The patches are already matched.  Iterate over each pair.
         let mut realigned_results = Vec::<PatchSimilarityResult>::with_capacity(sim_results.len());
         realigned_results.resize(sim_results.len(), PatchSimilarityResult::empty());
         for (i, result) in sim_results.iter_mut().enumerate()
         {
+
             if result.deg_patch_start_time == result.deg_patch_end_time &&
             result.deg_patch_start_time == 0.0
             {
@@ -287,14 +288,13 @@ impl ComparisonPatchesSelector
             }
             // 1. The sim results keep track of the start and end points of each matched
             // pair.  Extract the audio for this segment.
-    
             let ref_patch_audio = Self::slice(&ref_signal, result.ref_patch_start_time, result.ref_patch_end_time);
             let deg_patch_audio = Self::slice(&deg_signal, result.deg_patch_start_time, result.deg_patch_end_time);
             
             // 2. For any pair, we want to shift the degraded signal to be maximally
             // aligned.
             let (ref_audio_aligned,deg_audio_aligned, lag) = align_and_truncate(&ref_patch_audio, &deg_patch_audio);
-
+            
             let new_ref_duration = ref_audio_aligned.get_duration();
             let new_deg_duration = deg_audio_aligned.get_duration();
             // 3. Compute a new spectrogram for the degraded audio.
@@ -323,11 +323,13 @@ impl ComparisonPatchesSelector
                     new_sim_result.ref_patch_start_time = result.ref_patch_start_time;
                     new_sim_result.deg_patch_start_time = result.deg_patch_start_time - lag;
                 }
+                new_sim_result.ref_patch_end_time = new_sim_result.ref_patch_start_time + new_ref_duration;
+                new_sim_result.deg_patch_end_time = new_sim_result.deg_patch_start_time + new_deg_duration;
+                realigned_results[i] = new_sim_result;
             }
-            new_sim_result.ref_patch_end_time = new_sim_result.ref_patch_start_time + new_ref_duration;
-            new_sim_result.deg_patch_end_time = new_sim_result.deg_patch_start_time + new_deg_duration;
-            realigned_results[i] = new_sim_result;
         }
+
+        ////println!("realigned_results[2].similarity: {}", realigned_results[2].similarity);
         realigned_results
 
     }

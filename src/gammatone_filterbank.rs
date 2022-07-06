@@ -74,41 +74,40 @@ impl GammatoneFilterbank
 
     pub fn apply_filter(&mut self, signal: &Vec::<f64>) -> ndarray::Array2::<f64>
     {
-        let mut output = ndarray::Array2::<f64>::zeros((self.num_bands, signal.len()));
+        let mut a1 = vec![0.0;3];
+        let mut a2 = vec![0.0;3];
+        let mut a3 = vec![0.0;3];
+        let mut a4 = vec![0.0;3];
+        let mut b = vec![0.0;3];
         
+        let mut output = ndarray::Array2::<f64>::zeros((self.num_bands, signal.len()));
         for band in 0..self.num_bands
         {
-            let mut a1 = Vec::<f64>::new();
-            let mut a2 = Vec::<f64>::new();
-            let mut a3 = Vec::<f64>::new();
-            let mut a4 = Vec::<f64>::new();
-            let mut b = Vec::<f64>::new();
+            
+            a1[0] = self.filter_coeff_a0[band] / self.filter_coeff_gain[band];
+            a1[1] = self.filter_coeff_a11[band] / self.filter_coeff_gain[band];
+            a1[2] = self.filter_coeff_a2[band] / self.filter_coeff_gain[band];
+        
+            a2[0] = self.filter_coeff_a0[band];
+            a2[1] = self.filter_coeff_a12[band];
+            a2[2] = self.filter_coeff_a2[band];
+        
+            a3[0] = self.filter_coeff_a0[band];
+            a3[1] = self.filter_coeff_a13[band];
+            a3[2] = self.filter_coeff_a2[band];
+        
+            a4[0] = self.filter_coeff_a0[band];
+            a4[1] = self.filter_coeff_a14[band];
+            a4[2] = self.filter_coeff_a2[band];
+            
+            b[0] = self.filter_coeff_b0[band];
+            b[1] = self.filter_coeff_b1[band];
+            b[2] = self.filter_coeff_b2[band];
 
-            
-            a1.push(self.filter_coeff_a0[band] / self.filter_coeff_gain[band]);
-            a1.push(self.filter_coeff_a11[band] / self.filter_coeff_gain[band]);
-            a1.push(self.filter_coeff_a2[band] / self.filter_coeff_gain[band]);
-        
-            a2.push(self.filter_coeff_a0[band]);
-            a2.push(self.filter_coeff_a12[band]);
-            a2.push(self.filter_coeff_a2[band]);
-        
-            a3.push(self.filter_coeff_a0[band]);
-            a3.push(self.filter_coeff_a13[band]);
-            a3.push(self.filter_coeff_a2[band]);
-        
-            a4.push(self.filter_coeff_a0[band]);
-            a4.push(self.filter_coeff_a14[band]);
-            a4.push(self.filter_coeff_a2[band]);
-            
-            b.push(self.filter_coeff_b0[band]);
-            b.push(self.filter_coeff_b1[band]);
-            b.push(self.filter_coeff_b2[band]);
             // Correct until here.
             // 1st filter
             let mut filter_result = signal_filter::filter_signal(&a1, &b, signal, &self.filter_conditions_1[band]);
             self.filter_conditions_1[band] = filter_result.final_conditions;
-            
             
             // 2nd filter
             filter_result = signal_filter::filter_signal(&a2, &b, &filter_result.filtered_signal, &self.filter_conditions_2[band]);

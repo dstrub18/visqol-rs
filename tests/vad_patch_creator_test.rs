@@ -1,4 +1,5 @@
 use visqol_rs::misc_audio::load_as_mono;
+use visqol_rs::patch_creator::PatchCreator;
 use visqol_rs::vad_patch_creator::{VadPatchCreator};
 use visqol_rs::analysis_window::AnalysisWindow;
 use visqol_rs::spectrogram::Spectrogram;

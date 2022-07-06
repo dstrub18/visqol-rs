@@ -1,10 +1,43 @@
 #[allow(unused)]
 use ndarray::{Array2, Axis, s, Slice};
-use crate::{audio_signal::AudioSignal, analysis_window::AnalysisWindow};
+use crate::{audio_signal::AudioSignal, analysis_window::AnalysisWindow, patch_creator::PatchCreator};
 pub struct ImagePatchCreator
 {
     patch_size: usize
 }
+
+impl PatchCreator for ImagePatchCreator 
+{
+
+    fn create_ref_patch_indices(&self, spectrogram: &Array2<f64>, _ref_signal: &AudioSignal, _window: &AnalysisWindow) -> Vec<usize>     
+    {
+        self.create_ref_patch_indices_from_spectrogram(spectrogram)
+    }
+
+    fn create_patches_from_indices(&self, spectrogram: &Array2<f64>, patch_indices: &Vec<usize>)
+    -> Vec<ndarray::ArrayBase<ndarray::OwnedRepr<f64>, ndarray::Dim<[usize; 2]>>>     {
+            let mut start_col: usize;
+            let mut end_col: usize;
+    
+            let num_patches = patch_indices.len();
+    
+            let mut patches = Vec::<Array2<f64>>::new();
+    
+            let mut patch : Array2::<f64>;
+    
+            for i in 0..num_patches
+            {
+                start_col = patch_indices[i];
+                end_col = start_col + self.patch_size;
+                patch = spectrogram.slice(s![.., start_col..end_col]).to_owned();
+                patches.push(patch);
+            }
+    
+            patches
+        }
+
+}
+
 #[allow(unused)]
 impl ImagePatchCreator
 {
@@ -14,33 +47,6 @@ impl ImagePatchCreator
         {
             patch_size
         }
-    }
-
-    pub fn create_ref_patch_indices(&self, spectrogram: &Array2<f64>, ref_signal: &AudioSignal, window: &AnalysisWindow) -> Vec<usize>     
-    {
-        self.create_ref_patch_indices_from_spectrogram(spectrogram)
-    }
-    
-    pub fn create_patches_from_indices(&self, spectrogram: &Array2<f64>, patch_indices: &Vec<usize>)
--> Vec<ndarray::ArrayBase<ndarray::OwnedRepr<f64>, ndarray::Dim<[usize; 2]>>>     {
-        let mut start_col: usize;
-        let mut end_col: usize;
-
-        let num_patches = patch_indices.len();
-
-        let mut patches = Vec::<Array2<f64>>::new();
-
-        let mut patch : Array2::<f64>;
-
-        for i in 0..num_patches
-        {
-            start_col = patch_indices[i];
-            end_col = start_col + self.patch_size;
-            patch = spectrogram.slice(s![.., start_col..end_col]).to_owned();
-            patches.push(patch);
-        }
-
-        patches
     }
 
     fn create_ref_patch_indices_from_spectrogram(&self, spectrogram: &Array2<f64>) -> Vec<usize>

@@ -30,10 +30,10 @@ pub fn make_filters(sample_rate: usize, num_bands: usize, low_freq: f64, high_fr
         exp_bt[i] = (B[i] * t).exp();
     }
     
-    let mut b1 = vec![Complex64::zero(); num_bands];
-    for i in 0..b1.len()
+    let mut B1 = vec![Complex64::zero(); num_bands];
+    for i in 0..B1.len()
     {
-        b1[i] = -2.0 * (2.0 * cf[i] * pi * t).cos() / exp_bt[i];
+        B1[i] = -2.0 * (2.0 * cf[i] * pi * t).cos() / exp_bt[i];
     }
 
     // b2
@@ -145,6 +145,7 @@ pub fn make_filters(sample_rate: usize, num_bands: usize, low_freq: f64, high_fr
         vf_coeffs[(i, 8)] = B2[i].re;
         vf_coeffs[(i, 9)] = gain[i];
     }
+
     ErbFiltersResult::new(vf_coeffs, real_valued_complex_vec_to_float_vec(&cf))
 }
 

@@ -20,8 +20,8 @@ pub fn align_and_truncate(ref_signal: &AudioSignal, deg_signal: &AudioSignal)
         // For positive lag, the beginning of ref is now aligned with zeros, so
         // that amount should be truncated.
         // This could also be done better.
-        new_ref_matrix = new_ref_matrix.slice(s![(lag as u32 * ref_signal.sample_rate) as usize .. ref_signal.nrows(), ..]).to_owned();
-        new_deg_matrix = new_deg_matrix.slice(s![(lag as u32 * deg_signal.sample_rate) as usize .. ref_signal.nrows(), ..]).to_owned();
+        new_ref_matrix = new_ref_matrix.slice(s![(lag * ref_signal.sample_rate as f64) as usize .. ref_signal.nrows(), ..]).to_owned();
+        new_deg_matrix = new_deg_matrix.slice(s![(lag * deg_signal.sample_rate as f64) as usize .. ref_signal.nrows(), ..]).to_owned();
     }
 
     (
@@ -34,6 +34,7 @@ pub fn align_and_truncate(ref_signal: &AudioSignal, deg_signal: &AudioSignal)
 pub fn globally_align(ref_signal: &AudioSignal, deg_signal: &AudioSignal)
 -> (AudioSignal, f64)
 {
+
     let ref_upper_env = envelope::calculate_upper_env(&ref_signal.data_matrix);
     let deg_upper_env = envelope::calculate_upper_env(&deg_signal.data_matrix);
 
@@ -60,7 +61,7 @@ pub fn globally_align(ref_signal: &AudioSignal, deg_signal: &AudioSignal)
         }
 
         let new_deg_signal = AudioSignal::new(new_deg_matrix, deg_signal.sample_rate);
-        (new_deg_signal, (best_lag / deg_signal.sample_rate as i64) as f64)
+        (new_deg_signal, (best_lag as f64 / deg_signal.sample_rate as f64) as f64)
     }
 }
 

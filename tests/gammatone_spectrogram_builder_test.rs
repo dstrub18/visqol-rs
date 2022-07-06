@@ -24,7 +24,7 @@ fn test_spec_builder()
     let spectrogram_ref = spectro_builder.build(&signal_ref, &window).unwrap();
     
     // Check 1st element
-    assert_abs_diff_eq!(spectrogram_ref.data[(0,0)], 2.55929e-07, epsilon=0.00001);
+    assert_abs_diff_eq!(spectrogram_ref.data[(0,0)], 9.44161e-05, epsilon=0.00001);
     // Check dimensions
     assert_eq!(spectrogram_ref.data.ncols(), K_REF_SPECTRO_NUM_COLS);
 }

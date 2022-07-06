@@ -1,5 +1,3 @@
-use std::ops::Deref;
-
 use ndarray::Array1;
 use ndarray::Array2 as ImagePatch;
 #[allow(unused)]

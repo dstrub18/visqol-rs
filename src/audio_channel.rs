@@ -1,4 +1,6 @@
 #[allow(unused)]
+
+#[derive(Clone)]
 pub struct AudioChannel<T>
 {
     pub aligned_buffer: Vec::<T>

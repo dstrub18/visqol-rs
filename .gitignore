@@ -7,3 +7,5 @@ Cargo.lock
 # already existing elements were commented out
 
 #/target
+.DS_Store
+.vscode/settings.json

@@ -1,8 +1,9 @@
 use num::{complex::Complex64, Zero};
 
-use visqol_rs::test_utility::compare_complex_vec;
+use visqol_rs::{test_utility::compare_complex_vec};
 use rustfft::FftPlanner;
 use approx::assert_abs_diff_eq;
+
 #[test]
 fn rustfft_test()
 {

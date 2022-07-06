@@ -31,7 +31,7 @@ impl Spectrogram
             {
                 sample = element.abs();
             }
-            10.0 * sample.log10()
+            10.0 * (sample.log10())
         };
         self.data.mapv_inplace(sample_to_db);
     }

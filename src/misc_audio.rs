@@ -16,6 +16,7 @@ pub fn scale_to_match_sound_pressure_level(reference: &AudioSignal, degraded: &A
 {
     let ref_spl = calculate_sound_pressure_level(reference);
     let deg_spl = calculate_sound_pressure_level(degraded);
+    
     let scale_factor = 10.0f64.powf((ref_spl - deg_spl) / 20.0);
     let scaled_mat = degraded.data_matrix.clone() * scale_factor;
     AudioSignal{data_matrix: scaled_mat,sample_rate:  degraded.sample_rate}
@@ -24,8 +25,8 @@ pub fn scale_to_match_sound_pressure_level(reference: &AudioSignal, degraded: &A
 pub fn calculate_sound_pressure_level(signal: &AudioSignal) -> f64
 {
     let energy: f64 = signal.data_matrix.iter().map(|element| {element.powi(2)}).sum();
-    let sound_pressure = energy.sqrt();
-    20.0 * (sound_pressure / SPL_REFERENCE_POINT).log10()
+    let sound_pressure = (energy / (signal.data_matrix.nrows() * signal.data_matrix.ncols()) as f64).sqrt();
+    20.0 * ((sound_pressure / SPL_REFERENCE_POINT).log10())
 }
 
 pub fn to_mono_matrix(sample_matrix: &Array2::<f64>) ->Array2::<f64>
@@ -103,22 +104,22 @@ pub fn prepare_spectrograms_for_comparison(reference: &mut Spectrogram, degraded
 {
     reference.convert_to_db();
     degraded.convert_to_db();
-
     reference.raise_floor(NOISE_FLOOR_ABSOLUTE_DB);
     degraded.raise_floor(NOISE_FLOOR_ABSOLUTE_DB);
-
+    
     reference.raise_floor_per_frame(NOISE_FLOOR_RELATIVE_TO_PEAK_DB, degraded);
 
     let ref_floor = reference.get_minimum();
-    let deg_floor = reference.get_minimum();
+    let deg_floor = degraded.get_minimum();
     let lowest_floor = ref_floor.min(deg_floor);
 
-    reference.raise_floor(lowest_floor);
-    degraded.raise_floor(lowest_floor);
+    reference.subtract_floor(lowest_floor);
+    
+    degraded.subtract_floor(lowest_floor);
 }
 
 pub fn float_vec_to_real_valued_complex_vec(float_vector: &Vec<f64>)
--> Vec<Complex64> 
+-> Vec<Complex64>
 {
     let mut complex_vec = vec![Complex64::zero(); float_vector.len()];
 
@@ -151,7 +152,7 @@ pub fn mirror_spectrum(spectrum: &mut Vec<Complex64>)
 
     let mut mirrored_spectrum = spectrum.clone();
     mirrored_spectrum.reverse();
-    mirrored_spectrum.iter_mut().for_each(|element|{element.im = -1.0 * element.im;});
+    mirrored_spectrum.iter_mut().for_each(|element|{element.im *= -1.0;});
     // Push Nyqivst in middle of Vec
     spectrum.push(nyquist_bin);
     spectrum.extend(mirrored_spectrum);

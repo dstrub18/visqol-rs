@@ -1,4 +1,4 @@
-use visqol_rs::xcorr;
+use visqol_rs::{xcorr};
 use ndarray::Array2;
 
 #[test]

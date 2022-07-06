@@ -37,7 +37,6 @@ impl FilePath
     }
 }
 
-// static methods
 pub fn current_working_dir() -> String
 {
     std::env::current_dir().unwrap().into_os_string().into_string().unwrap()

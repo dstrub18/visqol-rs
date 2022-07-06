@@ -36,3 +36,5 @@ pub mod comparison_patches_selector;
 pub mod constants;
 pub mod visqol_manager;
 pub mod patch_creator;
+pub mod visqol;
+pub mod similarity_result;

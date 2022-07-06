@@ -9,6 +9,7 @@ pub fn filter_signal(numerator_coeffs: &Vec<f64>, denom_coeffs: &Vec<f64>, signa
 {
     assert_eq!(numerator_coeffs.len(), denom_coeffs.len());
     let mut filtered_signal = vec![0.0f64; signal.len()];
+
     let mut final_conditions = init_conditions.clone();
     final_conditions.push(0.0);
     let n = denom_coeffs.len();
@@ -17,12 +18,13 @@ pub fn filter_signal(numerator_coeffs: &Vec<f64>, denom_coeffs: &Vec<f64>, signa
         filtered_signal[m] = numerator_coeffs[0] * signal[m] + final_conditions[0];
         for i in 1..n
         {
-            final_conditions[i - 1] = numerator_coeffs[i] * signal[m] + final_conditions[i] - denom_coeffs[i] * filtered_signal[m];
+            final_conditions[i - 1] = numerator_coeffs[i] * signal[m] +
+            final_conditions[i] - denom_coeffs[i] * filtered_signal[m];
         }
     }
     FilterResults
     {
-        filtered_signal: filtered_signal,
+        filtered_signal,
         final_conditions: final_conditions[..final_conditions.len() - 1].to_vec()
     }
 }

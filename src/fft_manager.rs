@@ -13,26 +13,21 @@ pub struct FftManager
     pub fft_size: usize,
     inverse_fft_scale: f64,
     pub samples_per_channel: usize,
-    pub time_channel: AudioChannel<f64>,
-    pub freq_channel: AudioChannel<Complex64>
 }
- 
 impl FftManager
 {
     pub fn new(samples_per_channel: usize) -> Self
     {
         let fft_size = misc_math::next_pow_two(&samples_per_channel).max(MIN_FFT_SIZE);
+
         Self
         {
             planner: FftPlanner::<f64>::new(),
             fft_size,
             samples_per_channel,
             inverse_fft_scale: 1.0f64 / (fft_size as f64),
-            time_channel: AudioChannel::<f64>::new(fft_size),
-            freq_channel: AudioChannel::<Complex64>::new(fft_size)
         }
     }
-
     pub fn freq_from_time_domain(&mut self, time_channel: &mut AudioChannel<f64>, freq_channel: &mut AudioChannel<Complex64>)
     {
         let real_to_complex = self.planner.plan_fft_forward(self.fft_size);
@@ -50,8 +45,10 @@ impl FftManager
             let mut scratch_buffer = vec![Complex64::zero();real_to_complex.get_outofplace_scratch_len()];
             real_to_complex.process_outofplace_with_scratch(&mut complex_time_domain[..], &mut freq_channel.aligned_buffer[..], &mut scratch_buffer[..]);
             assert!(time_channel.aligned_buffer.len() == self.fft_size);
-            real_to_complex.process_outofplace_with_scratch(&mut complex_time_domain[..], &mut freq_channel.aligned_buffer[..], &mut scratch_buffer[..]);
         }
+        ////println!("AFTER TRANSFORM: TIME CHANNEL 0: {}", time_channel.aligned_buffer[0]);
+        ////println!("AFTER TRANSFORM: freq CHANNEL 0: {}", freq_channel.aligned_buffer[0]);
+        
     }
     
     pub fn time_from_freq_domain(&mut self, freq_channel: &mut AudioChannel<Complex64>, time_channel: &mut AudioChannel<f64>)

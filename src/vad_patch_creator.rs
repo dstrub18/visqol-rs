@@ -1,3 +1,4 @@
+use crate::patch_creator::PatchCreator;
 #[allow(unused)]
 use crate::{analysis_window::AnalysisWindow, audio_signal::AudioSignal, misc_math, rms_vad};
 use ndarray::{Array2, s};
@@ -7,9 +8,75 @@ pub struct VadPatchCreator
     patch_size: usize,
     frames_with_va_threshold: f64
 }
+impl PatchCreator for VadPatchCreator
+{
+    fn create_ref_patch_indices(&self, spectrogram: &Array2<f64>, ref_signal: &AudioSignal, window: &AnalysisWindow)
+    -> Vec<usize>
+    {
+        let norm_mat = misc_math::normalize_2d_matrix(&ref_signal.data_matrix);
+        let norm_sig = AudioSignal::new(norm_mat, ref_signal.sample_rate);
+    
+        let frame_size = (window.size as f64 * window.overlap) as usize;
+        let patch_sample_length = self.patch_size * frame_size;
+        let spectrum_length = spectrogram.ncols();
+        let first_patch_idx = self.patch_size / 2 - 1;
+        let patch_count  = (spectrum_length - first_patch_idx) / self.patch_size;
+        let total_sample_count = patch_count * patch_sample_length;
+
+        let mut ref_patch_indices = Vec::<usize>::new();
+        ref_patch_indices.reserve(patch_count);
+        
+        // Pass the reference signal to the VAD to determine which frames have voice
+        // activity.
+        let vad_res = self.get_voice_activity(&norm_sig, first_patch_idx, total_sample_count, frame_size);
+
+        let mut patch_idx = first_patch_idx;
+        // Could be done more elegantly. :)
+        for i in 0..patch_count
+        {
+            let first = i * self.patch_size;
+            let &frames_with_va = &vad_res[first..first + self.patch_size].iter().sum::<f64>();
+            
+            if frames_with_va >= self.frames_with_va_threshold 
+            {
+                ref_patch_indices.push(patch_idx);    
+            }
+            patch_idx += self.patch_size;
+        }
+        ref_patch_indices
+  
+    }
+
+    fn create_patches_from_indices(&self, spectrogram: &Array2<f64>, patch_indices: &Vec<usize>)
+    -> Vec<ndarray::ArrayBase<ndarray::OwnedRepr<f64>, ndarray::Dim<[usize; 2]>>>     
+    {
+        let mut start_col: usize;
+        let mut end_col: usize;
+
+        let num_patches = patch_indices.len();
+
+        let mut patches = Vec::<Array2<f64>>::new();
+
+        let mut patch : Array2::<f64>;
+
+        for i in 0..num_patches
+        {
+            start_col = patch_indices[i];
+            end_col = start_col + self.patch_size;
+            patch = spectrogram.slice(s![.., start_col..end_col]).to_owned();
+            patches.push(patch);
+        }
+        patches
+    }
+
+
+}
+
+
 
 impl VadPatchCreator
 {
+    
     pub fn new(patch_size: usize) -> Self
     {
         Self
@@ -43,43 +110,5 @@ impl VadPatchCreator
         vad.get_vad_results()
     }
 
-    pub fn create_ref_patch_indices(&self, spectrogram: &Array2<f64>, ref_signal: &AudioSignal, window: &AnalysisWindow)
-    -> Vec<usize>
-    {
-        let norm_mat = misc_math::normalize_2d_matrix(&ref_signal.data_matrix);
-        let norm_sig = AudioSignal::new(norm_mat, ref_signal.sample_rate);
-    
-        let frame_size = (window.size as f64 * window.overlap) as usize;
-        let patch_sample_length = self.patch_size * frame_size;
-        let spectrum_length = spectrogram.ncols();
-        let first_patch_idx = self.patch_size / 2 - 1;
-        let patch_count  = (spectrum_length - first_patch_idx) / self.patch_size;
-        let total_sample_count = patch_count * patch_sample_length;
-
-        let mut ref_patch_indices = Vec::<usize>::new();
-        ref_patch_indices.reserve(patch_count);
-        
-        // Pass the reference signal to the VAD to determine which frames have voice
-        // activity.
-        let vad_res = self.get_voice_activity(&norm_sig, first_patch_idx, total_sample_count, frame_size);
-
-        let mut patch_idx = first_patch_idx;
-        // Could be done more elegantly. :)
-        for i in 0..patch_count
-        {
-            let first = i * self.patch_size;
-            let &frames_with_va = &vad_res[first..first + self.patch_size].iter().sum::<f64>();
-            
-            if frames_with_va >= self.frames_with_va_threshold 
-            {
-                ref_patch_indices.push(patch_idx);    
-            }
-            patch_idx += self.patch_size;
-        }
-        let s = ref_patch_indices.len();
-        println!("{s:}");
-        ref_patch_indices
-  
-    }
 
 }

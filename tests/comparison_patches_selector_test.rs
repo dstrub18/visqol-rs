@@ -1,4 +1,4 @@
-use visqol_rs::{comparison_patches_selector::{ComparisonPatchesSelector}, neurogram_similiarity_index_measure::NeurogramSimiliarityIndexMeasure, audio_signal::AudioSignal, image_patch_creator::ImagePatchCreator};
+use visqol_rs::{comparison_patches_selector::ComparisonPatchesSelector, neurogram_similiarity_index_measure::NeurogramSimiliarityIndexMeasure, audio_signal::AudioSignal, image_patch_creator::ImagePatchCreator, patch_creator::PatchCreator};
 use ndarray::{Array2, arr2};
 #[test]
 fn test_calc_num_patches()

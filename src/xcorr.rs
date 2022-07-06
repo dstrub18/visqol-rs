@@ -9,7 +9,6 @@ pub fn calculate_best_lag(signal_1: &Array2<f64>, signal_2: &Array2<f64>)
     let max_lag = ((signal_1.nrows().max(signal_2.nrows())) - 1) as i64;
 
     let point_wise_fft_vec = calculate_inverse_fft_pointwise_product(signal_1, signal_2);
-
     // Negative errors
     let mut corrs = point_wise_fft_vec[point_wise_fft_vec.len() - max_lag as usize..].to_vec();
     // Positive errors
@@ -27,15 +26,14 @@ pub fn calculate_best_lag(signal_1: &Array2<f64>, signal_2: &Array2<f64>)
 
     // Get maximum index
     let best_corr_idx = corrs.iter().position(|&r| r == best_corr).unwrap();
- 
+    
     best_corr_idx as i64 - max_lag
 }
 
-fn calculate_inverse_fft_pointwise_product(signal_1: &Array2<f64>, signal_2: &Array2<f64>)
+pub fn calculate_inverse_fft_pointwise_product(signal_1: &Array2<f64>, signal_2: &Array2<f64>)
 -> Vec<f64> {
     let mut signal_1_vec = array2_to_vec(signal_1);
     let mut signal_2_vec = array2_to_vec(signal_2);
-
     let biggest_vec = if signal_1.nrows() > signal_2.nrows() {signal_1.nrows()} else {signal_2.nrows()};
 
     if signal_1.nrows() > signal_2.nrows()
@@ -47,9 +45,9 @@ fn calculate_inverse_fft_pointwise_product(signal_1: &Array2<f64>, signal_2: &Ar
         signal_1_vec.resize(biggest_vec, 0.0);
     }
 
+    
     let (_, exp) = frexp((signal_1_vec.len() * 2 - 1) as f32);
     let fft_points = 2usize.pow(exp as u32);
-
     let mut manager = FftManager::new(fft_points);
     let mut point_wise_product = calculate_fft_pointwise_product(&signal_1_vec, &signal_2_vec, &mut manager, fft_points);
     
@@ -58,7 +56,7 @@ fn calculate_inverse_fft_pointwise_product(signal_1: &Array2<f64>, signal_2: &Ar
     array2_to_vec(&inverse)
 }
 
-fn calculate_fft_pointwise_product(signal_1: &Vec<f64>, signal_2: &Vec<f64>, manager: &mut FftManager, fft_points: usize)
+pub fn calculate_fft_pointwise_product(signal_1: &Vec<f64>, signal_2: &Vec<f64>, manager: &mut FftManager, fft_points: usize)
 -> ndarray::ArrayBase<ndarray::OwnedRepr<Complex<f64>>, ndarray::Dim<[usize; 2]>> {
     let mut signal_2_mat = Array2::from_shape_vec((signal_2.len(), 1), signal_2.clone()).unwrap();
     let mut fft_signal_2 = fast_fourier_transform::forward_1d_from_points(manager, &mut signal_2_mat, fft_points);
@@ -67,7 +65,6 @@ fn calculate_fft_pointwise_product(signal_1: &Vec<f64>, signal_2: &Vec<f64>, man
     
     let mut signal_1_mat = Array2::from_shape_vec((signal_1.len(), 1), signal_1.clone()).unwrap();
     let fft_signal_1 = fast_fourier_transform::forward_1d_from_points(manager, &mut signal_1_mat, fft_points);
-
     fft_signal_1 * fft_signal_2
 }
 pub fn frexp(s : f32) -> (f32, i32) {

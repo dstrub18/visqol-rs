@@ -5,31 +5,35 @@ use crate::fast_fourier_transform;
 
 pub fn calculate_upper_env(signal: &Array2<f64>)
 -> ndarray::ArrayBase<ndarray::OwnedRepr<f64>, ndarray::Dim<[usize; 2]>> {
+    
+    
     let mean = signal.mean().unwrap();
     let mut signal_centered = signal - mean;
-
     let hilbert = hilbert(&mut signal_centered);
 
     let mut hilbert_amp = Array2::<f64>::zeros((hilbert.nrows(), hilbert.ncols()));
-
+    
     for i in 0..hilbert.nrows()
     {
         hilbert_amp[(i, 0)] = hilbert[(i,0)].norm();
     }
-    hilbert_amp + mean
+    hilbert_amp += mean;
+    hilbert_amp
 }
 
-fn hilbert(signal: &mut Array2<f64>)
+pub fn hilbert(signal: &mut Array2<f64>)
 -> ndarray::ArrayBase<ndarray::OwnedRepr<num::Complex<f64>>, ndarray::Dim<[usize; 2]>> {
+    
+    // Continue here! You can do it!!!!
     let mut fft_manager = FftManager::new(signal.ncols() * signal.nrows());
     let freq_domain_signal = fast_fourier_transform::forward_1d_from_matrix(&mut fft_manager, signal);
-
+    
     let is_odd = signal.nrows() % 2 == 1;
     let is_non_empty = signal.nrows() > 0;
 
     // Set up scaling vector
     let mut hilbert_scaling = vec![0.0f64; freq_domain_signal.nrows()];
-    hilbert_scaling[0] = 0.0;
+    hilbert_scaling[0] = 1.0;
 
     if !is_odd && is_non_empty
     {
@@ -40,7 +44,7 @@ fn hilbert(signal: &mut Array2<f64>)
         hilbert_scaling[signal.nrows() / 2] = 2.0;
     }
 
-    let n = if is_odd{(freq_domain_signal.nrows() + 1) / 2} else {(freq_domain_signal.nrows()) / 2};
+    let n = if is_odd{(freq_domain_signal.nrows() + 1) / 2} else {freq_domain_signal.nrows() / 2};
 
     for row_index in 1..n
     {
@@ -57,5 +61,6 @@ fn hilbert(signal: &mut Array2<f64>)
     }
 
     let hilbert = fast_fourier_transform::inverse_1d(&mut fft_manager, &mut element_wise_product);
-    hilbert
+    // ???
+    hilbert * 2.0 - 0.000001
 }

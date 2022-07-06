@@ -2,7 +2,7 @@ use num::complex::Complex64;
 use visqol_rs::fast_fourier_transform;
 use visqol_rs::fft_manager::FftManager;
 use visqol_rs::test_utility::{compare_complex_matrix, compare_real_matrix};
-use ndarray::Array2;
+use ndarray::{Array2};
 
 #[test]
 fn test_forward_1d()
@@ -157,7 +157,6 @@ fn test_forward_1d()
     let mut fft_manager = FftManager::new(samples_mat.len());
 
     let out_matrix = fast_fourier_transform::forward_1d_from_matrix(&mut fft_manager, &samples_mat);
-
     let tolerance = 0.00000001;
     compare_complex_matrix(&expected_matrix, &out_matrix, tolerance);
 }

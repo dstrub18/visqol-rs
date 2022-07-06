@@ -26,20 +26,22 @@ impl SpectrogramBuilder for GammatoneSpectrogramBuilder
         coeffs.invert_axis(Axis(0));
         self.filter_bank.set_filter_coefficients(&coeffs);
         self.filter_bank.reset_filter_conditions();
-
+        
         let hop_size = (window.size as f64 * window.overlap) as usize;
         assert!(sig.len() > window.size, "too few samples!");
-
-        let num_cols = 1 + (sig.len() - window.size) / hop_size;
+        
+        let num_cols = 1 + ((sig.len() - window.size) / hop_size);
         let mut out_matrix = Array2::<f64>::zeros((self.filter_bank.num_bands, num_cols));
         for i in 0..out_matrix.ncols() 
         {
             // select the next frame from the input signal to filter.
             let start_col = i * hop_size;
-            let frame = sig[start_col.. start_col + window.size].to_vec();
+            let frame = sig[start_col .. start_col + window.size].to_vec();
             self.filter_bank.reset_filter_conditions();
+            
             let mut filtered_signal = self.filter_bank.apply_filter(&frame);
             filtered_signal.iter_mut().for_each(|e|{*e = *e * *e});
+            
             let mut row_means = filtered_signal.mean_axis(Axis(1)).unwrap();
             
             row_means.iter_mut().for_each(|e|{*e = e.sqrt();});
@@ -52,7 +54,6 @@ impl SpectrogramBuilder for GammatoneSpectrogramBuilder
 
         let mut ordered_cfb = erb_result.center_freqs.clone();
         ordered_cfb.as_mut_slice().sort_by(|a, b|{a.partial_cmp(b).unwrap()});
-        
         Ok(Spectrogram::new(out_matrix, ordered_cfb))
 
     }

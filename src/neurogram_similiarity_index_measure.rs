@@ -72,25 +72,10 @@ impl PatchSimilarityComparator for NeurogramSimiliarityIndexMeasure
         
         let structure = &structure_numerator / &structure_denominator;
         let sim_map = &intensity * &structure;
-        /* Desired
-            structure(0,0): -0.990581
-            structure(1,0): -0.657751
-            structure(2,0): 1
-            sim_map(0,0): -0.232767
-            sim_map(1,0): -0.174757
-            sim_map(2,0): 0.00875062
-        */
-        
-        //println!("conv2_deg_neuro_squared: {:?}", conv2_deg_neuro_squared);
-        //println!("mu_ref: {:?}", mu_ref);
-        //println!("mu_deg: {:?}", mu_deg);
-        //println!("structure: {:?}", structure);
-        //println!("sim_map: {:?}", sim_map);
         
         let freq_band_deg_energy: Array1<f64> = deg_patch.mean_axis(Axis(1)).unwrap();
         let freq_band_means: Array1<f64> = sim_map.mean_axis(Axis(1)).unwrap();
-        //println!("{:?}", freq_band_means);
-        let freq_band_std: Array1<f64> = sim_map.std_axis(Axis(1), 0.0);
+        let freq_band_std: Array1<f64> = sim_map.std_axis(Axis(1), 1.0);
         let mean_freq_band_means = freq_band_means.mean().unwrap();
 
         PatchSimilarityResult::new(freq_band_means, freq_band_std, freq_band_deg_energy, mean_freq_band_means)

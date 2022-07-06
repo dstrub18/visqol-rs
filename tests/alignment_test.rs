@@ -1,12 +1,13 @@
 use ndarray::Array2;
 use visqol_rs::alignment;
 use visqol_rs::audio_signal::AudioSignal;
+use visqol_rs::misc_audio::load_as_mono;
 use visqol_rs::xcorr;
 
 #[test]
 fn align_signal_with_positive_lag()
 {
-    let ref_signal_vec = vec![2.0, 2.0, 1.0, 0.1, -3.0, 0.1, 1.0, 2.0, 2.0, 6.0, 8.0, 6.0, 2.0, 2.0];
+    let ref_signal_vec = vec![2.0 * 0.00001, 2.0 * 0.00001, 1.0 * 0.00001, 0.1 * 0.00001, -3.0 * 0.00001, 0.1 * 0.00001, 1.0 * 0.00001, 2.0 * 0.00001, 2.0 * 0.00001, 6.0 * 0.00001, 8.0 * 0.00001, 6.0 * 0.00001, 2.0 * 0.00001, 2.0 * 0.00001];
     let deg_signal_lag_2_vec = vec![1.2, 0.1, -3.3, 0.1, 1.1, 2.2, 2.1, 7.1, 8.3, 6.8, 2.4, 2.2, 2.2, 2.1];
 
     let ref_signal_mat = Array2::from_shape_vec((ref_signal_vec.len(), 1), ref_signal_vec).unwrap();
@@ -78,49 +79,11 @@ fn align_signal_with_no_lag()
 }
 
 #[test]
-fn align_and_truncate_signal_with_negative_lag()
+fn test_with_audio_signals()
 {
-    let ref_signal_vec = vec![2.0, 2.0, 1.0, 0.1, -3.0, 0.1, 1.0, 2.0, 2.0, 6.0, 8.0, 6.0, 2.0, 2.0];
-    let deg_signal_lag_negative_2_vec = vec![2.0, 2.0, 2.0, 2.0, 1.0, 0.1, -3.0, 0.1, 1.0, 2.0, 2.0, 6.0, 8.0, 6.0];
+    let ref_signal = load_as_mono("/Users/danielstrubig/Documents/CodingProjects/rust/exercises/visqol/cpp/visqol/testdata/patches/ref_patch.wav");
+    let deg_signal = load_as_mono("/Users/danielstrubig/Documents/CodingProjects/rust/exercises/visqol/cpp/visqol/testdata/patches/deg_patch.wav");
 
-    let ref_signal_mat = Array2::from_shape_vec((ref_signal_vec.len(), 1), ref_signal_vec).unwrap();
-    let deg_signal_mat = Array2::from_shape_vec((deg_signal_lag_negative_2_vec.len(), 1), deg_signal_lag_negative_2_vec).unwrap();
-    
-    let best_lag_negative2 = -2;
-    let ref_signal = AudioSignal::new(ref_signal_mat, 1);
-    let deg_signal = AudioSignal::new(deg_signal_mat, 1);
-    let original_ref_duration = ref_signal.get_duration();
-    let initial_lag = xcorr::calculate_best_lag(&ref_signal.data_matrix, &deg_signal.data_matrix);
-    assert_eq!(initial_lag, best_lag_negative2);
-
-    let (new_ref_signal, new_deg_signal, lag) = alignment::align_and_truncate(&ref_signal, &deg_signal);
-    assert_eq!(lag, best_lag_negative2 as f64);
-
-    assert_eq!(original_ref_duration + best_lag_negative2 as f64, new_ref_signal.get_duration());
-    assert_eq!(original_ref_duration + best_lag_negative2 as f64, new_deg_signal.get_duration());
-
-}
-
-#[test]
-fn align_and_truncate_signal_with_positive_lag()
-{
-    let ref_signal_vec = vec![2.0, 2.0, 1.0, 0.1, -3.0, 0.1, 1.0, 2.0, 2.0, 6.0, 8.0, 6.0, 2.0, 2.0];
-    let deg_signal_lag_2_vec = vec![1.2, 0.1, -3.3, 0.1, 1.1, 2.2, 2.1, 7.1, 8.3, 6.8, 2.4, 2.2, 2.2, 2.1];
-
-    let ref_signal_mat = Array2::from_shape_vec((ref_signal_vec.len(), 1), ref_signal_vec).unwrap();
-    let deg_signal_mat = Array2::from_shape_vec((deg_signal_lag_2_vec.len(), 1), deg_signal_lag_2_vec).unwrap();
-    
-    let best_lag_positive2 = 2;
-    let ref_signal = AudioSignal::new(ref_signal_mat, 1);
-    let deg_signal = AudioSignal::new(deg_signal_mat, 1);
-    let original_ref_duration = ref_signal.get_duration();
-    
-    let initial_lag = xcorr::calculate_best_lag(&ref_signal.data_matrix, &deg_signal.data_matrix);
-    assert_eq!(initial_lag, best_lag_positive2);
-
-    let (new_ref_signal, new_deg_signal, lag) = alignment::align_and_truncate(&ref_signal, &deg_signal);
-    assert_eq!(lag, best_lag_positive2 as f64);
-
-    assert_eq!(original_ref_duration - best_lag_positive2 as f64, new_ref_signal.get_duration());
-    assert_eq!(original_ref_duration - best_lag_positive2 as f64, new_deg_signal.get_duration());
+    let (_,_, lag) = alignment::align_and_truncate(&ref_signal, &deg_signal);
+    assert_eq!(lag, 0.0000625);
 }
