@@ -1,5 +1,4 @@
 use crate::patch_creator::PatchCreator;
-#[allow(unused)]
 use crate::{analysis_window::AnalysisWindow, audio_signal::AudioSignal, misc_math, rms_vad};
 use ndarray::{Array2, s};
 

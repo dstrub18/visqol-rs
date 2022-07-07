@@ -1,6 +1,5 @@
 use ndarray::Array1;
 use ndarray::Array2 as ImagePatch;
-#[allow(unused)]
 #[derive(Debug, Clone)]
 pub struct PatchSimilarityResult
 {
@@ -49,11 +48,6 @@ impl PatchSimilarityResult
     }
 }
 
-#[allow(unused)]
-pub struct BestPatchSimilarityMatch
-{
-    result: PatchSimilarityResult
-}
 
 pub trait PatchSimilarityComparator
 {

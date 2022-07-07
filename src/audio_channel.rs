@@ -1,5 +1,3 @@
-#[allow(unused)]
-
 #[derive(Clone)]
 pub struct AudioChannel<T>
 {
@@ -15,7 +13,6 @@ where T: num::Zero
     }
 }
 
-#[allow(unused)]
 impl<T> AudioChannel<T>
 where T: num::Zero + std::clone::Clone
 {
@@ -50,45 +47,3 @@ impl<T> std::ops::IndexMut<usize> for AudioChannel<T>
         &mut (self.aligned_buffer[index])
     }
 }
-
-/*
-pub struct AudioChannel
-{
-    
-    pub size: usize,
-    pub aligned_buffer: Vec::<f64>,
-}
-
-#[allow(unused)]
-impl AudioChannel
-{
-    pub fn new(size: usize) -> Self
-    {
-        todo!();
-        Self
-        {
-            size: size,
-            aligned_buffer: Vec::new()
-        }
-    }
-    
-    pub fn get_size(&self) -> usize
-    {
-        self.size
-    }
-    
-    fn clear(&mut self)
-    {
-        self.aligned_buffer.iter_mut().map(|x| *x = 0.0f64);
-    }
-}
-
-impl std::ops::Index<usize> for AudioChannel
-{
-    type Output = f64;
-    fn index(&self, index: usize) -> &f64
-    {
-        &(self.aligned_buffer[index])
-    }
-}
-*/

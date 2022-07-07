@@ -1,5 +1,4 @@
-#[allow(unused)]
-use ndarray::{Array2, Axis, s, Slice};
+use ndarray::{Array2, s};
 use crate::{audio_signal::AudioSignal, analysis_window::AnalysisWindow, patch_creator::PatchCreator};
 pub struct ImagePatchCreator
 {
@@ -38,7 +37,6 @@ impl PatchCreator for ImagePatchCreator
 
 }
 
-#[allow(unused)]
 impl ImagePatchCreator
 {
     pub fn new(patch_size: usize) -> Self

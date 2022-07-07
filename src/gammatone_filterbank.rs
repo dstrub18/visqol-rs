@@ -1,7 +1,5 @@
-#[allow(unused)]
 use crate::signal_filter;
 
-#[allow(unused)]
 pub struct GammatoneFilterbank
 {
     pub num_bands: usize,
@@ -24,7 +22,6 @@ pub struct GammatoneFilterbank
     filter_coeff_gain:  Vec::<f64>
 }
 
-#[allow(unused)]
 impl GammatoneFilterbank
 {
     pub fn new(num_bands: usize, min_freq: f64) -> Self
@@ -72,7 +69,7 @@ impl GammatoneFilterbank
         self.filter_coeff_gain = filter_coeffs.column(9).to_vec();
     }
 
-    pub fn apply_filter(&mut self, signal: &Vec::<f64>) -> ndarray::Array2::<f64>
+    pub fn apply_filter(&mut self, signal: &[f64]) -> ndarray::Array2::<f64>
     {
         let mut a1 = vec![0.0;3];
         let mut a2 = vec![0.0;3];
@@ -104,7 +101,6 @@ impl GammatoneFilterbank
             b[1] = self.filter_coeff_b1[band];
             b[2] = self.filter_coeff_b2[band];
 
-            // Correct until here.
             // 1st filter
             let mut filter_result = signal_filter::filter_signal(&a1, &b, signal, &self.filter_conditions_1[band]);
             self.filter_conditions_1[band] = filter_result.final_conditions;
@@ -120,6 +116,7 @@ impl GammatoneFilterbank
             // 4th filter
             filter_result = signal_filter::filter_signal(&a4, &b, &filter_result.filtered_signal, &self.filter_conditions_4[band]);
             self.filter_conditions_4[band] = filter_result.final_conditions;
+            
             
             
             for i in 0..filter_result.filtered_signal.len()

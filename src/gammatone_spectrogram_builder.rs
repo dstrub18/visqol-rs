@@ -28,7 +28,7 @@ impl SpectrogramBuilder for GammatoneSpectrogramBuilder
         self.filter_bank.reset_filter_conditions();
         
         let hop_size = (window.size as f64 * window.overlap) as usize;
-        assert!(sig.len() > window.size, "too few samples!");
+        debug_assert!(sig.len() > window.size, "too few samples!");
         
         let num_cols = 1 + ((sig.len() - window.size) / hop_size);
         let mut out_matrix = Array2::<f64>::zeros((self.filter_bank.num_bands, num_cols));
@@ -36,10 +36,10 @@ impl SpectrogramBuilder for GammatoneSpectrogramBuilder
         {
             // select the next frame from the input signal to filter.
             let start_col = i * hop_size;
-            let frame = sig[start_col .. start_col + window.size].to_vec();
+            let frame = &sig[start_col .. start_col + window.size];
             self.filter_bank.reset_filter_conditions();
             
-            let mut filtered_signal = self.filter_bank.apply_filter(&frame);
+            let mut filtered_signal = self.filter_bank.apply_filter(frame);
             filtered_signal.iter_mut().for_each(|e|{*e = *e * *e});
             
             let mut row_means = filtered_signal.mean_axis(Axis(1)).unwrap();

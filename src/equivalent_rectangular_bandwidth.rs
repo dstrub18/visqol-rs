@@ -1,7 +1,7 @@
 #![allow(warnings)]
 #[allow(non_camel_case_types)]
 use num::{complex::Complex64, Zero};
-use ndarray::{Array2, ShapeBuilder, Axis};
+use ndarray::{Array2};
 use crate::misc_audio::{float_vec_to_real_valued_complex_vec, real_valued_complex_vec_to_float_vec};
 // returns ErbFiltersResult
 pub fn make_filters(sample_rate: usize, num_bands: usize, low_freq: f64, high_freq: f64) ->ErbFiltersResult
@@ -169,7 +169,6 @@ fn calculate_uniform_center_freqs(low_freq: f64, high_freq: f64, num_channels: u
     coefficients
 }
 
-#[allow(unused)]
 pub struct ErbFiltersResult
 {
     pub filter_coeffs: Array2::<f64>,

@@ -1,6 +1,5 @@
 use ndarray::{Array2};
 use itertools::Itertools;
-#[allow(unused)]
 pub fn normalize_2d_matrix(mat: & Array2<f64>) -> Array2<f64>
 {
     let mut normalized_mat = mat.clone();
@@ -16,7 +15,6 @@ pub fn normalize_2d_matrix(mat: & Array2<f64>) -> Array2<f64>
     normalized_mat
 }
 
-#[allow(unused)]
 pub fn next_pow_two(input: &usize) -> usize
 {
     let mut number = input - 1;
@@ -33,11 +31,7 @@ pub fn exponential_from_fit(x: f32, a: f32, b: f32, x_0: f32) -> f32
 {
     a + (b * (x - x_0)).exp()
 }
-#[allow(unused)]
-fn abs_scale(x: i16) -> f64
-{
-    return (x as f64) / 32768.0f64
-}
+
 
 pub fn normalize_int16_to_double(input: &Vec<i16>) -> Vec<f64>
 {

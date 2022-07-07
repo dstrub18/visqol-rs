@@ -6,10 +6,8 @@ const _WAV_HEADER_SIZE: usize = 44;
 const _EXTENSIBLE_WAV_FORMAT: u16 = 0xfffe;
 const _PCM_FORMAT: u16 = 0x1;
 
-#[allow(dead_code)]
 pub struct WavReader
 {
-    init: bool,
     pub num_channels: u16,
     pub sample_rate: u32,
     pub num_total_samples: u32,
@@ -29,7 +27,6 @@ impl WavReader
         
         Self
         {
-            init: true,
             num_channels: spec.channels,
             sample_rate: spec.sample_rate,
             num_total_samples: 0,

@@ -31,7 +31,6 @@ impl FftManager
     pub fn freq_from_time_domain(&mut self, time_channel: &mut AudioChannel<f64>, freq_channel: &mut AudioChannel<Complex64>)
     {
         let real_to_complex = self.planner.plan_fft_forward(self.fft_size);
-        assert!(time_channel.get_size() <= self.fft_size);
         if time_channel.get_size() == self.fft_size
         {
             let mut complex_time_domain = misc_audio::float_vec_to_real_valued_complex_vec(&time_channel.aligned_buffer);
@@ -44,7 +43,6 @@ impl FftManager
             let mut complex_time_domain = misc_audio::float_vec_to_real_valued_complex_vec(&time_channel.aligned_buffer);
             let mut scratch_buffer = vec![Complex64::zero();real_to_complex.get_outofplace_scratch_len()];
             real_to_complex.process_outofplace_with_scratch(&mut complex_time_domain[..], &mut freq_channel.aligned_buffer[..], &mut scratch_buffer[..]);
-            assert!(time_channel.aligned_buffer.len() == self.fft_size);
         }
         ////println!("AFTER TRANSFORM: TIME CHANNEL 0: {}", time_channel.aligned_buffer[0]);
         ////println!("AFTER TRANSFORM: freq CHANNEL 0: {}", freq_channel.aligned_buffer[0]);
@@ -74,7 +72,6 @@ impl FftManager
     
     pub fn apply_reverse_fft_scaling(&self, time_channel: &mut AudioChannel<f64>)
     {
-        assert!(time_channel.get_size() == self.fft_size || time_channel.get_size() == self.fft_size);
         time_channel.aligned_buffer.iter_mut().for_each(|x|{*x = *x * self.inverse_fft_scale;});
     }
 }

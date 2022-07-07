@@ -1,12 +1,10 @@
 use num::complex::Complex;
-#[allow(unused)]
 #[derive(Debug)]
 pub struct ComplexVec
 {
     pub v: Vec<Complex<f64>>,
 }
 
-#[allow(unused)]
 impl ComplexVec
 {
     pub fn new() -> Self

@@ -1,4 +1,3 @@
-#[allow(unused)]
 use ndarray::{Array2, Axis, s, concatenate};
 use crate::audio_signal::AudioSignal;
 use crate::envelope;
