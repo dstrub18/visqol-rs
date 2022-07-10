@@ -3,8 +3,7 @@
 use num::{complex::Complex64, Zero};
 use ndarray::{Array2};
 use crate::misc_audio::{float_vec_to_real_valued_complex_vec, real_valued_complex_vec_to_float_vec};
-// returns ErbFiltersResult
-pub fn make_filters(sample_rate: usize, num_bands: usize, low_freq: f64, high_freq: f64) ->ErbFiltersResult
+pub fn make_filters(sample_rate: usize, num_bands: usize, low_freq: f64, high_freq: f64) ->  (Array2::<f64>, Vec<f64>)
 {
     let pi = std::f64::consts::PI;
     let cf = float_vec_to_real_valued_complex_vec(&calculate_uniform_center_freqs(low_freq, high_freq, num_bands));
@@ -146,7 +145,7 @@ pub fn make_filters(sample_rate: usize, num_bands: usize, low_freq: f64, high_fr
         vf_coeffs[(i, 9)] = gain[i];
     }
 
-    ErbFiltersResult::new(vf_coeffs, real_valued_complex_vec_to_float_vec(&cf))
+    (vf_coeffs, real_valued_complex_vec_to_float_vec(&cf))
 }
 
 fn calculate_uniform_center_freqs(low_freq: f64, high_freq: f64, num_channels: usize) -> Vec<f64>
@@ -167,22 +166,4 @@ fn calculate_uniform_center_freqs(low_freq: f64, high_freq: f64, num_channels: u
         coefficients.push(a + f);
     }
     coefficients
-}
-
-pub struct ErbFiltersResult
-{
-    pub filter_coeffs: Array2::<f64>,
-    pub center_freqs: Vec<f64>
-}
-
-impl ErbFiltersResult
-{
-    pub fn new(filter_coeffs: Array2::<f64>, center_freqs: Vec<f64>) -> Self
-    {
-        Self
-        {
-            filter_coeffs,
-            center_freqs
-        }
-    }
 }

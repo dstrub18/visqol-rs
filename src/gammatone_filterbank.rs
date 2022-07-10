@@ -5,10 +5,10 @@ pub struct GammatoneFilterbank
     pub num_bands: usize,
     pub min_freq: f64,
 
-    filter_conditions_1: Vec::<Vec::<f64>>,
-    filter_conditions_2: Vec::<Vec::<f64>>,
-    filter_conditions_3: Vec::<Vec::<f64>>,
-    filter_conditions_4: Vec::<Vec::<f64>>,
+    filter_conditions_1: Vec::<[f64; Self::NUM_FILTER_CONDITIONS]>,
+    filter_conditions_2: Vec::<[f64; Self::NUM_FILTER_CONDITIONS]>,
+    filter_conditions_3: Vec::<[f64; Self::NUM_FILTER_CONDITIONS]>,
+    filter_conditions_4: Vec::<[f64; Self::NUM_FILTER_CONDITIONS]>,
 
     filter_coeff_a0:    Vec::<f64>,
     filter_coeff_a11:   Vec::<f64>,
@@ -24,16 +24,18 @@ pub struct GammatoneFilterbank
 
 impl GammatoneFilterbank
 {
+    const NUM_FILTER_CONDITIONS: usize = 2;
+
     pub fn new(num_bands: usize, min_freq: f64) -> Self
     {
          Self
         {
             num_bands: num_bands,
             min_freq: min_freq,
-            filter_conditions_1: vec![vec![0.0, 0.0]; num_bands],
-            filter_conditions_2: vec![vec![0.0, 0.0]; num_bands],
-            filter_conditions_3: vec![vec![0.0, 0.0]; num_bands],
-            filter_conditions_4: vec![vec![0.0, 0.0]; num_bands],
+            filter_conditions_1: vec![[0.0;Self::NUM_FILTER_CONDITIONS]; num_bands],
+            filter_conditions_2: vec![[0.0;Self::NUM_FILTER_CONDITIONS]; num_bands],
+            filter_conditions_3: vec![[0.0;Self::NUM_FILTER_CONDITIONS]; num_bands],
+            filter_conditions_4: vec![[0.0;Self::NUM_FILTER_CONDITIONS]; num_bands],
             filter_coeff_a0: Vec::new(),
             filter_coeff_a11: Vec::new(),
             filter_coeff_a12: Vec::new(),
@@ -49,10 +51,10 @@ impl GammatoneFilterbank
 
     pub fn reset_filter_conditions(&mut self)
     {
-        self.filter_conditions_1 = vec![vec![0.0, 0.0]; self.num_bands];
-        self.filter_conditions_2 = vec![vec![0.0, 0.0]; self.num_bands];
-        self.filter_conditions_3 = vec![vec![0.0, 0.0]; self.num_bands];
-        self.filter_conditions_4 = vec![vec![0.0, 0.0]; self.num_bands];
+        self.filter_conditions_1 = vec![[0.0, 0.0]; self.num_bands];
+        self.filter_conditions_2 = vec![[0.0, 0.0]; self.num_bands];
+        self.filter_conditions_3 = vec![[0.0, 0.0]; self.num_bands];
+        self.filter_conditions_4 = vec![[0.0, 0.0]; self.num_bands];
     }
 
     pub fn set_filter_coefficients(&mut self, filter_coeffs: &ndarray::Array2::<f64>)
@@ -71,16 +73,16 @@ impl GammatoneFilterbank
 
     pub fn apply_filter(&mut self, signal: &[f64]) -> ndarray::Array2::<f64>
     {
-        let mut a1 = vec![0.0;3];
-        let mut a2 = vec![0.0;3];
-        let mut a3 = vec![0.0;3];
-        let mut a4 = vec![0.0;3];
-        let mut b = vec![0.0;3];
+        let mut a1 = [0.0;3];
+        let mut a2 = [0.0;3];
+        let mut a3 = [0.0;3];
+        let mut a4 = [0.0;3];
+        let mut b = [0.0;3];
         
         let mut output = ndarray::Array2::<f64>::zeros((self.num_bands, signal.len()));
         for band in 0..self.num_bands
         {
-            
+            // This can be done smarter :)
             a1[0] = self.filter_coeff_a0[band] / self.filter_coeff_gain[band];
             a1[1] = self.filter_coeff_a11[band] / self.filter_coeff_gain[band];
             a1[2] = self.filter_coeff_a2[band] / self.filter_coeff_gain[band];

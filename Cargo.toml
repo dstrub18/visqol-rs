@@ -5,8 +5,7 @@ edition = "2021"
 
 [profile.release]
 opt-level = 3
-#debug = true
-bench = true
+debug = true
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
@@ -24,8 +23,8 @@ clap = { version = "3.1.18", features = ["derive"] }
 csv = "1.1.6"
 serde = { version = "1.0", features = ["derive"] }
 ffsvm = "0.8"
+realfft = "3.0.0"
 rayon = "1.5.3"
-
 
 [patch.crates-io]
 ffsvm = { path = "../../libs/ffsvm-rust"}

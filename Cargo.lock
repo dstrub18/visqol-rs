@@ -726,6 +726,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "realfft"
+version = "3.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a83b876fe55da7e1bf5deeacb93d6411edf81eba0e1a497e79c067734729053a"
+dependencies = [
+ "rustfft",
+]
+
+[[package]]
 name = "regex-automata"
 version = "0.1.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -878,6 +887,7 @@ dependencies = [
  "num",
  "num-traits",
  "rayon",
+ "realfft",
  "rustfft",
  "serde",
 ]

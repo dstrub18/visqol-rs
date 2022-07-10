@@ -10,7 +10,7 @@ fn gammatone_filterbank()
 
     let ten_samples = vec![0.2, 0.4, 0.6, 0.8, 0.9, 0.1, 0.3, 0.5, 0.7, 0.9];
 
-    let mut erb = equivalent_rectangular_bandwidth::make_filters(fs, num_bands, min_freq, fs as f64 / 2.0);
+    let (mut filter_coeffs, _) = equivalent_rectangular_bandwidth::make_filters(fs, num_bands, min_freq, fs as f64 / 2.0);
     
     let expected_filter_coefficients = vec![2.08333e-05, -2.10773e-05, -2.04216e-05, -2.08057e-05, -2.06932e-05, 0.0, 1.0, -1.99194, 0.992003, 3.66499e-10,
     2.08333e-05, -2.13371e-05, -2.01347e-05, -2.08391e-05, -2.06327e-05, 0.0, 1.0, -1.99065, 0.990811, 2.09642e-10,
@@ -46,23 +46,23 @@ fn gammatone_filterbank()
     2.08333e-05, -8.16567e-07, 2.89922e-05, 1.15306e-05, 1.6645e-05, 0.0, 1.0, 1.35243, 0.545081, 1.97665e-17,];
     
     
-    erb.filter_coeffs.invert_axis(Axis(0));
-    assert_eq!(erb.filter_coeffs.shape()[1], 10);
-    assert_eq!(erb.filter_coeffs.shape()[0], num_bands);
+    filter_coeffs.invert_axis(Axis(0));
+    assert_eq!(filter_coeffs.shape()[1], 10);
+    assert_eq!(filter_coeffs.shape()[0], num_bands);
     
     let exptected_filter_coeffs_mat = Array2::from_shape_vec((num_bands, 10), expected_filter_coefficients).unwrap();
 
     let epsilon = 0.0001;
     
     // Check if coefficients are the same
-    for (&res,ex) in erb.filter_coeffs.iter().zip(exptected_filter_coeffs_mat) {
+    for (&res,ex) in filter_coeffs.iter().zip(exptected_filter_coeffs_mat) {
         assert_abs_diff_eq!(res, ex, epsilon=epsilon);
     }
 
     // Check if filtering works as intended.
     let mut filterbank = GammatoneFilterbank::new(num_bands, min_freq);
     filterbank.reset_filter_conditions();
-    filterbank.set_filter_coefficients(&erb.filter_coeffs);
+    filterbank.set_filter_coefficients(&filter_coeffs);
 
     let filtered_signal = filterbank.apply_filter(&ten_samples);
 
