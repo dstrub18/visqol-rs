@@ -1,5 +1,5 @@
 use visqol_rs::{comparison_patches_selector::ComparisonPatchesSelector, neurogram_similiarity_index_measure::NeurogramSimiliarityIndexMeasure, audio_signal::AudioSignal, image_patch_creator::ImagePatchCreator, patch_creator::PatchCreator};
-use ndarray::{Array2, arr2};
+use ndarray::{Array2, arr2, Array1};
 #[test]
 fn test_calc_num_patches()
 {
@@ -22,17 +22,17 @@ fn test_slice()
     let fs = 16000;
     let num_seconds = 3;
 
-    let mut silence_matrix = Array2::zeros((fs * num_seconds, 1));
+    let mut silence_matrix = Array1::zeros(fs * num_seconds);
 
-    silence_matrix[(16000, 0)] = 1.0;
+    silence_matrix[16000] = 1.0;
     let three_seconds_silence = AudioSignal::new(silence_matrix, fs as u32);
 
     let sliced_signal = ComparisonPatchesSelector::slice(&three_seconds_silence, 0.5, 2.5);
 
     assert_eq!(sliced_signal.get_duration(), 2.0);
-    assert_eq!(sliced_signal.data_matrix[(7999, 0)], 0.0);
-    assert_eq!(sliced_signal.data_matrix[(8000, 0)], 1.0);
-    assert_eq!(sliced_signal.data_matrix[(8001, 0)], 0.0);
+    assert_eq!(sliced_signal.data_matrix[7999], 0.0);
+    assert_eq!(sliced_signal.data_matrix[8000], 1.0);
+    assert_eq!(sliced_signal.data_matrix[8001], 0.0);
 }
 
 #[test]

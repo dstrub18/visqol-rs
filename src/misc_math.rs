@@ -1,18 +1,10 @@
-use ndarray::{Array2};
+use ndarray::{Array1};
 use itertools::Itertools;
-pub fn normalize_2d_matrix(mat: & Array2<f64>) -> Array2<f64>
+pub fn normalize_2d_matrix(mat: & Array1<f64>) -> Array1<f64>
 {
-    let mut normalized_mat = mat.clone();
+    let normalized_mat = mat.clone();
     let max = get_max_in_2d_array(mat);
-    
-    for i in 0..mat.shape()[0]
-    {
-        for j in 0..mat.shape()[1]
-        {
-            normalized_mat[(i,j)] /= max;
-        }
-    }
-    normalized_mat
+    normalized_mat / max
 }
 
 pub fn next_pow_two(input: &usize) -> usize
@@ -38,7 +30,7 @@ pub fn normalize_int16_to_double(input: &Vec<i16>) -> Vec<f64>
     input.iter().map(|x| *x as f64 / 32768.0f64).collect::<Vec<f64>>()
 }
 
-pub fn get_max_in_2d_array(mat: &Array2<f64>) -> f64
+pub fn get_max_in_2d_array(mat: &Array1<f64>) -> f64
 {
     *(mat.iter().minmax().into_option().unwrap().1)
 }

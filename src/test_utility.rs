@@ -26,7 +26,7 @@ pub fn compare_complex_matrix(matrix_a: &Array2::<Complex<f64>>, matrix_b: &Arra
     }
 }
 
-pub fn compare_complex_vec(vec_a: &Vec<Complex<f64>>, vec_b: &Vec<Complex<f64>>, tolerance: f64)
+pub fn compare_complex_vec(vec_a: &[Complex<f64>], vec_b: &[Complex<f64>], tolerance: f64)
 {
     assert_eq!(vec_a.len(), vec_b.len());
     vec_a.iter()
@@ -39,7 +39,7 @@ pub fn compare_complex_vec(vec_a: &Vec<Complex<f64>>, vec_b: &Vec<Complex<f64>>,
          });
 }
 
-pub fn compare_real_vec(vec_a: &Vec<f64>, vec_b: &Vec<f64>, tolerance: f64)
+pub fn compare_real_vec(vec_a: &[f64], vec_b: &[f64], tolerance: f64)
 {
     assert_eq!(vec_a.len(), vec_b.len());
     vec_a.iter()

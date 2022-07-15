@@ -1,12 +1,11 @@
-use ndarray::Array2;
+use ndarray::{Array1};
 use num::Complex;
 use crate::fft_manager::FftManager;
 use crate::fast_fourier_transform;
-use crate::misc_vector::array2_to_vec;
 
-pub fn calculate_best_lag(signal_1: &Array2<f64>, signal_2: &Array2<f64>)
+pub fn calculate_best_lag(signal_1: &Array1<f64>, signal_2: &Array1<f64>)
 -> i64  {
-    let max_lag = ((signal_1.nrows().max(signal_2.nrows())) - 1) as i64;
+    let max_lag = ((signal_1.len().max(signal_2.len())) - 1) as i64;
 
     let point_wise_fft_vec = calculate_inverse_fft_pointwise_product(signal_1, signal_2);
     // Negative errors
@@ -30,17 +29,17 @@ pub fn calculate_best_lag(signal_1: &Array2<f64>, signal_2: &Array2<f64>)
     best_corr_idx as i64 - max_lag
 }
 
-pub fn calculate_inverse_fft_pointwise_product(signal_1: &Array2<f64>, signal_2: &Array2<f64>)
+pub fn calculate_inverse_fft_pointwise_product(signal_1: &Array1<f64>, signal_2: &Array1<f64>)
 -> Vec<f64> {
-    let mut signal_1_vec = array2_to_vec(signal_1);
-    let mut signal_2_vec = array2_to_vec(signal_2);
-    let biggest_vec = if signal_1.nrows() > signal_2.nrows() {signal_1.nrows()} else {signal_2.nrows()};
+    let mut signal_1_vec = signal_1.to_vec();
+    let mut signal_2_vec = signal_2.to_vec();
+    let biggest_vec = if signal_1.len() > signal_2.len() {signal_1.len()} else {signal_2.len()};
 
-    if signal_1.nrows() > signal_2.nrows()
+    if signal_1.len() > signal_2.len()
     {
         signal_2_vec.resize(biggest_vec, 0.0);
     }
-    else if signal_2.nrows() > signal_1.nrows()
+    else if signal_2.len() > signal_1.len()
     {
         signal_1_vec.resize(biggest_vec, 0.0);
     }
@@ -53,17 +52,17 @@ pub fn calculate_inverse_fft_pointwise_product(signal_1: &Array2<f64>, signal_2:
     
     let inverse = fast_fourier_transform::inverse_1d_conj_sym(&mut manager, &mut point_wise_product);
 
-    array2_to_vec(&inverse)
+    inverse.to_vec()
 }
 
 pub fn calculate_fft_pointwise_product(signal_1: &Vec<f64>, signal_2: &Vec<f64>, manager: &mut FftManager, fft_points: usize)
--> ndarray::ArrayBase<ndarray::OwnedRepr<Complex<f64>>, ndarray::Dim<[usize; 2]>> {
-    let mut signal_2_mat = Array2::from_shape_vec((signal_2.len(), 1), signal_2.clone()).unwrap();
+-> ndarray::ArrayBase<ndarray::OwnedRepr<Complex<f64>>, ndarray::Dim<[usize; 1]>> {
+    let mut signal_2_mat = Array1::from_vec(signal_2.clone());
     let mut fft_signal_2 = fast_fourier_transform::forward_1d_from_points(manager, &mut signal_2_mat, fft_points);
 
     fft_signal_2.iter_mut().for_each(|element|{*element = element.conj()});
     
-    let mut signal_1_mat = Array2::from_shape_vec((signal_1.len(), 1), signal_1.clone()).unwrap();
+    let mut signal_1_mat = Array1::from_vec(signal_1.clone());
     let fft_signal_1 = fast_fourier_transform::forward_1d_from_points(manager, &mut signal_1_mat, fft_points);
     fft_signal_1 * fft_signal_2
 }

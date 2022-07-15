@@ -1,5 +1,5 @@
 use visqol_rs::{xcorr};
-use ndarray::Array2;
+use ndarray::{Array2, Array1};
 
 #[test]
 
@@ -9,9 +9,9 @@ fn test_best_lag_same_length()
     let deg_signal_lag2 = vec![1.2, 0.1, -3.3, 0.1, 1.1, 2.2, 2.1, 7.1, 8.3, 6.8, 2.4, 2.2, 2.2, 2.1];
     
     assert_eq!(deg_signal_lag2.len(), 14);
-    let ref_signal_mat = Array2::from_shape_vec((ref_signal.len(), 1), ref_signal).unwrap();
-    let deg_signal_lag2_mat = Array2::from_shape_vec((deg_signal_lag2.len(), 1), deg_signal_lag2).unwrap();
-    assert_eq!(ref_signal_mat.nrows(), deg_signal_lag2_mat.nrows());
+    let ref_signal_mat = Array1::from_vec(ref_signal);
+    let deg_signal_lag2_mat = Array1::from_vec(deg_signal_lag2);
+    assert_eq!(ref_signal_mat.len(), deg_signal_lag2_mat.len());
     let best_lag = xcorr::calculate_best_lag(&ref_signal_mat, &deg_signal_lag2_mat);
     
     let expected_result = 2;
@@ -25,8 +25,8 @@ fn test_best_lag_ref_shorter()
     let deg_signal_lag2 = vec![1.2, 0.1, -3.3, 0.1, 1.1, 2.2, 2.1, 7.1, 8.3, 6.8, 2.4, 2.2, 2.2, 2.1, 2.0];
 
     assert!( ref_signal.len() < deg_signal_lag2.len());
-    let ref_signal_mat = Array2::from_shape_vec((ref_signal.len(), 1), ref_signal).unwrap();
-    let deg_signal_lag2_mat = Array2::from_shape_vec((deg_signal_lag2.len(), 1), deg_signal_lag2).unwrap();
+    let ref_signal_mat = Array1::from_vec(ref_signal);
+    let deg_signal_lag2_mat = Array1::from_vec(deg_signal_lag2);
     let best_lag = xcorr::calculate_best_lag(&ref_signal_mat, &deg_signal_lag2_mat);
 
     let expected_result = 2;
@@ -40,8 +40,8 @@ fn test_best_lag_ref_longer()
     let deg_signal_lag2 = vec![1.2, 0.1, -3.3, 0.1, 1.1, 2.2, 2.1, 7.1, 8.3, 6.8, 2.4, 2.2, 2.2];
     assert!( ref_signal.len() > deg_signal_lag2.len());
 
-    let ref_signal_mat = Array2::from_shape_vec((ref_signal.len(), 1), ref_signal).unwrap();
-    let deg_signal_lag2_mat = Array2::from_shape_vec((deg_signal_lag2.len(), 1), deg_signal_lag2).unwrap();
+    let ref_signal_mat = Array1::from_vec(ref_signal);
+    let deg_signal_lag2_mat = Array1::from_vec(deg_signal_lag2);
     let best_lag = xcorr::calculate_best_lag(&ref_signal_mat, &deg_signal_lag2_mat);
 
     let expected_result = 2;
@@ -53,8 +53,8 @@ fn test_negative_best_lag()
     let ref_signal = vec![2.0, 2.0, 1.0, 0.1, -3.0, 0.1, 1.0, 2.0, 2.0, 6.0, 8.0, 6.0, 2.0, 2.0];
     let deg_signal_lag2 = vec![2.0, 2.0, 2.0, 2.0, 1.0, 0.1, -3.0, 0.1, 1.0, 2.0, 2.0, 6.0, 8.0, 6.0];
 
-    let ref_signal_mat = Array2::from_shape_vec((ref_signal.len(), 1), ref_signal).unwrap();
-    let deg_signal_lag2_mat = Array2::from_shape_vec((deg_signal_lag2.len(), 1), deg_signal_lag2).unwrap();
+    let ref_signal_mat = Array1::from_vec(ref_signal);
+    let deg_signal_lag2_mat = Array1::from_vec(deg_signal_lag2);
     let best_lag = xcorr::calculate_best_lag(&ref_signal_mat, &deg_signal_lag2_mat);
 
     let expected_result = -2;

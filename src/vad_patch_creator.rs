@@ -89,7 +89,7 @@ impl VadPatchCreator
     -> Vec<f64> {
         let mut vad = rms_vad::RmsVad::default();
     
-        let patch = signal.data_matrix.slice(s![start_sample..start_sample + total_samples, ..]);
+        let patch = signal.data_matrix.slice(s![start_sample..start_sample + total_samples]);
         
         let mut frame = Vec::<i16>::new();
         frame.reserve(frame_length);

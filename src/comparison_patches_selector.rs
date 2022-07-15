@@ -228,24 +228,23 @@ impl ComparisonPatchesSelector
 -> AudioSignal
     {
         let start_index = ((start_time * in_signal.sample_rate as f64) as usize).max(0);
-        let end_index = ((end_time * in_signal.sample_rate as f64) as usize).min(in_signal.data_matrix.nrows());
+        let end_index = ((end_time * in_signal.sample_rate as f64) as usize).min(in_signal.data_matrix.len());
         
-        let mut sliced_matrix = in_signal.data_matrix.slice(s![start_index..end_index, ..]).to_owned();
-        let end_time_diff = (end_time * in_signal.sample_rate as f64 - in_signal.data_matrix.nrows() as f64) as usize;
+        let mut sliced_matrix = in_signal.data_matrix.slice(s![start_index..end_index]).to_owned();
+        let end_time_diff = (end_time * in_signal.sample_rate as f64 - in_signal.data_matrix.len() as f64) as usize;
 
         if end_time_diff > 0
         {
-            let post_silence_matrix = Array2::<f64>::zeros((end_time_diff, 1));
+            let post_silence_matrix = Array1::<f64>::zeros(end_time_diff);
             sliced_matrix = concatenate(Axis(0), &[sliced_matrix.view(), post_silence_matrix.view()]).unwrap();
         }
 
         if start_time < 0.0
         {
-            let pre_silence_matrix = Array2::<f64>::zeros(((-1.0 * start_time * in_signal.sample_rate as f64) as usize, 1));
+            let pre_silence_matrix = Array1::<f64>::zeros((-1.0 * start_time * in_signal.sample_rate as f64) as usize);
             sliced_matrix = concatenate(Axis(0), &[pre_silence_matrix.view(), sliced_matrix.view()]).unwrap();
         }
         AudioSignal::new(sliced_matrix, in_signal.sample_rate)
-
     }
 
 
@@ -328,10 +327,7 @@ impl ComparisonPatchesSelector
                 realigned_results[i] = new_sim_result;
             }
         }
-
-        ////println!("realigned_results[2].similarity: {}", realigned_results[2].similarity);
         realigned_results
-
     }
 
 }

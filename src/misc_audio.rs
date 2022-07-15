@@ -2,7 +2,7 @@ use crate::{audio_signal::AudioSignal};
 use crate::{wav_reader::WavReader};
 use crate::misc_math;
 use crate::spectrogram::Spectrogram;
-use ndarray::{Array2, ShapeBuilder};
+use ndarray::{Array2, ShapeBuilder, Array1, Axis};
 use num::complex::Complex64;
 use num_traits::Zero;
 use std::f64;
@@ -25,57 +25,13 @@ pub fn scale_to_match_sound_pressure_level(reference: &AudioSignal, degraded: &A
 pub fn calculate_sound_pressure_level(signal: &AudioSignal) -> f64
 {
     let energy: f64 = signal.data_matrix.iter().map(|element| {element.powi(2)}).sum();
-    let sound_pressure = (energy / (signal.data_matrix.nrows() * signal.data_matrix.ncols()) as f64).sqrt();
+    let sound_pressure = (energy / (signal.data_matrix.len()) as f64).sqrt();
     20.0 * ((sound_pressure / SPL_REFERENCE_POINT).log10())
 }
 
-pub fn to_mono_matrix(sample_matrix: &Array2::<f64>) ->Array2::<f64>
+pub fn to_mono_matrix(sample_matrix: &Array2::<f64>) ->Array1::<f64>
 {
-    if sample_matrix.ncols() >= NUM_CHANNELS_MONO
-    {
-    let num_rows = sample_matrix.nrows();
-    let num_cols = sample_matrix.ncols();
-
-    let mut mono_matrix = Array2::<f64>::zeros((num_rows, 1));
-    
-    for i_chan  in 0..num_cols
-    {
-        for i_sample in 0..num_rows
-        {
-            mono_matrix[(i_sample, 0)] += sample_matrix[(i_sample, i_chan)];
-        }
-    }
-    mono_matrix /= num_cols as f64;
-    
-    mono_matrix
-    }
-    else 
-    {
-        // return if already mono.
-        sample_matrix.clone()
-    }
-}
-
-pub fn to_mono(signal: &AudioSignal) -> AudioSignal
-{
-    let sample_rate = signal.sample_rate;
-    let data_to_monoize = signal.data_matrix.clone();
-    if signal.data_matrix.ncols() >= NUM_CHANNELS_MONO
-    {
-        AudioSignal
-        {   
-            data_matrix: to_mono_matrix(&data_to_monoize), 
-            sample_rate 
-        }
-    }
-    else 
-    {
-        AudioSignal
-        {   
-            data_matrix: data_to_monoize, 
-            sample_rate 
-        }
-    }
+    sample_matrix.sum_axis(Axis(1))
 }
 
 pub fn load_as_mono(file_path: &str) -> AudioSignal
@@ -85,12 +41,13 @@ pub fn load_as_mono(file_path: &str) -> AudioSignal
     let data_vector_float = misc_math::normalize_int16_to_double(&wav_reader.samples);
     let final_signal = extract_multichannel(wav_reader.num_channels as usize, &data_vector_float);
 
-    let signal =  AudioSignal
+    let final_signal = to_mono_matrix(&final_signal);
+
+    AudioSignal
     {
         data_matrix: final_signal,
         sample_rate: wav_reader.sample_rate
-    };
-    to_mono(&signal)
+    }
 }
 
 pub fn extract_multichannel(num_channels: usize, interleaved_vector: &Vec<f64>) -> Array2<f64>

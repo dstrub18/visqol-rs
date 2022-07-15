@@ -191,7 +191,7 @@ fn test_full_signal()
 {
     let input = load_as_mono("/Users/danielstrubig/Documents/CodingProjects/rust/exercises/visqol/visqol-rs/test_data/clean_speech/CA01_01.wav");
 
-    let mut samples = input.data_matrix.remove_axis(Axis(1)).to_vec();
+    let mut samples = input.data_matrix.to_vec();
 
     let length = next_pow_two(&samples.len());
     samples.resize(length, 0.0);

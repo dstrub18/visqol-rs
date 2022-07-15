@@ -14,8 +14,7 @@ fn load_as_mono()
     let signal = misc_audio::load_as_mono("test_data/CA01_01.wav");
     assert_eq!(signal.sample_rate, expected_mono_test_sample_rate);
     assert_eq!(signal.data_matrix.len(), expected_mono_test_num_rows);
-    assert_eq!(signal.data_matrix.nrows(), expected_mono_test_num_rows);
-    assert_eq!(signal.data_matrix.ncols(), expected_mono_test_num_cols);
+    assert_eq!(signal.data_matrix.ndim(), expected_mono_test_num_cols);
     assert_abs_diff_eq!(signal.get_duration(), expected_mono_duration, epsilon=tolerance);
 }
 
@@ -30,9 +29,11 @@ fn load_stereo()
 
     let signal = misc_audio::load_as_mono("test_data/conformance_testdata_subset/guitar48_stereo.wav");
     assert_eq!(signal.sample_rate, expected_stereo_test_sample_rate);
-    assert_eq!(signal.nrows() as u32, expected_stereo_test_num_rows);
-    assert_eq!(signal.data_matrix.ncols() as u32, expected_stereo_test_num_cols);
+    assert_eq!(signal.len() as u32, expected_stereo_test_num_rows);
+    assert_eq!(signal.data_matrix.ndim() as u32, expected_stereo_test_num_cols);
     assert_abs_diff_eq!(signal.get_duration(), expected_stereo_duration, epsilon=tolerance);
+    assert_abs_diff_eq!(signal.data_matrix[2], -0.00001525878906250000, epsilon=tolerance);
+    assert_abs_diff_eq!(signal.data_matrix[597782], -0.00025939941406250000, epsilon=tolerance);
 }
 
 

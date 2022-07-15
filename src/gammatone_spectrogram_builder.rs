@@ -4,7 +4,6 @@ use crate::spectrogram::Spectrogram;
 use crate::spectrogram_builder::SpectrogramBuilder;
 use crate::gammatone_filterbank::GammatoneFilterbank;
 use crate::equivalent_rectangular_bandwidth;
-use crate::misc_vector::array2_to_vec;
 use ndarray::{Array2, Axis};
 
 use rayon::prelude::*;
@@ -18,7 +17,7 @@ impl SpectrogramBuilder for GammatoneSpectrogramBuilder
 {
     fn build(&mut self, signal: &AudioSignal, window: &AnalysisWindow) -> Result<Spectrogram, ()>
     {
-        let sig = array2_to_vec(&signal.data_matrix);
+        let sig = &signal.data_matrix.to_vec();
         let sample_rate = signal.sample_rate;
         let max_freq = if self.speech_mode {Self::SPEECH_MODE_MAX_FREQ} else{ sample_rate / 2};
         
@@ -34,9 +33,7 @@ impl SpectrogramBuilder for GammatoneSpectrogramBuilder
         let num_cols = 1 + ((sig.len() - window.size) / hop_size);
         let mut out_matrix = Array2::<f64>::zeros((self.filter_bank.num_bands, num_cols));
 
-        let signal_vec = signal.data_matrix.clone().remove_axis(Axis(1)).to_vec();
-
-        for (i, frame) in signal_vec.windows(window.size).step_by(hop_size).enumerate()
+        for (i, frame) in sig.windows(window.size).step_by(hop_size).enumerate()
         {
             self.filter_bank.reset_filter_conditions();
             let mut filtered_signal = self.filter_bank.apply_filter(frame);

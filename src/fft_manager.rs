@@ -44,8 +44,6 @@ impl FftManager
             let mut scratch_buffer = vec![Complex64::zero();real_to_complex.get_outofplace_scratch_len()];
             real_to_complex.process_outofplace_with_scratch(&mut complex_time_domain[..], &mut freq_channel.aligned_buffer[..], &mut scratch_buffer[..]);
         }
-        ////println!("AFTER TRANSFORM: TIME CHANNEL 0: {}", time_channel.aligned_buffer[0]);
-        ////println!("AFTER TRANSFORM: freq CHANNEL 0: {}", freq_channel.aligned_buffer[0]);
         
     }
     

@@ -1,4 +1,4 @@
-use ndarray::Array2;
+use ndarray::Array1;
 use visqol_rs::alignment;
 use visqol_rs::audio_signal::AudioSignal;
 use visqol_rs::misc_audio::load_as_mono;
@@ -10,8 +10,8 @@ fn align_signal_with_positive_lag()
     let ref_signal_vec = vec![2.0 * 0.00001, 2.0 * 0.00001, 1.0 * 0.00001, 0.1 * 0.00001, -3.0 * 0.00001, 0.1 * 0.00001, 1.0 * 0.00001, 2.0 * 0.00001, 2.0 * 0.00001, 6.0 * 0.00001, 8.0 * 0.00001, 6.0 * 0.00001, 2.0 * 0.00001, 2.0 * 0.00001];
     let deg_signal_lag_2_vec = vec![1.2, 0.1, -3.3, 0.1, 1.1, 2.2, 2.1, 7.1, 8.3, 6.8, 2.4, 2.2, 2.2, 2.1];
 
-    let ref_signal_mat = Array2::from_shape_vec((ref_signal_vec.len(), 1), ref_signal_vec).unwrap();
-    let deg_signal_mat = Array2::from_shape_vec((deg_signal_lag_2_vec.len(), 1), deg_signal_lag_2_vec).unwrap();
+    let ref_signal_mat = Array1::from_vec(ref_signal_vec);
+    let deg_signal_mat = Array1::from_vec(deg_signal_lag_2_vec);
     
     let best_lag_positive2 = 2;
     let zero_lag = 0;
@@ -26,7 +26,7 @@ fn align_signal_with_positive_lag()
 
     assert_eq!(zero_lag, final_lag);
 
-    assert_eq!(ref_signal.data_matrix.nrows() + best_lag_positive2 as usize, new_deg_signal.data_matrix.nrows());
+    assert_eq!(ref_signal.data_matrix.len() + best_lag_positive2 as usize, new_deg_signal.data_matrix.len());
 }
 
 #[test]
@@ -35,8 +35,8 @@ fn align_signal_with_negative_lag()
     let ref_signal_vec = vec![2.0, 2.0, 1.0, 0.1, -3.0, 0.1, 1.0, 2.0, 2.0, 6.0, 8.0, 6.0, 2.0, 2.0];
     let deg_signal_lag_negative_2_vec = vec![2.0, 2.0, 2.0, 2.0, 1.0, 0.1, -3.0, 0.1, 1.0, 2.0, 2.0, 6.0, 8.0, 6.0];
 
-    let ref_signal_mat = Array2::from_shape_vec((ref_signal_vec.len(), 1), ref_signal_vec).unwrap();
-    let deg_signal_mat = Array2::from_shape_vec((deg_signal_lag_negative_2_vec.len(), 1), deg_signal_lag_negative_2_vec).unwrap();
+    let ref_signal_mat = Array1::from_vec(ref_signal_vec);
+    let deg_signal_mat = Array1::from_vec(deg_signal_lag_negative_2_vec);
     
     let best_lag_negative2 = -2;
     let zero_lag = 0;
@@ -51,7 +51,7 @@ fn align_signal_with_negative_lag()
 
     assert_eq!(zero_lag, final_lag);
 
-    assert_eq!(ref_signal.data_matrix.nrows() as i64, new_deg_signal.data_matrix.nrows() as i64 - best_lag_negative2);
+    assert_eq!(ref_signal.data_matrix.len() as i64, new_deg_signal.data_matrix.len() as i64 - best_lag_negative2);
 }
 
 #[test]
@@ -59,10 +59,10 @@ fn align_signal_with_no_lag()
 {
     let ref_signal_vec = vec![2.0, 2.0, 1.0, 0.1, -3.0, 0.1, 1.0, 2.0, 2.0, 6.0, 8.0, 6.0, 2.0, 2.0];
 
-    let ref_signal_mat = Array2::from_shape_vec((ref_signal_vec.len(), 1), ref_signal_vec.clone()).unwrap();
-    let deg_signal_mat = Array2::from_shape_vec((ref_signal_vec.len(), 1), ref_signal_vec).unwrap();
+    let ref_signal_mat = Array1::from_vec(ref_signal_vec.clone());
+    let deg_signal_mat = Array1::from_vec(ref_signal_vec);
     
-    let deg_signal_init_size = ref_signal_mat.nrows();
+    let deg_signal_init_size = ref_signal_mat.len();
     let zero_lag = 0;
     let ref_signal = AudioSignal::new(ref_signal_mat, 1);
     let deg_signal = AudioSignal::new(deg_signal_mat, 1);
@@ -75,7 +75,7 @@ fn align_signal_with_no_lag()
 
     assert_eq!(zero_lag, final_lag);
 
-    assert_eq!(deg_signal_init_size, new_deg_signal.data_matrix.nrows());
+    assert_eq!(deg_signal_init_size, new_deg_signal.data_matrix.len());
 }
 
 #[test]
