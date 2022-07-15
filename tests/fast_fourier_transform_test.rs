@@ -2,7 +2,7 @@ use num::complex::Complex64;
 use visqol_rs::fast_fourier_transform;
 use visqol_rs::fft_manager::FftManager;
 use visqol_rs::test_utility::*;
-use ndarray::{Array2, Array1};
+use ndarray::{Array1};
 
 #[test]
 fn test_forward_1d()

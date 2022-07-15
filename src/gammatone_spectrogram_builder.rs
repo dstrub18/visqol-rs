@@ -6,7 +6,7 @@ use crate::gammatone_filterbank::GammatoneFilterbank;
 use crate::equivalent_rectangular_bandwidth;
 use ndarray::{Array2, Axis};
 
-use rayon::prelude::*;
+//use rayon::prelude::*;
 pub struct GammatoneSpectrogramBuilder
 {
     filter_bank: GammatoneFilterbank,

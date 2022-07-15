@@ -7,7 +7,6 @@ use num::complex::Complex64;
 use num_traits::Zero;
 use std::f64;
 // Constants
-const NUM_CHANNELS_MONO: usize = 1;
 const SPL_REFERENCE_POINT: f64 = 0.00002;
 const NOISE_FLOOR_RELATIVE_TO_PEAK_DB: f64 = 45.0;
 const NOISE_FLOOR_ABSOLUTE_DB: f64 = -45.0;
@@ -19,7 +18,7 @@ pub fn scale_to_match_sound_pressure_level(reference: &AudioSignal, degraded: &A
     
     let scale_factor = 10.0f64.powf((ref_spl - deg_spl) / 20.0);
     let scaled_mat = degraded.data_matrix.clone() * scale_factor;
-    AudioSignal{data_matrix: scaled_mat,sample_rate:  degraded.sample_rate}
+    AudioSignal::new(scaled_mat, degraded.sample_rate)
 }
 
 pub fn calculate_sound_pressure_level(signal: &AudioSignal) -> f64
