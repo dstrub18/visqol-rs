@@ -104,19 +104,19 @@ impl GammatoneFilterbank
             b[2] = self.filter_coeff_b2[band];
 
             // 1st filter
-            let mut filter_result = signal_filter::filter_signal(&a1, &b, signal, &self.filter_conditions_1[band]);
+            let mut filter_result = signal_filter::filter_signal(&a1, &b, signal, &mut self.filter_conditions_1[band]);
             self.filter_conditions_1[band] = filter_result.final_conditions;
             
             // 2nd filter
-            filter_result = signal_filter::filter_signal(&a2, &b, &filter_result.filtered_signal, &self.filter_conditions_2[band]);
+            filter_result = signal_filter::filter_signal(&a2, &b, &filter_result.filtered_signal, &mut self.filter_conditions_2[band]);
             self.filter_conditions_2[band] = filter_result.final_conditions;
             
             // 3rd filter
-            filter_result = signal_filter::filter_signal(&a3, &b, &filter_result.filtered_signal, &self.filter_conditions_3[band]);
+            filter_result = signal_filter::filter_signal(&a3, &b, &filter_result.filtered_signal, &mut self.filter_conditions_3[band]);
             self.filter_conditions_3[band] = filter_result.final_conditions;
             
             // 4th filter
-            filter_result = signal_filter::filter_signal(&a4, &b, &filter_result.filtered_signal, &self.filter_conditions_4[band]);
+            filter_result = signal_filter::filter_signal(&a4, &b, &filter_result.filtered_signal, &mut self.filter_conditions_4[band]);
             self.filter_conditions_4[band] = filter_result.final_conditions;
             
             for i in 0..filter_result.filtered_signal.len()

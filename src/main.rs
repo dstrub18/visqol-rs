@@ -1,6 +1,6 @@
 use clap::{Parser};
 use visqol_rs::{command_line_parser::CommandLineArgs, visqol_manager::VisqolManager, file_path::FilePath};
-fn main() 
+fn main()
 {
     let args = CommandLineArgs::parse();
 

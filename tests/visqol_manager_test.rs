@@ -42,7 +42,7 @@ fn regression_test_stereo()
 
     let result = visqol.run_from_filepaths(&ref_signal_path, &deg_signal_path);
 
-    assert_abs_diff_eq!(result.moslqo, 4.5123244380958774, epsilon=0.1);
+    assert_abs_diff_eq!(result.moslqo, 4.5123244380958774, epsilon=0.000001);
 }
 #[test]
 fn test_identical_stddev_nsim()
