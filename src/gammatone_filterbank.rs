@@ -119,8 +119,6 @@ impl GammatoneFilterbank
             filter_result = signal_filter::filter_signal(&a4, &b, &filter_result.filtered_signal, &self.filter_conditions_4[band]);
             self.filter_conditions_4[band] = filter_result.final_conditions;
             
-            
-            
             for i in 0..filter_result.filtered_signal.len()
             {
                 output.row_mut(band)[i] = filter_result.filtered_signal[i];

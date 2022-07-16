@@ -1,5 +1,5 @@
 use visqol_rs::{xcorr};
-use ndarray::{Array2, Array1};
+use ndarray::{Array1};
 
 #[test]
 

@@ -44,7 +44,7 @@ pub fn load_as_mono(file_path: &str) -> AudioSignal
 
     AudioSignal
     {
-        data_matrix: final_signal,
+        data_matrix: final_signal / wav_reader.num_channels as f64,
         sample_rate: wav_reader.sample_rate
     }
 }

@@ -23,7 +23,7 @@ impl VisqolManager
     const _DURATION_MISMATCH_TOLERANCE: f64 = 1.0;
 
     pub fn new(model_path: &str, use_speech_mode: bool, use_unscaled_speech_mos_mapping: bool, search_window: usize)
-    -> VisqolManager     
+    -> VisqolManager
     {
         let pc: Box<dyn PatchCreator>;
         if use_speech_mode

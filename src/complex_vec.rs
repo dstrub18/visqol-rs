@@ -1,4 +1,4 @@
-use num::complex::Complex;
+use num::complex::Complex64;
 #[derive(Debug)]
 pub struct ComplexVec
 {

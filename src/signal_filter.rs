@@ -7,7 +7,6 @@ pub struct FilterResults
 impl FilterResults
 {
     pub const NUM_FILTER_CONDITIONS: usize = 2;
-
 }
 
 // returns filter results
@@ -23,12 +22,14 @@ pub fn filter_signal(numerator_coeffs: &[f64], denom_coeffs: &[f64], signal: &[f
     {
         *filtered_element = numerator_coeffs[0] * *signal_element + final_conditions[0];
         
-        for (i, (num, den)) in numerator_coeffs.iter().zip(denom_coeffs).skip(1).enumerate() 
+        for (i, (num, den)) in numerator_coeffs.iter()
+                                                                  .zip(denom_coeffs)
+                                                                  .skip(1)
+                                                                  .enumerate()
         {
             final_conditions[i] = *num * signal_element +
             final_conditions[i + 1] - *den * *filtered_element;
         }
-
     }
     );
 
