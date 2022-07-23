@@ -1,11 +1,11 @@
-use ndarray::Array1;
 use ndarray::Array2 as ImagePatch;
-#[derive(Debug, Clone)]
+use serde::Serialize;
+#[derive(Debug, Clone, Serialize)]
 pub struct PatchSimilarityResult
 {
-    pub freq_band_means: Array1<f64>,
-    pub freq_band_stddevs: Array1<f64>,
-    pub freq_band_deg_energy: Array1<f64>,
+    pub freq_band_means: Vec<f64>,
+    pub freq_band_stddevs: Vec<f64>,
+    pub freq_band_deg_energy: Vec<f64>,
     pub similarity: f64,
     pub ref_patch_start_time: f64,
     pub ref_patch_end_time: f64,
@@ -15,9 +15,10 @@ pub struct PatchSimilarityResult
 
 impl PatchSimilarityResult
 {
-    pub fn new(freq_band_means: Array1<f64>,
-        freq_band_stddevs: Array1<f64>,
-        freq_band_deg_energy: Array1<f64>,similarity: f64,) -> Self
+    pub fn new(freq_band_means: Vec<f64>,
+        freq_band_stddevs: Vec<f64>,
+        freq_band_deg_energy: Vec<f64>,
+        similarity: f64,) -> Self
     {
         Self
         {
@@ -36,9 +37,9 @@ impl PatchSimilarityResult
     {
         Self
         {
-            freq_band_means: Array1::<f64>::zeros(0),
-            freq_band_stddevs: Array1::<f64>::zeros(0),
-            freq_band_deg_energy: Array1::<f64>::zeros(0),
+            freq_band_means: Vec::<f64>::new(),
+            freq_band_stddevs: Vec::<f64>::new(),
+            freq_band_deg_energy: Vec::<f64>::new(),
             similarity: 0.0,
             ref_patch_start_time: 0.0,
             ref_patch_end_time: 0.0,

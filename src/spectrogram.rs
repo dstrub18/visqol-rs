@@ -38,7 +38,7 @@ impl Spectrogram
 
     pub fn get_minimum(&self) -> f64
     {
-        self.data.min().unwrap().clone()
+        *self.data.min().unwrap()
     }
 
     pub fn subtract_floor(&mut self, floor: f64)
@@ -66,5 +66,23 @@ impl Spectrogram
             our_frame.mapv_inplace(|element|{floor_db.max(element)});
             other_frame.mapv_inplace(|element|{floor_db.max(element)});
         }
+    }
+}
+
+impl std::ops::Index<(usize, usize)> for Spectrogram
+{
+    type Output = f64;
+
+    fn index(&self, index: (usize, usize)) -> &Self::Output 
+    {
+        &self.data[index]
+    }
+}
+
+impl std::ops::IndexMut<(usize, usize)> for Spectrogram 
+{
+    fn index_mut(&mut self, index: (usize, usize)) -> &mut Self::Output 
+    {
+        &mut self.data[index]
     }
 }

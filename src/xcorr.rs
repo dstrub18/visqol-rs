@@ -58,7 +58,7 @@ pub fn calculate_fft_pointwise_product(signal_1: &[f64], signal_2: &[f64], manag
     let mut signal_2_mat = Array1::from_vec(signal_2.to_vec());
     let mut fft_signal_2 = fast_fourier_transform::forward_1d_from_points(manager, &mut signal_2_mat, fft_points);
 
-    fft_signal_2.iter_mut().for_each(|element|{*element = element.conj()});
+    fft_signal_2.map_inplace(|element|{*element = element.conj()});
     
     let mut signal_1_mat = Array1::from_vec(signal_1.to_vec());
     let fft_signal_1 = fast_fourier_transform::forward_1d_from_points(manager, &mut signal_1_mat, fft_points);

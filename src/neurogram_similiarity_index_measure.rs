@@ -68,7 +68,7 @@ impl PatchSimilarityComparator for NeurogramSimiliarityIndexMeasure
         let mut structure_denominator = &sigma_ref_squared * &sigma_deg_squared;
 
         // Avoid nans
-        structure_denominator.iter_mut().for_each(|element|{* element = if *element < 0.0 {c3} else {element.sqrt() + c3}});
+        structure_denominator.map_inplace(|element|{* element = if *element < 0.0 {c3} else {element.sqrt() + c3}});
         
         let structure = &structure_numerator / &structure_denominator;
         let sim_map = &intensity * &structure;
@@ -78,7 +78,7 @@ impl PatchSimilarityComparator for NeurogramSimiliarityIndexMeasure
         let freq_band_std: Array1<f64> = sim_map.std_axis(Axis(1), 1.0);
         let mean_freq_band_means = freq_band_means.mean().unwrap();
 
-        PatchSimilarityResult::new(freq_band_means, freq_band_std, freq_band_deg_energy, mean_freq_band_means)
+        PatchSimilarityResult::new(freq_band_means.to_vec(), freq_band_std.to_vec(), freq_band_deg_energy.to_vec(), mean_freq_band_means)
 
     }
 }

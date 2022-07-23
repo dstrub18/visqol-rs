@@ -22,9 +22,11 @@ rustfft = "6.0.1"
 clap = { version = "3.1.18", features = ["derive"] }
 csv = "1.1.6"
 serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0.82"
 ffsvm = "0.8"
 realfft = "3.0.0"
 rayon = "1.5.3"
+prettytable-rs = "0.8.0"
 
 [patch.crates-io]
 ffsvm = { path = "../../libs/ffsvm-rust"}

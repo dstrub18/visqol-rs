@@ -1,5 +1,5 @@
 use std::path::PathBuf;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 pub struct FilePath
 {
     pub path: PathBuf
@@ -8,8 +8,8 @@ pub struct FilePath
 impl FilePath
 {
 
-    pub fn new(path_str: String)
--> FilePath     {
+    pub fn new(path_str: &str)-> FilePath
+    {
 
         let mut path = PathBuf::new();
         path.push(path_str);
@@ -43,21 +43,21 @@ pub fn current_working_dir() -> String
 }
 
 // todo: Ditch this effin FilePath. You made the alignment and xcorr work :) Be proud of yourself :)
-#[derive(Deserialize)]
+#[derive(Deserialize, Serialize)]
 pub struct ReferenceDegradedPathPair
 {
-    pub reference: PathBuf,
-    pub degraded: PathBuf
+    pub reference: String,
+    pub degraded: String
 }
 impl ReferenceDegradedPathPair
 {
-    pub fn new(reference: &String, degraded: &String)
+    pub fn new(reference: &str, degraded: &str)
     -> Self     
     {
         Self
         {
-            reference: PathBuf::from(reference),
-            degraded: PathBuf::from(degraded)
+            reference: String::from(reference),
+            degraded: String::from(degraded)
         }
     }
 }

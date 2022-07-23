@@ -38,11 +38,11 @@ impl SpectrogramBuilder for GammatoneSpectrogramBuilder
             self.filter_bank.reset_filter_conditions();
             let mut filtered_signal = self.filter_bank.apply_filter(frame);
             
-            filtered_signal.iter_mut().for_each(|e|{*e = *e * *e});
+            filtered_signal.map_inplace(|e|{*e = *e * *e});
             
             let mut row_means = filtered_signal.mean_axis(Axis(1)).unwrap();
             
-            row_means.iter_mut().for_each(|e|{*e = e.sqrt();});
+            row_means.map_inplace(|e|{*e = e.sqrt();});
             
             for j in 0..row_means.to_vec().len()
             {

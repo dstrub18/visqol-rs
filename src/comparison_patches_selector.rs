@@ -97,7 +97,7 @@ impl ComparisonPatchesSelector
                 best_deg_patches[patch_index as usize].deg_patch_end_time = 0.0;
                 best_deg_patches[patch_index as usize].similarity = 0.0;
                 let num_rows = best_deg_patches[patch_index as usize].freq_band_means.len();
-                best_deg_patches[patch_index as usize].freq_band_means = Array1::zeros(num_rows);
+                best_deg_patches[patch_index as usize].freq_band_means = vec![0.0;num_rows];
             }
             else
             {
@@ -152,7 +152,6 @@ impl ComparisonPatchesSelector
                 break;
             }
             let deg_patch = &mut deg_patches[slide_offset as usize];
-            //uh-oh. odd shapes give weird results.
             sim_result = self.sim_comparator.measure_patch_similarity(ref_patch, deg_patch);
             let mut past_slide_offset = -1;
             let mut highest_sim = f64::MIN;

@@ -43,7 +43,7 @@ pub fn calculate_similarity(ref_signal: &AudioSignal,
     let vnsim = fvnsim.mean().unwrap();
     
     moslqo = alter_for_similarity_extremes(vnsim, moslqo as f64) as f32;
-    SimilarityResult::new(moslqo as f64, vnsim, fvnsim.to_vec(), fstdnsim.to_vec(), fvdegenergy.to_vec(), ref_spectrogram.center_freq_bands.clone())
+    SimilarityResult::new(moslqo as f64, vnsim, fvnsim.to_vec(), fstdnsim.to_vec(), fvdegenergy.to_vec(), ref_spectrogram.center_freq_bands.clone(), sim_match_info)
 
 }
 
@@ -59,7 +59,7 @@ fn calc_per_patch_mean_freq_band_means(sim_match_info: &Vec<PatchSimilarityResul
 -> ndarray::ArrayBase<ndarray::OwnedRepr<f64>, ndarray::Dim<[usize; 1]>> {
     
     // This is going great, mate. YOU'RE CLOSING IN! :)))
-    let mut fvnsim = Array1::<f64>::zeros(sim_match_info[0].freq_band_means.shape()[0]);
+    let mut fvnsim = Array1::<f64>::zeros(sim_match_info[0].freq_band_means.len());
     for patch in sim_match_info
     {
         for (index, band) in fvnsim.iter_mut().enumerate()
@@ -72,7 +72,7 @@ fn calc_per_patch_mean_freq_band_means(sim_match_info: &Vec<PatchSimilarityResul
 
 fn calc_per_patch_mean_freq_band_degraded_energy(sim_match_info: &Vec<PatchSimilarityResult>)
 -> ndarray::ArrayBase<ndarray::OwnedRepr<f64>, ndarray::Dim<[usize; 1]>> {
-    let mut total_fvdegenergy = Array1::<f64>::zeros(sim_match_info[0].freq_band_means.shape()[0]);
+    let mut total_fvdegenergy = Array1::<f64>::zeros(sim_match_info[0].freq_band_means.len());
     for patch in sim_match_info
     {
         for (index, band) in total_fvdegenergy.iter_mut().enumerate()
@@ -88,7 +88,7 @@ fn calc_per_patch_mean_freq_band_std_devs(sim_match_info: &Vec<PatchSimilarityRe
 {
     let fvn_sim = calc_per_patch_mean_freq_band_means(sim_match_info);
     
-    let mut contribution = Array1::<f64>::zeros(sim_match_info[0].freq_band_means.shape()[0]);
+    let mut contribution = Array1::<f64>::zeros(sim_match_info[0].freq_band_means.len());
     // Now that we have the global mean, we can compute the combined
     // variance/stddev.
     let mut total_frame_count = 0;
@@ -113,7 +113,7 @@ fn calc_per_patch_mean_freq_band_std_devs(sim_match_info: &Vec<PatchSimilarityRe
 
     let mut result = (&contribution - (&fvn_sim * &fvn_sim * total_frame_count as f64)) / (total_frame_count as f64 - 1.0);
 
-    result.iter_mut().for_each(|element|
+    result.map_inplace(|element|
         {
             if *element < 0.0 
             {
@@ -123,7 +123,7 @@ fn calc_per_patch_mean_freq_band_std_devs(sim_match_info: &Vec<PatchSimilarityRe
             {
                 *element = element.sqrt();
             }
-    });
+        });
     result
 }
 

@@ -35,3 +35,4 @@ pub mod visqol_manager;
 pub mod patch_creator;
 pub mod visqol;
 pub mod similarity_result;
+pub mod output_utility;

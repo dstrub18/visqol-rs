@@ -8,8 +8,8 @@ fn regression_test_mono()
     let ref_path = "/Users/danielstrubig/Documents/CodingProjects/rust/exercises/visqol/visqol-rs/test_data/clean_speech/CA01_01.wav";
     let deg_path = "/Users/danielstrubig/Documents/CodingProjects/rust/exercises/visqol/visqol-rs/test_data/clean_speech/transcoded_CA01_01.wav";
 
-    let ref_signal_path = FilePath::new(ref_path.to_string());
-    let deg_signal_path = FilePath::new(deg_path.to_string());
+    let ref_signal_path = FilePath::new(&ref_path.to_string());
+    let deg_signal_path = FilePath::new(&deg_path.to_string());
     
     let use_speech_mode = false;
     let use_unscaled_speech_mos_mapping = false;
@@ -30,8 +30,8 @@ fn regression_test_stereo()
     let ref_path = "/Users/danielstrubig/Documents/CodingProjects/rust/exercises/visqol/visqol-rs/test_data/conformance_testdata_subset/guitar48_stereo.wav";
     let deg_path = "/Users/danielstrubig/Documents/CodingProjects/rust/exercises/visqol/visqol-rs/test_data/conformance_testdata_subset/guitar48_stereo_64kbps_aac.wav";
 
-    let ref_signal_path = FilePath::new(ref_path.to_string());
-    let deg_signal_path = FilePath::new(deg_path.to_string());
+    let ref_signal_path = FilePath::new(&ref_path.to_string());
+    let deg_signal_path = FilePath::new(&deg_path.to_string());
     
     let use_speech_mode = false;
     let use_unscaled_speech_mos_mapping = false;
@@ -50,8 +50,8 @@ fn test_identical_stddev_nsim()
     let ref_path = "/Users/danielstrubig/Documents/CodingProjects/rust/exercises/visqol/visqol-rs/test_data/conformance_testdata_subset/guitar48_stereo.wav";
     let deg_path = "/Users/danielstrubig/Documents/CodingProjects/rust/exercises/visqol/visqol-rs/test_data/conformance_testdata_subset/guitar48_stereo.wav";
 
-    let ref_signal_path = FilePath::new(ref_path.to_string());
-    let deg_signal_path = FilePath::new(deg_path.to_string());
+    let ref_signal_path = FilePath::new(&ref_path.to_string());
+    let deg_signal_path = FilePath::new(&deg_path.to_string());
     
     let use_speech_mode = false;
     let use_unscaled_speech_mos_mapping = false;
@@ -80,8 +80,8 @@ fn test_non48k_sample_rate()
     let ref_path = "/Users/danielstrubig/Documents/CodingProjects/rust/exercises/visqol/visqol-rs/test_data/conformance_testdata_subset/non_48k_sample_rate/guitar48_stereo_44100Hz.wav";
     let deg_path = "/Users/danielstrubig/Documents/CodingProjects/rust/exercises/visqol/visqol-rs/test_data/conformance_testdata_subset/non_48k_sample_rate/guitar48_stereo_44100Hz.wav";
 
-    let ref_signal_path = FilePath::new(ref_path.to_string());
-    let deg_signal_path = FilePath::new(deg_path.to_string());
+    let ref_signal_path = FilePath::new(&ref_path.to_string());
+    let deg_signal_path = FilePath::new(&deg_path.to_string());
     
     let use_speech_mode = false;
     let use_unscaled_speech_mos_mapping = false;
@@ -99,8 +99,8 @@ fn test_unscaled_speech_mode()
     let ref_path = "/Users/danielstrubig/Documents/CodingProjects/rust/exercises/visqol/visqol-rs/test_data/clean_speech/CA01_01.wav";
     let deg_path = "/Users/danielstrubig/Documents/CodingProjects/rust/exercises/visqol/visqol-rs/test_data/clean_speech/CA01_01.wav";
 
-    let ref_signal_path = FilePath::new(ref_path.to_string());
-    let deg_signal_path = FilePath::new(deg_path.to_string());
+    let ref_signal_path = FilePath::new(&ref_path.to_string());
+    let deg_signal_path = FilePath::new(&deg_path.to_string());
     
     let use_speech_mode = true;
     let use_unscaled_speech_mos_mapping = true;
@@ -118,8 +118,8 @@ fn test_scaled_speech_mode()
     let ref_path = "/Users/danielstrubig/Documents/CodingProjects/rust/exercises/visqol/visqol-rs/test_data/clean_speech/CA01_01.wav";
     let deg_path = "/Users/danielstrubig/Documents/CodingProjects/rust/exercises/visqol/visqol-rs/test_data/clean_speech/CA01_01.wav";
 
-    let ref_signal_path = FilePath::new(ref_path.to_string());
-    let deg_signal_path = FilePath::new(deg_path.to_string());
+    let ref_signal_path = FilePath::new(&ref_path.to_string());
+    let deg_signal_path = FilePath::new(&deg_path.to_string());
     
     let use_speech_mode = true;
     let use_unscaled_speech_mos_mapping = false;

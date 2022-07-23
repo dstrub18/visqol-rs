@@ -1,5 +1,6 @@
 use crate::{image_patch_creator::ImagePatchCreator, comparison_patches_selector::ComparisonPatchesSelector, spectrogram_builder::SpectrogramBuilder, similarity_to_quality_mapper::{SimilarityToQualityMapper}, patch_creator::PatchCreator, vad_patch_creator::VadPatchCreator, svr_similarity_to_quality_mapper::SvrSimilarityToQualityMapper, gammatone_spectrogram_builder::GammatoneSpectrogramBuilder, gammatone_filterbank::GammatoneFilterbank, neurogram_similiarity_index_measure::NeurogramSimiliarityIndexMeasure, audio_signal::AudioSignal, alignment, analysis_window::AnalysisWindow, visqol, similarity_result::SimilarityResult, file_path::FilePath, misc_audio};
 use crate::speech_similarity_to_quality_mapper::SpeechSimilarityToQualityMapper;
+use crate::constants;
 pub struct VisqolManager
 {
     pub use_speech_mode: bool,
@@ -13,14 +14,7 @@ pub struct VisqolManager
 
 impl VisqolManager
 {
-    const PATCH_SIZE: usize = 30;
-    const PATCH_SIZE_SPEECH: usize = 20;
-    const NUM_BANDS_AUDIO: usize = 32;
-    const NUM_BANDS_SPEECH: usize = 21;
-    const MINIMUM_FREQ: f64 = 50.0;
-    const OVERLAP: f64 = 0.25;
-    const WINDOW_DURATION: f64 = 0.08;
-    const _DURATION_MISMATCH_TOLERANCE: f64 = 1.0;
+    
 
     pub fn new(model_path: &str, use_speech_mode: bool, use_unscaled_speech_mos_mapping: bool, search_window: usize)
     -> VisqolManager
@@ -28,11 +22,11 @@ impl VisqolManager
         let pc: Box<dyn PatchCreator>;
         if use_speech_mode
         {
-            pc = Box::new(VadPatchCreator::new(Self::PATCH_SIZE_SPEECH));
+            pc = Box::new(VadPatchCreator::new(constants::PATCH_SIZE_SPEECH));
         }
         else
         {
-            pc = Box::new(ImagePatchCreator::new(Self::PATCH_SIZE));
+            pc = Box::new(ImagePatchCreator::new(constants::PATCH_SIZE_AUDIO));
         }
 
         let sim_to_quality_mapper: Box<dyn SimilarityToQualityMapper>;
@@ -48,11 +42,11 @@ impl VisqolManager
         let sb: Box<dyn SpectrogramBuilder>;
         if use_speech_mode 
         {
-            sb = Box::new(GammatoneSpectrogramBuilder::new(GammatoneFilterbank::new(Self::NUM_BANDS_SPEECH, Self::MINIMUM_FREQ), use_speech_mode));    
+            sb = Box::new(GammatoneSpectrogramBuilder::new(GammatoneFilterbank::new(constants::NUM_BANDS_SPEECH, constants::MINIMUM_FREQ), use_speech_mode));    
         }
         else
         {
-            sb = Box::new(GammatoneSpectrogramBuilder::new(GammatoneFilterbank::new(Self::NUM_BANDS_AUDIO, Self::MINIMUM_FREQ), false));    
+            sb = Box::new(GammatoneSpectrogramBuilder::new(GammatoneFilterbank::new(constants::NUM_BANDS_AUDIO, constants::MINIMUM_FREQ), false));    
         }
 
         let patch_selector = ComparisonPatchesSelector::new(NeurogramSimiliarityIndexMeasure::default());
@@ -83,7 +77,7 @@ impl VisqolManager
     {
         let (mut deg_signal, _) = alignment::globally_align(ref_signal, deg_signal);
 
-        let window = AnalysisWindow::new(ref_signal.sample_rate, Self::OVERLAP, Self::WINDOW_DURATION);
+        let window = AnalysisWindow::new(ref_signal.sample_rate, constants::OVERLAP, constants::WINDOW_DURATION);
 
         visqol::calculate_similarity(ref_signal, &mut deg_signal, self.spectrogram_builder.as_mut(), &window, self.patch_creator.as_mut(), &self.patch_selector, self.sim_to_quality_mapper.as_mut(), self.search_window)
     }

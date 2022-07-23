@@ -5,15 +5,6 @@ pub struct AudioChannel<T>
 }
 
 impl<T> AudioChannel<T>
-where T: num::Zero
-{
-    pub fn clear(&mut self)
-    {
-        self.aligned_buffer.iter_mut().for_each(|x|{*x = T::zero()});
-    }
-}
-
-impl<T> AudioChannel<T>
 where T: num::Zero + std::clone::Clone
 {
     pub fn new(size: usize) -> Self
@@ -28,7 +19,11 @@ where T: num::Zero + std::clone::Clone
     {
         self.aligned_buffer.len()
     }
-    
+
+    pub fn clear(&mut self)
+    {
+        self.aligned_buffer.fill(T::zero());
+    }
 }
 
 impl<T> std::ops::Index<usize> for AudioChannel<T>

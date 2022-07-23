@@ -30,9 +30,9 @@ fn test_slice()
     let sliced_signal = ComparisonPatchesSelector::slice(&three_seconds_silence, 0.5, 2.5);
 
     assert_eq!(sliced_signal.get_duration(), 2.0);
-    assert_eq!(sliced_signal.data_matrix[7999], 0.0);
-    assert_eq!(sliced_signal.data_matrix[8000], 1.0);
-    assert_eq!(sliced_signal.data_matrix[8001], 0.0);
+    assert_eq!(sliced_signal[7999], 0.0);
+    assert_eq!(sliced_signal[8000], 1.0);
+    assert_eq!(sliced_signal[8001], 0.0);
 }
 
 #[test]
