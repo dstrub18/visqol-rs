@@ -21,7 +21,7 @@ fn align_signal_with_positive_lag()
     let initial_lag = xcorr::calculate_best_lag(&ref_signal.data_matrix, &deg_signal.data_matrix);
     assert_eq!(initial_lag, best_lag_positive2);
 
-    let (new_deg_signal, _) = alignment::globally_align(&ref_signal, &deg_signal);
+    let (new_deg_signal, _) = alignment::globally_align(&ref_signal, &deg_signal).unwrap();
     let final_lag = xcorr::calculate_best_lag(&ref_signal.data_matrix, &new_deg_signal.data_matrix);
 
     assert_eq!(zero_lag, final_lag);
@@ -46,7 +46,7 @@ fn align_signal_with_negative_lag()
     let initial_lag = xcorr::calculate_best_lag(&ref_signal.data_matrix, &deg_signal.data_matrix);
     assert_eq!(initial_lag, best_lag_negative2);
 
-    let (new_deg_signal, _) = alignment::globally_align(&ref_signal, &deg_signal);
+    let (new_deg_signal, _) = alignment::globally_align(&ref_signal, &deg_signal).unwrap();
     let final_lag = xcorr::calculate_best_lag(&ref_signal.data_matrix, &new_deg_signal.data_matrix);
 
     assert_eq!(zero_lag, final_lag);
@@ -70,7 +70,7 @@ fn align_signal_with_no_lag()
     let initial_lag = xcorr::calculate_best_lag(&ref_signal.data_matrix, &deg_signal.data_matrix);
     assert_eq!(initial_lag, zero_lag);
 
-    let (new_deg_signal, _) = alignment::globally_align(&ref_signal, &deg_signal);
+    let (new_deg_signal, _) = alignment::globally_align(&ref_signal, &deg_signal).unwrap();
     let final_lag = xcorr::calculate_best_lag(&ref_signal.data_matrix, &new_deg_signal.data_matrix);
 
     assert_eq!(zero_lag, final_lag);
@@ -84,6 +84,6 @@ fn test_with_audio_signals()
     let ref_signal = load_as_mono("/Users/danielstrubig/Documents/CodingProjects/rust/exercises/visqol/cpp/visqol/testdata/patches/ref_patch.wav");
     let deg_signal = load_as_mono("/Users/danielstrubig/Documents/CodingProjects/rust/exercises/visqol/cpp/visqol/testdata/patches/deg_patch.wav");
 
-    let (_,_, lag) = alignment::align_and_truncate(&ref_signal, &deg_signal);
+    let (_,_, lag) = alignment::align_and_truncate(&ref_signal, &deg_signal).unwrap();
     assert_eq!(lag, 0.0000625);
 }

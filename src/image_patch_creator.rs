@@ -13,22 +13,18 @@ impl PatchCreator for ImagePatchCreator
         self.create_ref_patch_indices_from_spectrogram(spectrogram)
     }
 
-    fn create_patches_from_indices(&self, spectrogram: &Array2<f64>, patch_indices: &Vec<usize>)
-    -> Vec<ndarray::ArrayBase<ndarray::OwnedRepr<f64>, ndarray::Dim<[usize; 2]>>>     {
-            let mut start_col: usize;
+    fn create_patches_from_indices(&self, spectrogram: &Array2<f64>, patch_indices: &[usize])
+    -> Vec<Array2<f64>>     {
             let mut end_col: usize;
-    
-            let num_patches = patch_indices.len();
     
             let mut patches = Vec::<Array2<f64>>::new();
     
             let mut patch : Array2::<f64>;
     
-            for i in 0..num_patches
+            for start_col in patch_indices
             {
-                start_col = patch_indices[i];
                 end_col = start_col + self.patch_size;
-                patch = spectrogram.slice(s![.., start_col..end_col]).to_owned();
+                patch = spectrogram.slice(s![.., *start_col..end_col]).to_owned();
                 patches.push(patch);
             }
     
@@ -54,7 +50,7 @@ impl ImagePatchCreator
 
         if spectrum_length < self.patch_size + init_patch_index
         {
-            panic!("reference spectrum size {x} smaller than minimum {y}",x=spectrum_length, y=self.patch_size - &init_patch_index);
+            panic!("reference spectrum size {x} smaller than minimum {y}",x=spectrum_length, y=self.patch_size - init_patch_index);
         }
 
         let max_index = if init_patch_index < (spectrum_length - self.patch_size) 

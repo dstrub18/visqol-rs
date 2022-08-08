@@ -340,11 +340,11 @@ fn test_inverse_1d()
     -0.000124137, 2.84554e-05, 8.94924e-05, -0.00027673, -6.31002e-05,
     -0.000215693, 0.000425196, 8.94924e-05];
 
-    let mut samples_mat = Array1::from_vec(samples);
+    let samples_mat = Array1::from_vec(samples);
 
     let mut fft_manager = FftManager::new(samples_mat.len());
 
-    let mut spectrum = fast_fourier_transform::forward_1d_from_matrix(&mut fft_manager, &mut samples_mat);
+    let mut spectrum = fast_fourier_transform::forward_1d_from_matrix(&mut fft_manager, &samples_mat);
 
     let inverse = fast_fourier_transform::inverse_1d_conj_sym(&mut fft_manager, &mut spectrum);
     
@@ -370,7 +370,7 @@ fn test_complex_inverse_1d()
     -0.000124137, 2.84554e-05, 8.94924e-05, -0.00027673, -6.31002e-05,
     -0.000215693, 0.000425196, 8.94924e-05];
 
-    let mut samples_mat = Array1::from_vec(samples);
+    let samples_mat = Array1::from_vec(samples);
 
     let expected_complex_samples = vec![Complex64::new(0.000150529, 0.0), Complex64::new(5.89739e-05, 0.0),
     Complex64::new(-9.36187e-05, 0.0), Complex64::new(-9.36187e-05, 0.0), Complex64::new(0.000394677, 0.0),
@@ -398,7 +398,7 @@ fn test_complex_inverse_1d()
 
     let length = 65;
     let mut fft_manager = FftManager::new(length);
-    let mut spectrum = fast_fourier_transform::forward_1d_from_matrix(&mut fft_manager, &mut samples_mat);
+    let mut spectrum = fast_fourier_transform::forward_1d_from_matrix(&mut fft_manager, &samples_mat);
     let complex_samples_result = fast_fourier_transform::inverse_1d(&mut fft_manager, &mut spectrum);
     
     compare_complex_vec(&expected_complex_samples_mat.to_vec(), &complex_samples_result.to_vec(), tolerance);
@@ -414,11 +414,11 @@ fn test_zeros()
     0.0f64, 0.0f64, 0.0f64, 0.0f64, 0.0f64, 0.0f64, 0.0f64, 0.0f64, 0.0f64, 0.0f64, 0.0f64, 0.0f64, 0.0f64, 0.0f64, 0.0f64, 0.0f64, 0.0f64, 0.0f64, 0.0f64, 0.0f64, 0.0f64, 0.0f64, 0.0f64, 0.0f64, 0.0f64, 0.0f64, 0.0f64,
     0.0f64, 0.0f64, 0.0f64, 0.0f64];
 
-    let mut samples_mat = Array1::from_vec(zeros);
+    let samples_mat = Array1::from_vec(zeros);
 
     let mut manager = FftManager::new(samples_mat.len());
 
-    let mut spectrum = fast_fourier_transform::forward_1d_from_matrix(&mut manager, &mut samples_mat);
+    let mut spectrum = fast_fourier_transform::forward_1d_from_matrix(&mut manager, &samples_mat);
 
     let result = fast_fourier_transform::inverse_1d_conj_sym(&mut manager, &mut spectrum);
 

@@ -24,6 +24,10 @@ impl AudioSignal
     {
         self.data_matrix.len()
     }
+
+    pub fn is_empty(&self) -> bool {
+        self.len() == 0
+    }
 }
 
 impl std::ops::Index<usize> for AudioSignal

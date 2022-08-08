@@ -53,7 +53,7 @@ pub fn extract_multichannel(num_channels: usize, interleaved_vector: &Vec<f64>) 
 {
     assert!(interleaved_vector.len() % num_channels as usize == 0);
     let sub_vector_size = interleaved_vector.len() / num_channels as usize;
-    Array2::from_shape_vec((sub_vector_size, num_channels).strides((num_channels, 1)), interleaved_vector.clone()).unwrap()
+    Array2::from_shape_vec((sub_vector_size, num_channels).strides((num_channels, 1)), interleaved_vector.clone()).expect("Failed to sum multichannel signal to mono signal!")
 }
 
 pub fn prepare_spectrograms_for_comparison(reference: &mut Spectrogram, degraded: &mut Spectrogram)
@@ -100,8 +100,8 @@ pub fn real_valued_complex_vec_to_float_vec(complex_vector: &Vec<Complex64>)
 
 pub fn mirror_spectrum(spectrum: &mut Vec<Complex64>)
 {
-    let nyquist_bin = Complex64::new(spectrum.last().unwrap().re.clone(), 0.0); // Copy Nyqvist real part
-    let zero_hz_bin = Complex64::new(spectrum[0].re.clone(), 0.0); // Copy 0 hz bin
+    let nyquist_bin = Complex64::new(spectrum.last().unwrap().re, 0.0); // Copy Nyqvist real part
+    let zero_hz_bin = Complex64::new(spectrum[0].re, 0.0); // Copy 0 hz bin
     
     spectrum.pop(); //  Remove Nyqvist
     spectrum.remove(0); // Remove 0 hz

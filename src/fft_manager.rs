@@ -70,6 +70,6 @@ impl FftManager
     
     pub fn apply_reverse_fft_scaling(&self, time_channel: &mut AudioChannel<f64>)
     {
-        time_channel.aligned_buffer.iter_mut().for_each(|x|{*x = *x * self.inverse_fft_scale;});
+        time_channel.aligned_buffer.iter_mut().for_each(|x|{*x *= self.inverse_fft_scale;});
     }
 }

@@ -16,8 +16,8 @@ fn test_next_pow_two()
 #[test]
 fn test_exponential_from_fit()
 {
-    assert_eq!(1.4461764166502666,
+    assert_eq!(1.446_176_4,
                misc_math::exponential_from_fit(0.5, 1.15, 4.68, 0.76));
-    assert_eq!(4.2246774455486502,
+    assert_eq!(4.224_677_6,
                misc_math::exponential_from_fit(1.0, 1.15, 4.68, 0.76));
 }

@@ -1,14 +1,14 @@
-use crate::signal_filter;
+use crate::{signal_filter, constants};
 
 pub struct GammatoneFilterbank
 {
     pub num_bands: usize,
     pub min_freq: f64,
 
-    filter_conditions_1: Vec::<[f64; Self::NUM_FILTER_CONDITIONS]>,
-    filter_conditions_2: Vec::<[f64; Self::NUM_FILTER_CONDITIONS]>,
-    filter_conditions_3: Vec::<[f64; Self::NUM_FILTER_CONDITIONS]>,
-    filter_conditions_4: Vec::<[f64; Self::NUM_FILTER_CONDITIONS]>,
+    filter_conditions_1: Vec::<[f64; constants::NUM_FILTER_CONDITIONS]>,
+    filter_conditions_2: Vec::<[f64; constants::NUM_FILTER_CONDITIONS]>,
+    filter_conditions_3: Vec::<[f64; constants::NUM_FILTER_CONDITIONS]>,
+    filter_conditions_4: Vec::<[f64; constants::NUM_FILTER_CONDITIONS]>,
 
     filter_coeff_a0:    Vec::<f64>,
     filter_coeff_a11:   Vec::<f64>,
@@ -24,18 +24,16 @@ pub struct GammatoneFilterbank
 
 impl GammatoneFilterbank
 {
-    const NUM_FILTER_CONDITIONS: usize = 2;
-
     pub fn new(num_bands: usize, min_freq: f64) -> Self
     {
          Self
         {
-            num_bands: num_bands,
-            min_freq: min_freq,
-            filter_conditions_1: vec![[0.0;Self::NUM_FILTER_CONDITIONS]; num_bands],
-            filter_conditions_2: vec![[0.0;Self::NUM_FILTER_CONDITIONS]; num_bands],
-            filter_conditions_3: vec![[0.0;Self::NUM_FILTER_CONDITIONS]; num_bands],
-            filter_conditions_4: vec![[0.0;Self::NUM_FILTER_CONDITIONS]; num_bands],
+            num_bands,
+            min_freq,
+            filter_conditions_1: vec![[0.0;constants::NUM_FILTER_CONDITIONS]; num_bands],
+            filter_conditions_2: vec![[0.0;constants::NUM_FILTER_CONDITIONS]; num_bands],
+            filter_conditions_3: vec![[0.0;constants::NUM_FILTER_CONDITIONS]; num_bands],
+            filter_conditions_4: vec![[0.0;constants::NUM_FILTER_CONDITIONS]; num_bands],
             filter_coeff_a0: Vec::new(),
             filter_coeff_a11: Vec::new(),
             filter_coeff_a12: Vec::new(),

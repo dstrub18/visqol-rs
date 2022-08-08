@@ -10,7 +10,8 @@ pub fn calculate_similarity(ref_signal: &AudioSignal,
                             selector: &ComparisonPatchesSelector,
                             sim_to_qual_mapper: &dyn SimilarityToQualityMapper,
                             search_window: usize)
--> SimilarityResult {
+-> SimilarityResult
+{
     /////////////////// Stage 1: Preprocessing ///////////////////
     let deg_signal_scaled = misc_audio::scale_to_match_sound_pressure_level(ref_signal, deg_signal);
     let mut ref_spectrogram = spect_builder.build(ref_signal, window).unwrap();
@@ -40,23 +41,20 @@ pub fn calculate_similarity(ref_signal: &AudioSignal,
     
     let mut moslqo = predict_mos(&fvnsim.to_vec(), sim_to_qual_mapper);
     
-    let vnsim = fvnsim.mean().unwrap();
+    let vnsim = fvnsim.mean().expect("Could not compute nsim mean");
     
     moslqo = alter_for_similarity_extremes(vnsim, moslqo as f64) as f32;
     SimilarityResult::new(moslqo as f64, vnsim, fvnsim.to_vec(), fstdnsim.to_vec(), fvdegenergy.to_vec(), ref_spectrogram.center_freq_bands.clone(), sim_match_info)
-
 }
 
-
-
-fn predict_mos(fvnsim: &Vec<f64>, mapper: &dyn SimilarityToQualityMapper)
+fn predict_mos(fvnsim: &[f64], mapper: &dyn SimilarityToQualityMapper)
 -> f32 
 {
     mapper.predict_quality(fvnsim)
 }
 
 fn calc_per_patch_mean_freq_band_means(sim_match_info: &Vec<PatchSimilarityResult>)
--> ndarray::ArrayBase<ndarray::OwnedRepr<f64>, ndarray::Dim<[usize; 1]>> {
+-> Array1<f64> {
     
     // This is going great, mate. YOU'RE CLOSING IN! :)))
     let mut fvnsim = Array1::<f64>::zeros(sim_match_info[0].freq_band_means.len());
@@ -71,7 +69,7 @@ fn calc_per_patch_mean_freq_band_means(sim_match_info: &Vec<PatchSimilarityResul
 }
 
 fn calc_per_patch_mean_freq_band_degraded_energy(sim_match_info: &Vec<PatchSimilarityResult>)
--> ndarray::ArrayBase<ndarray::OwnedRepr<f64>, ndarray::Dim<[usize; 1]>> {
+-> Array1<f64> {
     let mut total_fvdegenergy = Array1::<f64>::zeros(sim_match_info[0].freq_band_means.len());
     for patch in sim_match_info
     {
@@ -84,7 +82,7 @@ fn calc_per_patch_mean_freq_band_degraded_energy(sim_match_info: &Vec<PatchSimil
 }
 
 fn calc_per_patch_mean_freq_band_std_devs(sim_match_info: &Vec<PatchSimilarityResult>, frame_duration: f64)
--> ndarray::ArrayBase<ndarray::OwnedRepr<f64>, ndarray::Dim<[usize; 1]>> 
+-> Array1<f64> 
 {
     let fvn_sim = calc_per_patch_mean_freq_band_means(sim_match_info);
     

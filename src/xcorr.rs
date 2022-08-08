@@ -1,5 +1,5 @@
 use ndarray::{Array1};
-use num::Complex;
+use num::complex::Complex64;
 use crate::fft_manager::FftManager;
 use crate::fast_fourier_transform;
 
@@ -20,7 +20,7 @@ pub fn calculate_best_lag(signal_1: &Array1<f64>, signal_2: &Array1<f64>)
     let best_corr = corrs[..]
     .iter()
     .max_by(|x, y| x.abs().partial_cmp(&y.abs()).unwrap())
-    .unwrap();
+    .expect("Failed to compute precise correlation value!");
 
     // Get maximum index
     let best_corr_idx = corrs.iter().position(|&r| r == *best_corr).unwrap();
@@ -34,15 +34,18 @@ pub fn calculate_inverse_fft_pointwise_product(signal_1: &Array1<f64>, signal_2:
     let mut signal_2_vec = signal_2.to_vec();
     let biggest_vec = if signal_1.len() > signal_2.len() {signal_1.len()} else {signal_2.len()};
 
-    if signal_1.len() > signal_2.len()
+    match &signal_1.len().cmp(&signal_2.len())
     {
-        signal_2_vec.resize(biggest_vec, 0.0);
-    }
-    else if signal_2.len() > signal_1.len()
-    {
+        std::cmp::Ordering::Less => 
+        {
         signal_1_vec.resize(biggest_vec, 0.0);
+        },
+        std::cmp::Ordering::Greater => 
+        {
+            signal_2_vec.resize(biggest_vec, 0.0);
+        },
+        _ => {},
     }
-    
     let (_, exp) = frexp((signal_1_vec.len() * 2 - 1) as f32);
     let fft_points = 2usize.pow(exp as u32);
     let mut manager = FftManager::new(fft_points);
@@ -54,7 +57,7 @@ pub fn calculate_inverse_fft_pointwise_product(signal_1: &Array1<f64>, signal_2:
 }
 
 pub fn calculate_fft_pointwise_product(signal_1: &[f64], signal_2: &[f64], manager: &mut FftManager, fft_points: usize)
--> ndarray::ArrayBase<ndarray::OwnedRepr<Complex<f64>>, ndarray::Dim<[usize; 1]>> {
+-> Array1<Complex64> {
     let mut signal_2_mat = Array1::from_vec(signal_2.to_vec());
     let mut fft_signal_2 = fast_fourier_transform::forward_1d_from_points(manager, &mut signal_2_mat, fft_points);
 
@@ -67,7 +70,7 @@ pub fn calculate_fft_pointwise_product(signal_1: &[f64], signal_2: &[f64], manag
 
 pub fn frexp(s : f32) -> (f32, i32) {
     if 0.0 == s {
-        return (s, 0);
+        (s, 0)
     } else {
         let lg = s.abs().log2();
         let x = (lg - lg.floor() - 1.0).exp2();

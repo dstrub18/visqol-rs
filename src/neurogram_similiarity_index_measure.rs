@@ -73,10 +73,10 @@ impl PatchSimilarityComparator for NeurogramSimiliarityIndexMeasure
         let structure = &structure_numerator / &structure_denominator;
         let sim_map = &intensity * &structure;
         
-        let freq_band_deg_energy: Array1<f64> = deg_patch.mean_axis(Axis(1)).unwrap();
-        let freq_band_means: Array1<f64> = sim_map.mean_axis(Axis(1)).unwrap();
+        let freq_band_deg_energy: Array1<f64> = deg_patch.mean_axis(Axis(1)).expect("Failed to compute mean for degraded signal!");
+        let freq_band_means: Array1<f64> = sim_map.mean_axis(Axis(1)).expect("Failed to compute mean for similarity map!");
         let freq_band_std: Array1<f64> = sim_map.std_axis(Axis(1), 1.0);
-        let mean_freq_band_means = freq_band_means.mean().unwrap();
+        let mean_freq_band_means = freq_band_means.mean().expect("Failed to compute mean of means for degraded signal!");
 
         PatchSimilarityResult::new(freq_band_means.to_vec(), freq_band_std.to_vec(), freq_band_deg_energy.to_vec(), mean_freq_band_means)
 

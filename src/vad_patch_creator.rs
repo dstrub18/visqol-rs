@@ -46,23 +46,19 @@ impl PatchCreator for VadPatchCreator
   
     }
 
-    fn create_patches_from_indices(&self, spectrogram: &Array2<f64>, patch_indices: &Vec<usize>)
-    -> Vec<ndarray::ArrayBase<ndarray::OwnedRepr<f64>, ndarray::Dim<[usize; 2]>>>     
+    fn create_patches_from_indices(&self, spectrogram: &Array2<f64>, patch_indices: &[usize])
+    -> Vec<Array2<f64>>
     {
-        let mut start_col: usize;
-        let mut end_col: usize;
-
-        let num_patches = patch_indices.len();
-
+        
         let mut patches = Vec::<Array2<f64>>::new();
-
+        
         let mut patch : Array2::<f64>;
-
-        for i in 0..num_patches
+        
+        let mut end_col: usize;
+        for start_col in patch_indices
         {
-            start_col = patch_indices[i];
             end_col = start_col + self.patch_size;
-            patch = spectrogram.slice(s![.., start_col..end_col]).to_owned();
+            patch = spectrogram.slice(s![.., *start_col..end_col]).to_owned();
             patches.push(patch);
         }
         patches

@@ -7,10 +7,18 @@ pub fn write_results(args: &CommandLineArgs, results: &Vec<SimilarityResult>, fi
 {
     let version_number = env!("CARGO_PKG_VERSION");
     println!("ViSQOL conformance version: {version_number:}");
+    if args.use_speech_mode
+    {
+        println!("Speech mode");
+    }
+    else
+    {
+        println!("Audio mode");
+    }
     
     if let Some(json_output_path) = &args.output_debug
     {
-        write_debug_json(json_output_path, &results);
+        write_debug_json(json_output_path, results);
     }
 
     if let Some(csv_output_path) = &args.results_csv
@@ -20,7 +28,7 @@ pub fn write_results(args: &CommandLineArgs, results: &Vec<SimilarityResult>, fi
 
     for (sim_result, file_pair) in results.iter().zip(file_pairs)
     {
-        write_to_console(args, sim_result, &file_pair);
+        write_to_console(args, sim_result, file_pair);
     }
 }
 
@@ -46,21 +54,19 @@ fn write_debug_json(json_output_path: &String, results: &Vec<SimilarityResult>)
     let mut json_output = String::new();
     for result in results
     {
-        let pretty_json = serde_json::to_string_pretty(result).unwrap();
-        json_output.push_str(&pretty_json);
-        json_output.push_str(&",\n");
+        json_output = serde_json::to_string_pretty(result).expect("Could not format JSON!");
     }
-    std::fs::write(json_output_path, json_output).unwrap();
+    std::fs::write(json_output_path, json_output).unwrap_or_else(|_| panic!("Could not write JSON to {}!", json_output_path.as_str()));
 }
 
 fn write_results_to_csv(csv_output_path: &String, results: &Vec<SimilarityResult>)
 {
-    let mut writer = WriterBuilder::new().has_headers(false).delimiter(b',').from_path(csv_output_path).unwrap();
+    let mut writer = WriterBuilder::new().has_headers(false).delimiter(b',').from_path(csv_output_path).expect("Failed to instantiate CSV writer!");
     for result in results
     {
-        writer.serialize(result).unwrap();
+        writer.serialize(result).expect("Failed to serialize SimilarityResult!");
     }
-    writer.flush().unwrap();
+    writer.flush().expect("Failed to flush csv file!")
 }
 
 fn write_fvnsim(result: &SimilarityResult)

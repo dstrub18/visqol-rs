@@ -27,8 +27,8 @@
 - [x] support_vector_regression_model.cc
 - [x] svr_similarity_to_quality_mapper.cc
 - [x] vad_patch_creator.cc
-- [ ] visqol.cc
+- [x] visqol.cc
 - [x] visqol_api.cc
-- [ ] visqol_manager.cc
+- [x] visqol_manager.cc
 - [x] wav_reader.cc
 - [x] xcorr.cc

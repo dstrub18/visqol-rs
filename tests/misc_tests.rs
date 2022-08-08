@@ -8,9 +8,9 @@ fn test_slice_windowing()
                                             [0.7, 0.8, 0.9, 1.0]];
     for (outer_index, chunk) in ten_samples.windows(4).step_by(2).enumerate()
     {
-        for i in 0..chunk.len()
+        for (i, chunk_element) in chunk.iter().enumerate()
         {
-            assert_eq!(chunk[i], expected_windows[outer_index][i]);
+            assert_eq!(*chunk_element, expected_windows[outer_index][i]);
         }
     }
 }

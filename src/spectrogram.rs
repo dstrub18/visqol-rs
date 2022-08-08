@@ -22,15 +22,14 @@ impl Spectrogram
         // Closure to convert single element to db scale.
         let sample_to_db = |element: f64|
         {
-            let sample: f64;
-            if element == 0.0
+            let sample: f64 = if element == 0.0
             {
-                sample = f64::EPSILON;
+                f64::EPSILON
             }
             else
             {
-                sample = element.abs();
-            }
+                element.abs()
+            };
             10.0 * (sample.log10())
         };
         self.data.mapv_inplace(sample_to_db);
@@ -38,7 +37,7 @@ impl Spectrogram
 
     pub fn get_minimum(&self) -> f64
     {
-        *self.data.min().unwrap()
+        *self.data.min().expect("Failed to compute minimum for spectrogram")
     }
 
     pub fn subtract_floor(&mut self, floor: f64)
@@ -59,8 +58,8 @@ impl Spectrogram
         {
             let our_frame = &mut self.data.index_axis_mut(Axis(1), index);
             let other_frame = &mut other.data.index_axis_mut(Axis(1), index);
-            let our_max = our_frame.max().unwrap();
-            let other_max = other_frame.max().unwrap();
+            let our_max = our_frame.max().expect("Failed to raise level for spectrogram!");
+            let other_max = other_frame.max().expect("Failed to raise level for spectrogram!");
             let any_max = our_max.max(*other_max);
             let floor_db = any_max - noise_threshold;
             our_frame.mapv_inplace(|element|{floor_db.max(element)});

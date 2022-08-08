@@ -1,4 +1,4 @@
-use crate::audio_signal::AudioSignal;
+use crate::{audio_signal::AudioSignal, visqol_error::VisqolError};
 use crate::analysis_window::AnalysisWindow;
 use crate::spectrogram::Spectrogram;
 use crate::spectrogram_builder::SpectrogramBuilder;
@@ -15,11 +15,11 @@ pub struct GammatoneSpectrogramBuilder
 
 impl SpectrogramBuilder for GammatoneSpectrogramBuilder
 {
-    fn build(&mut self, signal: &AudioSignal, window: &AnalysisWindow) -> Result<Spectrogram, ()>
+    fn build(&mut self, signal: &AudioSignal, window: &AnalysisWindow) -> Result<Spectrogram, VisqolError>
     {
         let sig = &signal.data_matrix.to_vec();
         let sample_rate = signal.sample_rate;
-        let max_freq = if self.speech_mode {Self::SPEECH_MODE_MAX_FREQ} else{ sample_rate / 2};
+        let max_freq = if self.speech_mode {Self::SPEECH_MODE_MAX_FREQ} else {sample_rate / 2};
         
         // get gammatone coefficients
         let (mut filter_coeffs, mut center_freqs) = equivalent_rectangular_bandwidth::make_filters(sample_rate as usize, self.filter_bank.num_bands, self.filter_bank.min_freq, max_freq as f64);
@@ -28,7 +28,11 @@ impl SpectrogramBuilder for GammatoneSpectrogramBuilder
         self.filter_bank.reset_filter_conditions();
         
         let hop_size = (window.size as f64 * window.overlap) as usize;
-        debug_assert!(sig.len() > window.size, "too few samples!");
+        
+        if sig.len() < window.size 
+        {
+            return Err(VisqolError::TooFewSamples { found: sig.len(), minimum_required: window.size }); 
+        }
         
         let num_cols = 1 + ((sig.len() - window.size) / hop_size);
         let mut out_matrix = Array2::<f64>::zeros((self.filter_bank.num_bands, num_cols));
@@ -40,7 +44,7 @@ impl SpectrogramBuilder for GammatoneSpectrogramBuilder
             
             filtered_signal.map_inplace(|e|{*e = *e * *e});
             
-            let mut row_means = filtered_signal.mean_axis(Axis(1)).unwrap();
+            let mut row_means = filtered_signal.mean_axis(Axis(1)).expect("Failed to compute for gammatone spectrogram!");
             
             row_means.map_inplace(|e|{*e = e.sqrt();});
             
@@ -50,7 +54,7 @@ impl SpectrogramBuilder for GammatoneSpectrogramBuilder
             }
         }
 
-        center_freqs.as_mut_slice().sort_by(|a, b|{a.partial_cmp(b).unwrap()});
+        center_freqs.as_mut_slice().sort_by(|a, b|{a.partial_cmp(b).expect("Failed to sort center frequencies!")});
         Ok(Spectrogram::new(out_matrix, center_freqs))
 
     }

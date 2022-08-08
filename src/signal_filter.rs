@@ -9,6 +9,7 @@ impl FilterResults
     pub const NUM_FILTER_CONDITIONS: usize = 2;
 }
 
+#[inline(always)]
 pub fn filter_signal(numerator_coeffs: &[f64], denom_coeffs: &[f64], signal: &[f64], init_conditions: &mut [f64]) -> FilterResults
 {
     let mut filtered_signal = vec![0.0f64; signal.len()];

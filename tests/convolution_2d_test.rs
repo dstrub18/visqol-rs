@@ -8,14 +8,14 @@ fn test_2d_convolution()
     0.0113033910173052, 0.0838251475442633, 0.619485845753726,
     0.0838251475442633, 0.0113033910173052, 0.0838251475442633,
     0.0113033910173052];
-    let mut window = Array::from_shape_vec((3,3).f(), w).unwrap();
+    let window = Array::from_shape_vec((3,3).f(), w).unwrap();
 
     let m = vec![40.0392, 43.3409, 39.5270, 41.1731, 41.3591, 42.6852,
     45.2083, 45.7769, 39.9689, 43.6190, 41.0119, 40.4244, 41.5932, 43.6027,
     42.6204, 43.0624, 42.2610, 42.4725, 43.4258, 42.9079];
     let mut matrix = Array::from_shape_vec((5,4).f(), m).unwrap();
 
-    let result = perform_valid_2d_conv_with_boundary(&mut window, &mut matrix);
+    let result = perform_valid_2d_conv_with_boundary(&window, &mut matrix);
     
     let r = vec![40.6634, 42.8407, 40.6395, 41.0129, 41.5407, 42.4677,
     44.2760, 44.2031, 41.2263, 42.9752, 41.3784, 41.2656, 42.1388, 43.0366,
@@ -71,8 +71,8 @@ fn test_copying_with_zeros()
     39.9689, 43.6190,41.0119, 40.4244,
     41.5932, 43.6027,42.6204,43.0624,
     42.2610, 42.4725, 43.4258, 42.9079];
-    let mut matrix = Array::from_shape_vec((5,4).f(), m).unwrap();
-    let result = copy_matrix_within_padding(&mut matrix,1,1,1,1);
+    let matrix = Array::from_shape_vec((5,4).f(), m).unwrap();
+    let result = copy_matrix_within_padding(&matrix,1,1,1,1);
 
     let er = vec![0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
     0.0, 40.0392, 42.6852, 41.0119, 43.0624, 0.0,

@@ -20,10 +20,10 @@ impl WavReader
 {
     pub fn open (file_name: &str) -> Self
     {
-        let mut reader = hound::WavReader::open(file_name).unwrap();
+        let mut reader = hound::WavReader::open(file_name).expect("Failed to open Wav file!");
         let spec = reader.spec();
         
-        let samples: Vec<i16> = reader.samples::<i16>().map(|x| x.unwrap()).collect();
+        let samples: Vec<i16> = reader.samples::<i16>().map(|x| x.expect("Failed to read samples")).collect();
         
         Self
         {

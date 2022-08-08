@@ -1,5 +1,5 @@
 use ndarray::{Array1};
-use itertools::Itertools;
+use ndarray_stats::QuantileExt;
 pub fn normalize_2d_matrix(mat: & Array1<f64>) -> Array1<f64>
 {
     let normalized_mat = mat.clone();
@@ -25,12 +25,12 @@ pub fn exponential_from_fit(x: f32, a: f32, b: f32, x_0: f32) -> f32
 }
 
 
-pub fn normalize_int16_to_double(input: &Vec<i16>) -> Vec<f64>
+pub fn normalize_int16_to_double(input: &[i16]) -> Vec<f64>
 {
-    input.iter().map(|x| *x as f64 / 32768.0f64).collect::<Vec<f64>>()
+    input.iter().map(|x| *x as f64 / 32767.0f64).collect::<Vec<f64>>()
 }
 
 pub fn get_max_in_2d_array(mat: &Array1<f64>) -> f64
 {
-    *(mat.iter().minmax().into_option().unwrap().1)
+    *mat.max().expect("Could not compute maximum of matrix!")
 }

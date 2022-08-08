@@ -107,13 +107,13 @@ pub fn read_files_to_compare(batch_input_path: &FilePath)
 -> Vec<ReferenceDegradedPathPair> 
 {
     let mut file_paths = Vec::<ReferenceDegradedPathPair>::new();
-    let mut reader = ReaderBuilder::new().has_headers(true).delimiter(b',').from_path(batch_input_path.path()).unwrap();
+    let mut reader = ReaderBuilder::new().has_headers(true).delimiter(b',').from_path(batch_input_path.path()).unwrap_or_else(|_| panic!("Failed to read csv file!"));
 
     let header = StringRecord::from(vec!["reference", "degraded"]);
     while let Some(result) = reader.records().next()
     {
-        let record = result.unwrap();
-        let row: ReferenceDegradedPathPair = record.deserialize(Some(&header)).unwrap();
+        let record = result.expect("Failed to deserialize line in csv file!");
+        let row: ReferenceDegradedPathPair = record.deserialize(Some(&header)).expect("Failed to deserialize line in csv file!");
         file_paths.push(row);
     }
     file_paths

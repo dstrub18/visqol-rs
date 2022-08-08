@@ -1,5 +1,4 @@
 #![allow(warnings)]
-#[allow(non_camel_case_types)]
 use num::{complex::Complex64, Zero};
 use ndarray::{Array2};
 use crate::misc_audio::{float_vec_to_real_valued_complex_vec, real_valued_complex_vec_to_float_vec};

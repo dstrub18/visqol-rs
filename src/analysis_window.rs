@@ -11,9 +11,9 @@ impl AnalysisWindow
     {
         Self
         {
-            window_duration: window_duration,
+            window_duration,
             size: (sample_rate as f64 * window_duration).round() as usize,
-            overlap: overlap,
+            overlap,
         }
     }
 }

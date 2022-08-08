@@ -55,7 +55,7 @@ fn test_optimal_patches()
     // Defining the degraded audio matrix
     let rows_concatenated: Vec<f64> = vec![0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 2.0, 1.0, 0.0, 0.0, 0.0, 0.0, 2.0, 2.0, 3.0, 2.0, 0.0, 0.0, 0.0, 0.0, 3.0, 3.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 2.0, 1.0, 2.0, 3.0, 0.0, 0.0, 0.0, 0.0, 1.0, 2.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 2.0, 1.0, 2.0, 3.0, 0.0, 0.0, 0.0, 0.0, 1.0, 2.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0];
     assert_eq!(rows_concatenated.len(), 3*30);
-    let mut deg_matrix = Array2::from_shape_vec((3,30), rows_concatenated).unwrap();
+    let deg_matrix = Array2::from_shape_vec((3,30), rows_concatenated).unwrap();
 
     let frame_duration = 1.0;
     let search_window = 8;
@@ -63,7 +63,7 @@ fn test_optimal_patches()
     let sim_measurer = NeurogramSimiliarityIndexMeasure::default();
     let selector = ComparisonPatchesSelector::new(sim_measurer);
 
-    let res = selector.find_most_optimal_deg_patches(&mut ref_patches, &mut patch_indices, &mut deg_matrix, frame_duration, search_window);
+    let res = selector.find_most_optimal_deg_patches(&mut ref_patches, &mut patch_indices, &deg_matrix, frame_duration, search_window);
     
     assert_eq!(res[3].deg_patch_start_time, 0.0);
     assert_eq!(res[4].deg_patch_start_time, 7.0);
@@ -86,7 +86,7 @@ fn out_of_order_matches()
     let patch_creator = ImagePatchCreator::new(patch_size);
     let mut ref_patches = patch_creator.create_patches_from_indices(&ref_matrix, &patch_indices);
     
-    let mut deg_matrix = arr2(
+    let deg_matrix = arr2(
         &[
             [100.0, 1.0, 3.0, 4.0],
             [0.0;4],
@@ -99,7 +99,7 @@ fn out_of_order_matches()
     let sim_measurer = NeurogramSimiliarityIndexMeasure::default();
     let selector = ComparisonPatchesSelector::new(sim_measurer);
 
-    let res = selector.find_most_optimal_deg_patches(&mut ref_patches, &mut patch_indices, &mut deg_matrix, frame_duration, search_window);
+    let res = selector.find_most_optimal_deg_patches(&mut ref_patches, &mut patch_indices, &deg_matrix, frame_duration, search_window);
 
     assert_eq!(res[0].deg_patch_start_time, 1.0);
     assert_eq!(res[1].deg_patch_start_time, 0.0);
@@ -120,7 +120,7 @@ fn different_results()
     
 
     let concatenated_deg_mat = vec![0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 3.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0];
-    let mut deg_matrix = Array2::from_shape_vec((3,17), concatenated_deg_mat).unwrap();
+    let deg_matrix = Array2::from_shape_vec((3,17), concatenated_deg_mat).unwrap();
 
     let frame_duration = 1.0;
     let search_window = 60;
@@ -129,7 +129,7 @@ fn different_results()
     let sim_measurer = NeurogramSimiliarityIndexMeasure::default();
     let selector = ComparisonPatchesSelector::new(sim_measurer);
 
-    let res = selector.find_most_optimal_deg_patches(&mut ref_patches, &mut patch_indices, &mut deg_matrix, frame_duration, search_window);
+    let res = selector.find_most_optimal_deg_patches(&mut ref_patches, &mut patch_indices, &deg_matrix, frame_duration, search_window);
     assert_eq!(res[0].deg_patch_start_time, 6.0);
 }
 
@@ -153,7 +153,7 @@ fn big_example()
                                  0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 2.0, 0.0, 1.0, 2.0, 3.0, 0.0, 0.0, 0.0, 0.0, 1.0, 2.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
                                  0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 2.0, 0.0, 1.0, 2.0, 3.0, 0.0, 0.0, 0.0, 0.0, 1.0, 2.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0];
 
-    let mut deg_matrix = Array2::from_shape_vec((3,31), deg_vec).unwrap();
+    let deg_matrix = Array2::from_shape_vec((3,31), deg_vec).unwrap();
 
     let frame_duration = 1.0;
     let search_window = 60;
@@ -162,7 +162,7 @@ fn big_example()
     let sim_measurer = NeurogramSimiliarityIndexMeasure::default();
     let selector = ComparisonPatchesSelector::new(sim_measurer);
 
-    let res = selector.find_most_optimal_deg_patches(&mut ref_patches, &mut patch_indices, &mut deg_matrix, frame_duration, search_window);
+    let res = selector.find_most_optimal_deg_patches(&mut ref_patches, &mut patch_indices, &deg_matrix, frame_duration, search_window);
 
     assert_eq!(res[0].deg_patch_start_time, 6.0);
     assert_eq!(res[1].deg_patch_start_time, 8.0);

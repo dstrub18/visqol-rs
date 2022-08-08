@@ -19,35 +19,32 @@ impl VisqolManager
     pub fn new(model_path: &str, use_speech_mode: bool, use_unscaled_speech_mos_mapping: bool, search_window: usize)
     -> VisqolManager
     {
-        let pc: Box<dyn PatchCreator>;
-        if use_speech_mode
+        let pc: Box<dyn PatchCreator> = if use_speech_mode
         {
-            pc = Box::new(VadPatchCreator::new(constants::PATCH_SIZE_SPEECH));
+            Box::new(VadPatchCreator::new(constants::PATCH_SIZE_SPEECH))
         }
         else
         {
-            pc = Box::new(ImagePatchCreator::new(constants::PATCH_SIZE_AUDIO));
-        }
+            Box::new(ImagePatchCreator::new(constants::PATCH_SIZE_AUDIO))
+        };
 
-        let sim_to_quality_mapper: Box<dyn SimilarityToQualityMapper>;
-        if use_speech_mode
+        let sim_to_quality_mapper: Box<dyn SimilarityToQualityMapper> = if use_speech_mode
         {
-            sim_to_quality_mapper = Box::new(SpeechSimilarityToQualityMapper::new(!use_unscaled_speech_mos_mapping));
+            Box::new(SpeechSimilarityToQualityMapper::new(!use_unscaled_speech_mos_mapping))
         }
         else
         {
-            sim_to_quality_mapper = Box::new(SvrSimilarityToQualityMapper::new(model_path));
-        }
+            Box::new(SvrSimilarityToQualityMapper::new(model_path))
+        };
 
-        let sb: Box<dyn SpectrogramBuilder>;
-        if use_speech_mode 
+        let sb: Box<dyn SpectrogramBuilder>  = if use_speech_mode 
         {
-            sb = Box::new(GammatoneSpectrogramBuilder::new(GammatoneFilterbank::new(constants::NUM_BANDS_SPEECH, constants::MINIMUM_FREQ), use_speech_mode));    
+            Box::new(GammatoneSpectrogramBuilder::new(GammatoneFilterbank::new(constants::NUM_BANDS_SPEECH, constants::MINIMUM_FREQ), use_speech_mode))  
         }
         else
         {
-            sb = Box::new(GammatoneSpectrogramBuilder::new(GammatoneFilterbank::new(constants::NUM_BANDS_AUDIO, constants::MINIMUM_FREQ), false));    
-        }
+            Box::new(GammatoneSpectrogramBuilder::new(GammatoneFilterbank::new(constants::NUM_BANDS_AUDIO, constants::MINIMUM_FREQ), false))
+        };
 
         let patch_selector = ComparisonPatchesSelector::new(NeurogramSimiliarityIndexMeasure::default());
 
@@ -64,18 +61,18 @@ impl VisqolManager
     }
 
     pub fn run_from_filepaths(&mut self, ref_signal_path: &FilePath, deg_signal_path: &FilePath)
-    -> SimilarityResult     
+    -> Result<SimilarityResult, hound::Error>
     {
         let ref_signal = misc_audio::load_as_mono(ref_signal_path.path.to_str().unwrap());
         let mut deg_signal = misc_audio::load_as_mono(deg_signal_path.path.to_str().unwrap());
-        self.run(&ref_signal, &mut deg_signal)
+        Ok(self.run(&ref_signal, &mut deg_signal))
     }
     
     
     pub fn run(&mut self,ref_signal: &AudioSignal, deg_signal: &mut AudioSignal)
     -> SimilarityResult     
     {
-        let (mut deg_signal, _) = alignment::globally_align(ref_signal, deg_signal);
+        let (mut deg_signal, _) = alignment::globally_align(ref_signal, deg_signal).unwrap();
 
         let window = AnalysisWindow::new(ref_signal.sample_rate, constants::OVERLAP, constants::WINDOW_DURATION);
 

@@ -5,7 +5,7 @@ use crate::audio_channel::AudioChannel;
 use crate::fft_manager::FftManager;
 
 pub fn forward_1d_from_matrix(fft_manager: &mut FftManager, in_matrix: &Array1::<f64>)
--> ndarray::ArrayBase<ndarray::OwnedRepr<num::Complex<f64>>, ndarray::Dim<[usize; 1]>> {
+-> Array1<Complex64> {
   let mut temp_time_buffer = AudioChannel::<f64>::new(fft_manager.samples_per_channel);
   temp_time_buffer.aligned_buffer = in_matrix.clone().to_vec();
   
@@ -16,7 +16,7 @@ pub fn forward_1d_from_matrix(fft_manager: &mut FftManager, in_matrix: &Array1::
 }
 
 pub fn forward_1d_from_points(fft_manager: &mut FftManager, in_matrix: &mut Array1::<f64>, points: usize)
--> ndarray::ArrayBase<ndarray::OwnedRepr<num::Complex<f64>>, ndarray::Dim<[usize; 1]>> {
+-> Array1<Complex64> {
   let num_points_to_append = points - in_matrix.len();
   // Continue here :)
   let mut signal = in_matrix.clone();
@@ -24,7 +24,7 @@ pub fn forward_1d_from_points(fft_manager: &mut FftManager, in_matrix: &mut Arra
   let z = Array0::<f64>::zeros([]);
   for _ in 0..num_points_to_append
   {
-    signal.push(Axis(0), z.view()).unwrap();
+    signal.push(Axis(0), z.view()).expect("Failed to zero pad signal when computing cross correlation!");
   }
 
   forward_1d_from_matrix(fft_manager, &signal)
@@ -32,7 +32,7 @@ pub fn forward_1d_from_points(fft_manager: &mut FftManager, in_matrix: &mut Arra
 }
 
 pub fn inverse_1d(fft_manager: &mut FftManager, in_matrix: &mut Array1::<Complex64>)
--> ndarray::ArrayBase<ndarray::OwnedRepr<num::Complex<f64>>, ndarray::Dim<[usize; 1]>> {
+-> Array1<Complex64> {
   let mut temp_freq_buffer = AudioChannel::<Complex64>::new(fft_manager.fft_size);
   temp_freq_buffer.aligned_buffer = in_matrix.clone().to_vec();
   let mut temp_time_buffer = AudioChannel::<f64>::new(fft_manager.samples_per_channel);
@@ -50,7 +50,7 @@ pub fn inverse_1d(fft_manager: &mut FftManager, in_matrix: &mut Array1::<Complex
 }
 
 pub fn inverse_1d_conj_sym(fft_manager: &mut FftManager, in_matrix: &mut Array1::<Complex64>)
--> ndarray::ArrayBase<ndarray::OwnedRepr<f64>, ndarray::Dim<[usize; 1]>> 
+-> Array1<f64>
 {
   let inverse = inverse_1d(fft_manager, in_matrix);
 

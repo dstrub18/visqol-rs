@@ -6,3 +6,5 @@ pub const PATCH_SIZE_SPEECH: usize = 20;
 pub const MINIMUM_FREQ: f64 = 50.0;
 pub const OVERLAP: f64 = 0.25;
 pub const WINDOW_DURATION: f64 = 0.08;
+
+pub const NUM_FILTER_CONDITIONS: usize = 2;

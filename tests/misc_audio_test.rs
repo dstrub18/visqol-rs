@@ -32,8 +32,8 @@ fn load_stereo()
     assert_eq!(signal.len() as u32, expected_stereo_test_num_rows);
     assert_eq!(signal.data_matrix.ndim() as u32, expected_stereo_test_num_cols);
     assert_abs_diff_eq!(signal.get_duration(), expected_stereo_duration, epsilon=tolerance);
-    assert_abs_diff_eq!(signal[2], -0.00001525878906250000, epsilon=tolerance);
-    assert_abs_diff_eq!(signal[597782], -0.00025939941406250000, epsilon=tolerance);
+    assert_abs_diff_eq!(signal[2], -0.000_015_258_789_062_5, epsilon=tolerance);
+    assert_abs_diff_eq!(signal[597782], -0.000_259_399_414_062_5, epsilon=tolerance);
 }
 
 

@@ -4,39 +4,41 @@ use crate::audio_signal::AudioSignal;
 use crate::envelope;
 use crate::xcorr;
 pub fn align_and_truncate(ref_signal: &AudioSignal, deg_signal: &AudioSignal)
--> (AudioSignal, AudioSignal, f64) {
-    let (aligned_deg_signal, lag) = globally_align(ref_signal, deg_signal);
+-> Option<(AudioSignal, AudioSignal, f64)> {
+    let (aligned_deg_signal, lag) = globally_align(ref_signal, deg_signal)?;
 
     let mut new_ref_matrix = ref_signal.data_matrix.clone();
-    let mut new_deg_matrix = aligned_deg_signal.data_matrix.clone();
+    let mut new_deg_matrix = aligned_deg_signal.data_matrix;
 
-    if new_ref_matrix.len() > new_deg_matrix.len() 
-    {
-        // This could be done better
-        new_ref_matrix = new_ref_matrix.slice(s![0..new_deg_matrix.len()]).to_owned();
-    }
-    else if new_ref_matrix.len() < new_deg_matrix.len() 
-    {
-        // For positive lag, the beginning of ref is now aligned with zeros, so
-        // that amount should be truncated.
-        // This could also be done better.
-        new_ref_matrix = new_ref_matrix.slice(s![(lag * ref_signal.sample_rate as f64) as usize .. ref_signal.len()]).to_owned();
-        new_deg_matrix = new_deg_matrix.slice(s![(lag * deg_signal.sample_rate as f64) as usize .. ref_signal.len()]).to_owned();
-    }
 
-    (
+    match new_ref_matrix.len().cmp(&new_deg_matrix.len())
+    {
+        std::cmp::Ordering::Less => 
+        {
+            // For positive lag, the beginning of ref is now aligned with zeros, so
+            // that amount should be truncated.
+            // This could also be done better.
+            new_ref_matrix = new_ref_matrix.slice(s![(lag * ref_signal.sample_rate as f64) as usize .. ref_signal.len()]).to_owned();
+            new_deg_matrix = new_deg_matrix.slice(s![(lag * deg_signal.sample_rate as f64) as usize .. ref_signal.len()]).to_owned();
+        },
+        std::cmp::Ordering::Greater =>
+        {
+            new_ref_matrix = new_ref_matrix.slice(s![..new_deg_matrix.len()]).to_owned();
+        },
+        _=> (),
+    }
+    Some((
      AudioSignal::new(new_ref_matrix, ref_signal.sample_rate),
      AudioSignal::new(new_deg_matrix, deg_signal.sample_rate),
-     lag)
+     lag))
 
 }
 
 pub fn globally_align(ref_signal: &AudioSignal, deg_signal: &AudioSignal)
--> (AudioSignal, f64)
+-> Option<(AudioSignal, f64)>
 {
-
-    let ref_upper_env = envelope::calculate_upper_env(&ref_signal.data_matrix);
-    let deg_upper_env = envelope::calculate_upper_env(&deg_signal.data_matrix);
+    let ref_upper_env = envelope::calculate_upper_env(&ref_signal.data_matrix)?;
+    let deg_upper_env = envelope::calculate_upper_env(&deg_signal.data_matrix)?;
 
     let best_lag = xcorr::calculate_best_lag(&ref_upper_env, &deg_upper_env);
 
@@ -44,7 +46,7 @@ pub fn globally_align(ref_signal: &AudioSignal, deg_signal: &AudioSignal)
     {
         // return deg signal and 0.
         let new_deg_signal = AudioSignal::new(deg_signal.data_matrix.clone(),deg_signal.sample_rate);
-        (new_deg_signal, 0.0f64)
+        Some((new_deg_signal, 0.0f64))
     }
     else
     {
@@ -52,16 +54,16 @@ pub fn globally_align(ref_signal: &AudioSignal, deg_signal: &AudioSignal)
         // align degraded matrix
         if best_lag < 0
         {
-            new_deg_matrix = new_deg_matrix.slice(s![best_lag.abs() as usize ..deg_signal.data_matrix.len()]).to_owned();
+            new_deg_matrix = new_deg_matrix.slice(s![best_lag.unsigned_abs() as usize .. deg_signal.data_matrix.len()]).to_owned();
         }
         else
         {
             let zeros = Array1::<f64>::zeros(best_lag as usize);
-            new_deg_matrix = concatenate(Axis(0), &[zeros.view(), new_deg_matrix.view()]).unwrap();
+            new_deg_matrix = concatenate(Axis(0), &[zeros.view(), new_deg_matrix.view()]).expect("Failed to zero pad degraded matrix!");
         }
 
         let new_deg_signal = AudioSignal::new(new_deg_matrix, deg_signal.sample_rate);
-        (new_deg_signal, (best_lag as f64 / deg_signal.sample_rate as f64) as f64)
+        Some((new_deg_signal, (best_lag as f64 / deg_signal.sample_rate as f64) as f64))
     }
 }
 
