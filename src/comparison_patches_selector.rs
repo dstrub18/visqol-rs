@@ -1,6 +1,6 @@
 use ndarray::{s, Array2, concatenate, Axis, Array1};
 
-use crate::{patch_similarity_comparator::{PatchSimilarityComparator, PatchSimilarityResult}, audio_signal::AudioSignal, neurogram_similiarity_index_measure::NeurogramSimiliarityIndexMeasure, spectrogram_builder::SpectrogramBuilder, analysis_window::{AnalysisWindow}, misc_audio};
+use crate::{patch_similarity_comparator::{PatchSimilarityComparator, PatchSimilarityResult}, audio_signal::AudioSignal, neurogram_similiarity_index_measure::NeurogramSimiliarityIndexMeasure, spectrogram_builder::SpectrogramBuilder, analysis_window::AnalysisWindow, misc_audio, visqol_error::VisqolError};
 use crate::alignment::align_and_truncate;
 pub struct ComparisonPatchesSelector 
 {
@@ -18,13 +18,19 @@ impl ComparisonPatchesSelector
         frame_duration: f64,
         search_window_radius: i32
     )
--> Vec<PatchSimilarityResult>     {
+-> Result<Vec<PatchSimilarityResult>, VisqolError>     {
         let num_frames_per_patch = ref_patches[0].ncols();
         let num_frames_in_deg_spectro = spectrogram_data.ncols();
         let patch_duration = frame_duration * num_frames_per_patch as f64;
         let search_window = search_window_radius * num_frames_per_patch as i32;
         let num_patches = Self::calc_max_num_patches(ref_patch_indices, num_frames_in_deg_spectro, num_frames_per_patch);
         
+        if num_patches == 0
+        {
+            return Err(VisqolError::SignalsTooDifferent)
+        }
+
+
         // The vector to store the similarity results
         let mut best_deg_patches = Vec::<PatchSimilarityResult>::new();
         best_deg_patches.resize(num_patches, PatchSimilarityResult::empty());
@@ -39,7 +45,6 @@ impl ComparisonPatchesSelector
             deg_patches.push(Self::build_degraded_patch(spectrogram_data, slide_offset, slide_offset + ref_patches[0].ncols(), ref_patches[0].nrows(), ref_patches[0].ncols()));
         }
         
-        // Could be the deg spectrogram is not built correctly. Please check :)
         // Attempt to get a good alignment with backtracking.
         for (index, ref_patch) in ref_patches.iter_mut().enumerate()
         {
@@ -113,7 +118,7 @@ impl ComparisonPatchesSelector
 
             patch_index -= 1;
         }
-    best_deg_patches
+    Ok(best_deg_patches)
         
     }
 
@@ -185,8 +190,6 @@ impl ComparisonPatchesSelector
                 back_offset -=1;
                 }
 
-
-
                 sim_result.similarity += highest_sim;
                 
                 // If the current reference patch experienced a packet loss, then the
@@ -243,7 +246,7 @@ impl ComparisonPatchesSelector
             let pre_silence_matrix = Array1::<f64>::zeros((-1.0 * start_time * in_signal.sample_rate as f64) as usize);
             sliced_matrix = concatenate(Axis(0), &[pre_silence_matrix.view(), sliced_matrix.view()]).expect("Failed to zero-pad patch!");
         }
-        AudioSignal::new(sliced_matrix, in_signal.sample_rate)
+        AudioSignal::new(sliced_matrix.as_slice().expect("Failed to create AudioSignal from slice!"), in_signal.sample_rate)
     }
 
 
@@ -269,7 +272,7 @@ impl ComparisonPatchesSelector
         ref_signal: &AudioSignal, deg_signal: &AudioSignal,
         spect_builder: &mut dyn SpectrogramBuilder, analysis_window: &AnalysisWindow
     )
-    -> Vec<PatchSimilarityResult>
+    -> Result<Vec<PatchSimilarityResult>, VisqolError>
     {
         
         // Case: The patches are already matched.  Iterate over each pair.
@@ -277,7 +280,6 @@ impl ComparisonPatchesSelector
         realigned_results.resize(sim_results.len(), PatchSimilarityResult::empty());
         for (i, result) in sim_results.iter_mut().enumerate()
         {
-
             if result.deg_patch_start_time == result.deg_patch_end_time &&
             result.deg_patch_start_time == 0.0
             {
@@ -297,8 +299,8 @@ impl ComparisonPatchesSelector
             let new_deg_duration = deg_audio_aligned.get_duration();
             // 3. Compute a new spectrogram for the degraded audio.
 
-            let mut ref_spectrogram = spect_builder.build(&ref_audio_aligned, analysis_window).unwrap();
-            let mut deg_spectrogram = spect_builder.build(&deg_audio_aligned, analysis_window).unwrap();
+            let mut ref_spectrogram = spect_builder.build(&ref_audio_aligned, analysis_window)?;
+            let mut deg_spectrogram = spect_builder.build(&deg_audio_aligned, analysis_window)?;
             // 4. Recreate an aligned degraded patch from the new spectrogram.
             
             misc_audio::prepare_spectrograms_for_comparison(&mut ref_spectrogram, &mut deg_spectrogram);
@@ -326,7 +328,7 @@ impl ComparisonPatchesSelector
                 realigned_results[i] = new_sim_result;
             }
         }
-        realigned_results
+        Ok(realigned_results)
     }
 
 }

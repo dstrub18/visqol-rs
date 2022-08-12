@@ -6,29 +6,20 @@ pub struct RmsVad
     pub silent_chunk_count: usize,
     pub rms_threshold: f64,
     pub each_chunk_result: Vec<f64>,
-    pub vad_results: Vec<f64>,
 }
 #[allow(unused)]
 impl RmsVad
 {
     pub fn default() -> Self
     {
-
-        let mut rms_vad = RmsVad
+        Self
         {
             voice_activity_present: 1.0,
             voice_activity_absent: 0.0,
             silent_chunk_count: 3,
             rms_threshold: 5000.0,
             each_chunk_result: Vec::new(),
-            vad_results: Vec::new()
-        };
-        for _ in 0 .. rms_vad.silent_chunk_count - 1
-        {
-            rms_vad.vad_results.push(1.0);
         }
-
-        rms_vad
     }
 
     pub fn process_chunk(&mut self, chunk: &Vec<i16>) -> f64
@@ -47,18 +38,20 @@ impl RmsVad
 
     pub fn get_vad_results(&mut self) -> Vec<f64>
     {
+        let mut vad_results = vec![1.0;self.silent_chunk_count - 1];
+
         for i in self.silent_chunk_count - 1 .. self.each_chunk_result.len()
         {
             if self.each_chunk_result[i] == 0.0 && self.check_previous_chunks_for_silence(&i)
             {
-                self.vad_results.push(self.voice_activity_absent);
+                vad_results.push(self.voice_activity_absent);
             }
             else
             {
-                self.vad_results.push(self.voice_activity_present);
+                vad_results.push(self.voice_activity_present);
             }
         }
-        self.vad_results.clone()
+        vad_results
     }
 
     fn calc_root_mean_square(&self, chunk: &Vec<i16>) -> f64

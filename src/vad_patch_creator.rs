@@ -13,7 +13,7 @@ impl PatchCreator for VadPatchCreator
     -> Vec<usize>
     {
         let norm_mat = misc_math::normalize_2d_matrix(&ref_signal.data_matrix);
-        let norm_sig = AudioSignal::new(norm_mat, ref_signal.sample_rate);
+        let norm_sig = AudioSignal::new(norm_mat.as_slice().expect("Failed to create AudioSignal from slice!"), ref_signal.sample_rate);
     
         let frame_size = (window.size as f64 * window.overlap) as usize;
         let patch_sample_length = self.patch_size * frame_size;

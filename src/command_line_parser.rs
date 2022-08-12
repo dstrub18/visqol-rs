@@ -1,4 +1,6 @@
-use crate::file_path::{FilePath, ReferenceDegradedPathPair};
+use std::path::PathBuf;
+
+use crate::file_path::ReferenceDegradedPathPair;
 use clap::{Parser};
 use csv::{ReaderBuilder, StringRecord};
 
@@ -8,7 +10,6 @@ use csv::{ReaderBuilder, StringRecord};
 #[clap(about="Perceptual quality estimator for speech and audio")]
 pub struct CommandLineArgs
 {
-
     /// Used to specify a path to a CSV file with the format:{n}
     /// ------------------{n}
     /// reference,degraded{n}
@@ -16,7 +17,7 @@ pub struct CommandLineArgs
     /// ref2.wav,deg2.wav{n}
     /// ------------------{n}
     /// If the `batch_input_csv` flag is used, the `reference_file` 
-    /// and `degraded_file` flags will be ignored.);
+    /// and `degraded_file` flags will be ignored.
     #[clap(long="batch_input_csv", name="batch_input_csv", conflicts_with="reference_file", conflicts_with="degraded_file")]
     pub batch_input_csv: Option<String>,
     
@@ -63,7 +64,7 @@ pub struct CommandLineArgs
     /// detection
     /// that normalizes the polynomial NSIM->MOS mapping so that a perfect 
     /// NSIM
-    /// score of 1.0 translates to 5.0.); [default: false]
+    /// score of 1.0 translates to 5.0. [default: false]
     #[clap(long="use_speech_mode")]
     pub use_speech_mode: bool,
     
@@ -94,7 +95,7 @@ pub fn build_file_pair_paths(args: &CommandLineArgs)
     }
     else if let Some(csv_file) = &args.batch_input_csv
     {
-        read_files_to_compare(&FilePath::new(csv_file))
+        read_files_to_compare(&PathBuf::from(csv_file))
     }
     else
     {
@@ -103,11 +104,11 @@ pub fn build_file_pair_paths(args: &CommandLineArgs)
 }
 
 // Todo: Replace with result type to handle errors.
-pub fn read_files_to_compare(batch_input_path: &FilePath)
+pub fn read_files_to_compare(batch_input_path: &PathBuf)
 -> Vec<ReferenceDegradedPathPair> 
 {
     let mut file_paths = Vec::<ReferenceDegradedPathPair>::new();
-    let mut reader = ReaderBuilder::new().has_headers(true).delimiter(b',').from_path(batch_input_path.path()).unwrap_or_else(|_| panic!("Failed to read csv file!"));
+    let mut reader = ReaderBuilder::new().has_headers(true).delimiter(b',').from_path(batch_input_path).unwrap_or_else(|_| panic!("Failed to read csv file!"));
 
     let header = StringRecord::from(vec!["reference", "degraded"]);
     while let Some(result) = reader.records().next()

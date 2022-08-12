@@ -6,8 +6,6 @@ use crate::fast_fourier_transform;
 pub fn calculate_upper_env(signal: &Array1<f64>)
 -> Option<ndarray::Array1<f64>>
 {
-    
-    // Continue here :)
     let mean = signal.mean()?;
     let mut signal_centered = signal - mean;
     let hilbert = hilbert(&mut signal_centered);

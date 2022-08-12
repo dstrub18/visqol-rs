@@ -15,14 +15,14 @@ fn align_signal_with_positive_lag()
     
     let best_lag_positive2 = 2;
     let zero_lag = 0;
-    let ref_signal = AudioSignal::new(ref_signal_mat, 1);
-    let deg_signal = AudioSignal::new(deg_signal_mat, 1);
+    let ref_signal = AudioSignal::new(ref_signal_mat.as_slice().unwrap(), 1);
+    let deg_signal = AudioSignal::new(deg_signal_mat.as_slice().unwrap(), 1);
 
-    let initial_lag = xcorr::calculate_best_lag(&ref_signal.data_matrix, &deg_signal.data_matrix);
+    let initial_lag = xcorr::calculate_best_lag(&ref_signal.data_matrix, &deg_signal.data_matrix).unwrap();
     assert_eq!(initial_lag, best_lag_positive2);
 
     let (new_deg_signal, _) = alignment::globally_align(&ref_signal, &deg_signal).unwrap();
-    let final_lag = xcorr::calculate_best_lag(&ref_signal.data_matrix, &new_deg_signal.data_matrix);
+    let final_lag = xcorr::calculate_best_lag(&ref_signal.data_matrix, &new_deg_signal.data_matrix).unwrap();
 
     assert_eq!(zero_lag, final_lag);
 
@@ -40,14 +40,14 @@ fn align_signal_with_negative_lag()
     
     let best_lag_negative2 = -2;
     let zero_lag = 0;
-    let ref_signal = AudioSignal::new(ref_signal_mat, 1);
-    let deg_signal = AudioSignal::new(deg_signal_mat, 1);
+    let ref_signal = AudioSignal::new(ref_signal_mat.as_slice().unwrap(), 1);
+    let deg_signal = AudioSignal::new(deg_signal_mat.as_slice().unwrap(), 1);
 
     let initial_lag = xcorr::calculate_best_lag(&ref_signal.data_matrix, &deg_signal.data_matrix);
-    assert_eq!(initial_lag, best_lag_negative2);
+    assert_eq!(initial_lag.unwrap(), best_lag_negative2);
 
     let (new_deg_signal, _) = alignment::globally_align(&ref_signal, &deg_signal).unwrap();
-    let final_lag = xcorr::calculate_best_lag(&ref_signal.data_matrix, &new_deg_signal.data_matrix);
+    let final_lag = xcorr::calculate_best_lag(&ref_signal.data_matrix, &new_deg_signal.data_matrix).unwrap();
 
     assert_eq!(zero_lag, final_lag);
 
@@ -64,14 +64,14 @@ fn align_signal_with_no_lag()
     
     let deg_signal_init_size = ref_signal_mat.len();
     let zero_lag = 0;
-    let ref_signal = AudioSignal::new(ref_signal_mat, 1);
-    let deg_signal = AudioSignal::new(deg_signal_mat, 1);
+    let ref_signal = AudioSignal::new(ref_signal_mat.as_slice().unwrap(), 1);
+    let deg_signal = AudioSignal::new(deg_signal_mat.as_slice().unwrap(), 1);
 
-    let initial_lag = xcorr::calculate_best_lag(&ref_signal.data_matrix, &deg_signal.data_matrix);
+    let initial_lag = xcorr::calculate_best_lag(&ref_signal.data_matrix, &deg_signal.data_matrix).unwrap();
     assert_eq!(initial_lag, zero_lag);
 
     let (new_deg_signal, _) = alignment::globally_align(&ref_signal, &deg_signal).unwrap();
-    let final_lag = xcorr::calculate_best_lag(&ref_signal.data_matrix, &new_deg_signal.data_matrix);
+    let final_lag = xcorr::calculate_best_lag(&ref_signal.data_matrix, &new_deg_signal.data_matrix).unwrap();
 
     assert_eq!(zero_lag, final_lag);
 

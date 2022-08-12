@@ -1,5 +1,5 @@
 use approx::assert_abs_diff_eq;
-use ndarray::{Array2};
+use ndarray::Array2;
 use num::complex::Complex;
 
 pub fn compare_matrix_dimensions<T>(matrix_a: &Array2::<T>, matrix_b: &Array2::<T>)

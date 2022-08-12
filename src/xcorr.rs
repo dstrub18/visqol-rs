@@ -4,7 +4,7 @@ use crate::fft_manager::FftManager;
 use crate::fast_fourier_transform;
 
 pub fn calculate_best_lag(signal_1: &Array1<f64>, signal_2: &Array1<f64>)
--> i64  
+-> Option<i64>  
 {
     let max_lag = ((signal_1.len().max(signal_2.len())) - 1) as i64;
 
@@ -19,13 +19,11 @@ pub fn calculate_best_lag(signal_1: &Array1<f64>, signal_2: &Array1<f64>)
     // Get maximum
     let best_corr = corrs[..]
     .iter()
-    .max_by(|x, y| x.abs().partial_cmp(&y.abs()).unwrap())
-    .expect("Failed to compute precise correlation value!");
+    .max_by(|x, y| x.abs().partial_cmp(&y.abs()).expect("Failed to compute correlation"))?;
 
-    // Get maximum index
-    let best_corr_idx = corrs.iter().position(|&r| r == *best_corr).unwrap();
+    let best_corr_idx = corrs.iter().position(|&r| r == *best_corr)?;
     
-    best_corr_idx as i64 - max_lag
+    Some(best_corr_idx as i64 - max_lag)
 }
 
 pub fn calculate_inverse_fft_pointwise_product(signal_1: &Array1<f64>, signal_2: &Array1<f64>)
@@ -68,6 +66,15 @@ pub fn calculate_fft_pointwise_product(signal_1: &[f64], signal_2: &[f64], manag
     fft_signal_1 * fft_signal_2
 }
 
+///
+///
+/// # Examples
+///
+/// ```
+/// use visqol_rs::xcorr::frexp;
+/// let (_, result) = frexp(27.0f32);
+/// assert_eq!(result, 5);
+/// ```
 pub fn frexp(s : f32) -> (f32, i32) {
     if 0.0 == s {
         (s, 0)

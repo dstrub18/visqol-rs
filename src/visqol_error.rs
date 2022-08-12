@@ -28,5 +28,8 @@ pub enum VisqolError
     FileNotFound(#[from] hound::Error),
     
     #[error("Could not compute prediction using SVM model")]
-    PredictionError
+    PredictionError,
+    
+    #[error("Degraded file was too short, different, or misaligned to score any of the reference patches.")]
+    SignalsTooDifferent
 }

@@ -9,10 +9,10 @@ impl SupportVectorRegressionModel
 {
     pub fn init(model_path: &str) -> Self
     {
-        let model_description = read_to_string(model_path).unwrap();
+        let model_description = read_to_string(model_path).expect("failed to read model path!");
         Self
         {
-            model: DenseSVM::try_from(model_description.as_str()).unwrap()
+            model: DenseSVM::try_from(model_description.as_str()).expect("Failed to load SVM model")
         }
     }
 
@@ -25,7 +25,7 @@ impl SupportVectorRegressionModel
         {
             features[i] = *element as f32;
         }
-        self.model.predict_value(&mut problem).unwrap();
+        self.model.predict_value(&mut problem).expect("Failed to compute prediction");
         let solution = problem.solution();
         let mut score = 0.0;
         if let Solution::Value(s) = solution

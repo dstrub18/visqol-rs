@@ -1,6 +1,6 @@
 use ndarray::{Array1};
 
-use crate::{similarity_to_quality_mapper::SimilarityToQualityMapper, patch_similarity_comparator::PatchSimilarityResult, audio_signal::AudioSignal, spectrogram_builder::SpectrogramBuilder, patch_creator::{PatchCreator}, misc_audio, analysis_window::{AnalysisWindow}, comparison_patches_selector::{ComparisonPatchesSelector}, similarity_result::SimilarityResult};
+use crate::{similarity_to_quality_mapper::SimilarityToQualityMapper, patch_similarity_comparator::PatchSimilarityResult, audio_signal::AudioSignal, spectrogram_builder::SpectrogramBuilder, patch_creator::{PatchCreator}, misc_audio, analysis_window::{AnalysisWindow}, comparison_patches_selector::{ComparisonPatchesSelector}, similarity_result::SimilarityResult, visqol_error::VisqolError};
 
 pub fn calculate_similarity(ref_signal: &AudioSignal,
                             deg_signal: &mut AudioSignal,
@@ -10,12 +10,12 @@ pub fn calculate_similarity(ref_signal: &AudioSignal,
                             selector: &ComparisonPatchesSelector,
                             sim_to_qual_mapper: &dyn SimilarityToQualityMapper,
                             search_window: usize)
--> SimilarityResult
+-> Result<SimilarityResult, VisqolError>
 {
     /////////////////// Stage 1: Preprocessing ///////////////////
     let deg_signal_scaled = misc_audio::scale_to_match_sound_pressure_level(ref_signal, deg_signal);
-    let mut ref_spectrogram = spect_builder.build(ref_signal, window).unwrap();
-    let mut deg_spectrogram = spect_builder.build(&deg_signal_scaled, window).unwrap();
+    let mut ref_spectrogram = spect_builder.build(ref_signal, window)?;
+    let mut deg_spectrogram = spect_builder.build(&deg_signal_scaled, window)?;
     
     misc_audio::prepare_spectrograms_for_comparison(&mut ref_spectrogram, &mut deg_spectrogram);
     
@@ -28,11 +28,11 @@ pub fn calculate_similarity(ref_signal: &AudioSignal,
     
     let mut ref_patches = patch_creator.create_patches_from_indices(&ref_spectrogram.data, &ref_patch_indices);
     
-    let mut sim_match_info = selector.find_most_optimal_deg_patches(&mut ref_patches, &mut ref_patch_indices, &deg_spectrogram.data, frame_duration, search_window as i32);
+    let mut sim_match_info = selector.find_most_optimal_deg_patches(&mut ref_patches, &mut ref_patch_indices, &deg_spectrogram.data, frame_duration, search_window as i32)?;
     // Realign the patches in time domain subsignals that start at the coarse
     // patch times.
     
-    let realign_result = selector.finely_align_and_recreate_patches(&mut sim_match_info, ref_signal, &deg_signal_scaled, spect_builder, window);
+    let realign_result = selector.finely_align_and_recreate_patches(&mut sim_match_info, ref_signal, &deg_signal_scaled, spect_builder, window)?;
     sim_match_info = realign_result;
 
     let fvnsim = calc_per_patch_mean_freq_band_means(&sim_match_info);
@@ -44,7 +44,7 @@ pub fn calculate_similarity(ref_signal: &AudioSignal,
     let vnsim = fvnsim.mean().expect("Could not compute nsim mean");
     
     moslqo = alter_for_similarity_extremes(vnsim, moslqo as f64) as f32;
-    SimilarityResult::new(moslqo as f64, vnsim, fvnsim.to_vec(), fstdnsim.to_vec(), fvdegenergy.to_vec(), ref_spectrogram.center_freq_bands.clone(), sim_match_info)
+    Ok(SimilarityResult::new(moslqo as f64, vnsim, fvnsim.to_vec(), fstdnsim.to_vec(), fvdegenergy.to_vec(), ref_spectrogram.center_freq_bands.clone(), sim_match_info))
 }
 
 fn predict_mos(fvnsim: &[f64], mapper: &dyn SimilarityToQualityMapper)

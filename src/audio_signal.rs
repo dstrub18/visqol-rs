@@ -7,11 +7,11 @@ pub struct AudioSignal
 
 impl AudioSignal
 {
-    pub fn new(data_matrix: Array1::<f64>, sample_rate: u32) -> AudioSignal     
+    pub fn new(data_matrix: &[f64], sample_rate: u32) -> AudioSignal     
     {
         AudioSignal
         {
-            data_matrix,
+            data_matrix: Array1::from_vec(data_matrix.to_vec()),
             sample_rate
         }
     }

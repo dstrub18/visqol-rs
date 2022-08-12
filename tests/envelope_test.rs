@@ -54,7 +54,7 @@ fn test_calculate_best_lag()
     let ref_signal = load_as_mono("/Users/danielstrubig/Documents/CodingProjects/rust/exercises/visqol/visqol-rs/test_data/clean_speech/CA01_01.wav");
     let deg_signal = load_as_mono("/Users/danielstrubig/Documents/CodingProjects/rust/exercises/visqol/visqol-rs/test_data/clean_speech/transcoded_CA01_01.wav");
 
-    let result = calculate_best_lag(&ref_signal.data_matrix, &deg_signal.data_matrix);
+    let result = calculate_best_lag(&ref_signal.data_matrix, &deg_signal.data_matrix).unwrap();
 
     assert_abs_diff_eq!(result, 0);
 }

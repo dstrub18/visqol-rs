@@ -1,11 +1,10 @@
-use crate::{audio_signal::AudioSignal};
-use crate::{wav_reader::WavReader};
+use crate::audio_signal::AudioSignal;
+use crate::wav_reader::WavReader;
 use crate::misc_math;
 use crate::spectrogram::Spectrogram;
 use ndarray::{Array2, ShapeBuilder, Array1, Axis};
 use num::complex::Complex64;
 use num_traits::Zero;
-use std::f64;
 // Constants
 const SPL_REFERENCE_POINT: f64 = 0.00002;
 const NOISE_FLOOR_RELATIVE_TO_PEAK_DB: f64 = 45.0;
@@ -18,7 +17,7 @@ pub fn scale_to_match_sound_pressure_level(reference: &AudioSignal, degraded: &A
     
     let scale_factor = 10.0f64.powf((ref_spl - deg_spl) / 20.0);
     let scaled_mat = degraded.data_matrix.clone() * scale_factor;
-    AudioSignal::new(scaled_mat, degraded.sample_rate)
+    AudioSignal::new(scaled_mat.as_slice().expect("Failed to create AudioSignal from slice!"), degraded.sample_rate)
 }
 
 pub fn calculate_sound_pressure_level(signal: &AudioSignal) -> f64
@@ -100,7 +99,7 @@ pub fn real_valued_complex_vec_to_float_vec(complex_vector: &Vec<Complex64>)
 
 pub fn mirror_spectrum(spectrum: &mut Vec<Complex64>)
 {
-    let nyquist_bin = Complex64::new(spectrum.last().unwrap().re, 0.0); // Copy Nyqvist real part
+    let nyquist_bin = Complex64::new(spectrum.last().expect("Failed to copy Nyqvist bin!").re, 0.0); // Copy Nyqvist real part
     let zero_hz_bin = Complex64::new(spectrum[0].re, 0.0); // Copy 0 hz bin
     
     spectrum.pop(); //  Remove Nyqvist
