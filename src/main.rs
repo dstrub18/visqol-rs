@@ -6,9 +6,15 @@ use visqol_rs::{
     similarity_result::SimilarityResult,
     visqol_manager::VisqolManager,
 };
-
+use simplelog::{TermLogger, TerminalMode, Config, ColorChoice};
+use log::LevelFilter;
 fn main() -> Result<(), Box<dyn Error>>
 {
+
+    // Set up logger
+    TermLogger::init(LevelFilter::Trace, Config::default(), TerminalMode::Stdout, ColorChoice::Auto)?;
+
+    // Parse arguments
     let args = CommandLineArgs::parse();
 
     let files_to_compare = build_file_pair_paths(&args);

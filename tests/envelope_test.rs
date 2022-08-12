@@ -4,7 +4,7 @@ use visqol_rs::{misc_audio::load_as_mono, envelope::{hilbert, calculate_upper_en
 #[test]
 fn test_hilbert_on_signal()
 {
-    let mut signal = load_as_mono("/Users/danielstrubig/Documents/CodingProjects/rust/exercises/visqol/visqol-rs/test_data/clean_speech/CA01_01.wav");
+    let mut signal = load_as_mono("/Users/danielstrubig/Documents/CodingProjects/rust/exercises/visqol/visqol-rs/test_data/clean_speech/CA01_01.wav").unwrap();
     let result = hilbert(&mut signal.data_matrix);
 
     assert_abs_diff_eq!(result[0].re,  0.000_303_661_691_188_833, epsilon=0.0001);
@@ -13,7 +13,7 @@ fn test_hilbert_on_signal()
 #[test]
 fn test_envelope_on_signal()
 {
-    let signal = load_as_mono("/Users/danielstrubig/Documents/CodingProjects/rust/exercises/visqol/visqol-rs/test_data/clean_speech/CA01_01.wav");
+    let signal = load_as_mono("/Users/danielstrubig/Documents/CodingProjects/rust/exercises/visqol/visqol-rs/test_data/clean_speech/CA01_01.wav").unwrap();
     let result = calculate_upper_env(&signal.data_matrix).unwrap();
 
     assert_abs_diff_eq!(result[0], 0.00030159861338215923, epsilon=0.0001);
@@ -22,9 +22,9 @@ fn test_envelope_on_signal()
 #[test]
 fn test_xcorr_pointwise_prod_on_signal()
 {
-    let ref_signal = load_as_mono("/Users/danielstrubig/Documents/CodingProjects/rust/exercises/visqol/visqol-rs/test_data/clean_speech/CA01_01.wav");
+    let ref_signal = load_as_mono("/Users/danielstrubig/Documents/CodingProjects/rust/exercises/visqol/visqol-rs/test_data/clean_speech/CA01_01.wav").unwrap();
     let ref_signal_vec = ref_signal.data_matrix.to_vec();
-    let deg_signal = load_as_mono("/Users/danielstrubig/Documents/CodingProjects/rust/exercises/visqol/visqol-rs/test_data/clean_speech/transcoded_CA01_01.wav");
+    let deg_signal = load_as_mono("/Users/danielstrubig/Documents/CodingProjects/rust/exercises/visqol/visqol-rs/test_data/clean_speech/transcoded_CA01_01.wav").unwrap();
     let deg_signal_vec = deg_signal.data_matrix.to_vec();
 
     let (_, exponent) = frexp((ref_signal_vec.len() * 2 - 1) as f32);
@@ -40,8 +40,8 @@ fn test_xcorr_pointwise_prod_on_signal()
 #[test]
 fn test_calculate_inverse_fft_pointwise_product()
 {
-    let ref_signal = load_as_mono("/Users/danielstrubig/Documents/CodingProjects/rust/exercises/visqol/visqol-rs/test_data/clean_speech/CA01_01.wav");
-    let deg_signal = load_as_mono("/Users/danielstrubig/Documents/CodingProjects/rust/exercises/visqol/visqol-rs/test_data/clean_speech/transcoded_CA01_01.wav");
+    let ref_signal = load_as_mono("/Users/danielstrubig/Documents/CodingProjects/rust/exercises/visqol/visqol-rs/test_data/clean_speech/CA01_01.wav").unwrap();
+    let deg_signal = load_as_mono("/Users/danielstrubig/Documents/CodingProjects/rust/exercises/visqol/visqol-rs/test_data/clean_speech/transcoded_CA01_01.wav").unwrap();
 
     let result = calculate_inverse_fft_pointwise_product(&ref_signal.data_matrix, &deg_signal.data_matrix);
 
@@ -51,8 +51,8 @@ fn test_calculate_inverse_fft_pointwise_product()
 #[test]
 fn test_calculate_best_lag()
 {
-    let ref_signal = load_as_mono("/Users/danielstrubig/Documents/CodingProjects/rust/exercises/visqol/visqol-rs/test_data/clean_speech/CA01_01.wav");
-    let deg_signal = load_as_mono("/Users/danielstrubig/Documents/CodingProjects/rust/exercises/visqol/visqol-rs/test_data/clean_speech/transcoded_CA01_01.wav");
+    let ref_signal = load_as_mono("/Users/danielstrubig/Documents/CodingProjects/rust/exercises/visqol/visqol-rs/test_data/clean_speech/CA01_01.wav").unwrap();
+    let deg_signal = load_as_mono("/Users/danielstrubig/Documents/CodingProjects/rust/exercises/visqol/visqol-rs/test_data/clean_speech/transcoded_CA01_01.wav").unwrap();
 
     let result = calculate_best_lag(&ref_signal.data_matrix, &deg_signal.data_matrix).unwrap();
 

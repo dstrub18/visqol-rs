@@ -1,5 +1,5 @@
 use ndarray::{s, Array2, concatenate, Axis, Array1};
-
+use log;
 use crate::{patch_similarity_comparator::{PatchSimilarityComparator, PatchSimilarityResult}, audio_signal::AudioSignal, neurogram_similiarity_index_measure::NeurogramSimiliarityIndexMeasure, spectrogram_builder::SpectrogramBuilder, analysis_window::AnalysisWindow, misc_audio, visqol_error::VisqolError};
 use crate::alignment::align_and_truncate;
 pub struct ComparisonPatchesSelector 
@@ -29,6 +29,14 @@ impl ComparisonPatchesSelector
         {
             return Err(VisqolError::SignalsTooDifferent)
         }
+        else if num_patches < ref_patch_indices.len()
+        {
+            log::warn!("Warning: Dropping {} (of {}) reference patches 
+            due to the degraded file being misaligned or too short. If too many 
+            patches are dropped, the score will be less meaningful.",
+            ref_patch_indices.len() - num_patches, ref_patch_indices.len());
+        }
+
 
 
         // The vector to store the similarity results

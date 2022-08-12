@@ -81,8 +81,8 @@ fn align_signal_with_no_lag()
 #[test]
 fn test_with_audio_signals()
 {
-    let ref_signal = load_as_mono("/Users/danielstrubig/Documents/CodingProjects/rust/exercises/visqol/cpp/visqol/testdata/patches/ref_patch.wav");
-    let deg_signal = load_as_mono("/Users/danielstrubig/Documents/CodingProjects/rust/exercises/visqol/cpp/visqol/testdata/patches/deg_patch.wav");
+    let ref_signal = load_as_mono("/Users/danielstrubig/Documents/CodingProjects/rust/exercises/visqol/cpp/visqol/testdata/patches/ref_patch.wav").unwrap();
+    let deg_signal = load_as_mono("/Users/danielstrubig/Documents/CodingProjects/rust/exercises/visqol/cpp/visqol/testdata/patches/deg_patch.wav").unwrap();
 
     let (_,_, lag) = alignment::align_and_truncate(&ref_signal, &deg_signal).unwrap();
     assert_eq!(lag, 0.0000625);

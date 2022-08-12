@@ -11,7 +11,7 @@ fn load_as_mono()
     
     let tolerance = 0.01;
 
-    let signal = misc_audio::load_as_mono("test_data/CA01_01.wav");
+    let signal = misc_audio::load_as_mono("test_data/CA01_01.wav").unwrap();
     assert_eq!(signal.sample_rate, expected_mono_test_sample_rate);
     assert_eq!(signal.data_matrix.len(), expected_mono_test_num_rows);
     assert_eq!(signal.data_matrix.ndim(), expected_mono_test_num_cols);
@@ -27,7 +27,7 @@ fn load_stereo()
     let expected_stereo_duration = 12.45;
     let tolerance = 0.01;
 
-    let signal = misc_audio::load_as_mono("test_data/conformance_testdata_subset/guitar48_stereo.wav");
+    let signal = misc_audio::load_as_mono("test_data/conformance_testdata_subset/guitar48_stereo.wav").unwrap();
     assert_eq!(signal.sample_rate, expected_stereo_test_sample_rate);
     assert_eq!(signal.len() as u32, expected_stereo_test_num_rows);
     assert_eq!(signal.data_matrix.ndim() as u32, expected_stereo_test_num_cols);

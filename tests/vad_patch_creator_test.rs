@@ -13,7 +13,7 @@ fn clean_speech_vad()
     const K_FRAME_LEN: usize = 480;
     const K_CA01_01_VAD_RES_COUNT: usize = 240;
 
-    let ref_signal = load_as_mono("/Users/danielstrubig/Documents/CodingProjects/rust/exercises/visqol/visqol-rs/test_data/clean_speech/CA01_01.wav");
+    let ref_signal = load_as_mono("/Users/danielstrubig/Documents/CodingProjects/rust/exercises/visqol/visqol-rs/test_data/clean_speech/CA01_01.wav").unwrap();
 
     let vad = VadPatchCreator::new(20);
     let res = vad.get_voice_activity(&ref_signal, K_START_SAMPLE, K_TOTAL_SAMPLE, K_FRAME_LEN);
@@ -28,7 +28,7 @@ fn patch_indices()
     const _K_NUM_BANDS: usize = 21;
 
     let expected_patches = vec![9, 29, 49, 69, 89];
-    let ref_signal = load_as_mono("/Users/danielstrubig/Documents/CodingProjects/rust/exercises/visqol/visqol-rs/test_data/clean_speech/CA01_01.wav");
+    let ref_signal = load_as_mono("/Users/danielstrubig/Documents/CodingProjects/rust/exercises/visqol/visqol-rs/test_data/clean_speech/CA01_01.wav").unwrap();
 
     let window = AnalysisWindow::new(ref_signal.sample_rate, 0.25, 0.08);
     

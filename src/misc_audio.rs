@@ -1,10 +1,13 @@
+use std::error::Error;
+
 use crate::audio_signal::AudioSignal;
-use crate::wav_reader::WavReader;
+use crate::wav_reader::WavFile;
 use crate::misc_math;
 use crate::spectrogram::Spectrogram;
 use ndarray::{Array2, ShapeBuilder, Array1, Axis};
 use num::complex::Complex64;
 use num_traits::Zero;
+
 // Constants
 const SPL_REFERENCE_POINT: f64 = 0.00002;
 const NOISE_FLOOR_RELATIVE_TO_PEAK_DB: f64 = 45.0;
@@ -32,20 +35,20 @@ pub fn to_mono_matrix(sample_matrix: &Array2::<f64>) ->Array1::<f64>
     sample_matrix.sum_axis(Axis(1))
 }
 
-pub fn load_as_mono(file_path: &str) -> AudioSignal
+pub fn load_as_mono(file_path: &str) -> Result<AudioSignal, Box<dyn Error>>
 {
-    let wav_reader = WavReader::open(file_path);
+    let wav_reader = WavFile::open(file_path)?;
 
     let data_vector_float = misc_math::normalize_int16_to_double(&wav_reader.samples);
     let final_signal = extract_multichannel(wav_reader.num_channels as usize, &data_vector_float);
 
     let final_signal = to_mono_matrix(&final_signal);
 
-    AudioSignal
+    Ok(AudioSignal
     {
         data_matrix: final_signal / wav_reader.num_channels as f64,
         sample_rate: wav_reader.sample_rate
-    }
+    })
 }
 
 pub fn extract_multichannel(num_channels: usize, interleaved_vector: &Vec<f64>) -> Array2<f64>

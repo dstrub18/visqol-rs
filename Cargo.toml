@@ -29,6 +29,7 @@ rayon = "1.5.3"
 prettytable-rs = "0.8.0"
 thiserror = "1.0.31"
 log = "0.4.17"
+simplelog = "0.12.0"
 
 [patch.crates-io]
 ffsvm = { path = "../../libs/ffsvm-rust"}

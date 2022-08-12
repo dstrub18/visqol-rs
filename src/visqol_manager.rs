@@ -1,3 +1,4 @@
+use log;
 use crate::constants;
 use crate::speech_similarity_to_quality_mapper::SpeechSimilarityToQualityMapper;
 use crate::{
@@ -88,24 +89,13 @@ impl VisqolManager
         deg_signal_path: &str,
     ) -> Result<SimilarityResult, VisqolError>
     {
-        let ref_signal = misc_audio::load_as_mono(ref_signal_path);
-        let mut deg_signal = misc_audio::load_as_mono(deg_signal_path);
-        if ref_signal.sample_rate != deg_signal.sample_rate
-        {
-            return Err(VisqolError::DifferentSampleRates 
-            {
-                reference: ref_signal.sample_rate,
-                degraded: deg_signal.sample_rate,
-            });
-        }
-
-        // Log warning here!
-        /* if self.use_speech_mode && (ref_signal.sample_rate != 16000 || deg_signal.sample_rate != 16000) 
-        {
-            return Err(VisqolError::InvalidSampleRate { sample_rate: ref_signal.sample_rate });
-        } */
-
+        let ref_signal = misc_audio::load_as_mono(ref_signal_path).unwrap();
+        let mut deg_signal = misc_audio::load_as_mono(deg_signal_path).unwrap();
+        
+        self.validate_input_audio(&ref_signal, &deg_signal)?;
+        
         self.compute_results(&ref_signal, &mut deg_signal)
+
     }
 
     pub fn compute_results(
@@ -132,5 +122,32 @@ impl VisqolManager
             self.sim_to_quality_mapper.as_mut(),
             self.search_window,
         )
+    }
+
+    fn validate_input_audio(&self, ref_signal: &AudioSignal, deg_signal: &AudioSignal) -> Result<(), VisqolError>
+    {
+        if ref_signal.sample_rate != deg_signal.sample_rate
+        {
+            return Err(VisqolError::DifferentSampleRates 
+            {
+                reference: ref_signal.sample_rate,
+                degraded: deg_signal.sample_rate,
+            });
+        }
+
+        if self.use_speech_mode && (ref_signal.sample_rate != constants::SAMPLE_RATE_SPEECH_MODE || deg_signal.sample_rate != constants::SAMPLE_RATE_SPEECH_MODE) 
+        {
+            log::warn!("Input audio sample rate is above 16kHz, which may have undesired effects for speech mode. Consider resampling to 16kHz.");
+        }
+        else if ref_signal.sample_rate != constants::SAMPLE_RATE_AUDIO_MODE || deg_signal.sample_rate != constants::SAMPLE_RATE_AUDIO_MODE
+        {
+            log::warn!("Input audio does not have the expected sample rate of 48kHz! This may negatively effect the prediction of the MOS-LQO score.");
+        }
+
+        if (ref_signal.get_duration() - deg_signal.get_duration()).abs() > constants::DURATION_MISMATCH_TOLERANCE
+        {
+            log::warn!("Mismatch in duration between reference and degraded signal. Reference is {} seconds. Degraded is {} seconds.", ref_signal.get_duration(), deg_signal.get_duration());
+        }
+        Ok(())
     }
 }

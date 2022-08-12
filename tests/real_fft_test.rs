@@ -188,7 +188,7 @@ fn small_test()
 #[test]
 fn test_full_signal()
 {
-    let input = load_as_mono("/Users/danielstrubig/Documents/CodingProjects/rust/exercises/visqol/visqol-rs/test_data/clean_speech/CA01_01.wav");
+    let input = load_as_mono("/Users/danielstrubig/Documents/CodingProjects/rust/exercises/visqol/visqol-rs/test_data/clean_speech/CA01_01.wav").unwrap();
 
     let mut samples = input.data_matrix.to_vec();
 

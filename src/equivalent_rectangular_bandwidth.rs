@@ -1,9 +1,19 @@
 #![allow(warnings)]
 use num::{complex::Complex64, Zero};
 use ndarray::{Array2};
+use log;
+
 use crate::misc_audio::{float_vec_to_real_valued_complex_vec, real_valued_complex_vec_to_float_vec};
 pub fn make_filters(sample_rate: usize, num_bands: usize, low_freq: f64, high_freq: f64) ->  (Array2::<f64>, Vec<f64>)
 {
+
+    let mut high_freq = high_freq;
+    if (high_freq > sample_rate as f64 / 2.0) 
+    {
+        log::warn!("EquivalentRectangularBandwidth::MakeFilters: high_freq >= (sample_rate / 2), for sample_rate={}, high_freq={}. Falling back to (sample_rate / 2)", sample_rate, high_freq);
+        high_freq = sample_rate as f64 / 2.0;
+    }
+
     let pi = std::f64::consts::PI;
     let cf = float_vec_to_real_valued_complex_vec(&calculate_uniform_center_freqs(low_freq, high_freq, num_bands));
 
