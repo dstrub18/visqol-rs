@@ -26,7 +26,6 @@ impl PatchSimilarityComparator for NeurogramSimiliarityIndexMeasure
         0.0113033910173052, 0.0838251475442633, 0.0113033910173052];
         let window = Array2::from_shape_vec((3,3).f(), window_vec).expect("Failed to create smoothing window!");
 
-        // what is k?
         let k = [0.01, 0.03];
         let c1 = (k[0] * self.intensity_range).powf(2.0);
         let c3 = (k[1] * self.intensity_range).powf(2.0) / 2.0;

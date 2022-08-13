@@ -18,7 +18,7 @@ impl FftManager
 {
     pub fn new(samples_per_channel: usize) -> Self
     {
-        let fft_size = misc_math::next_pow_two(&samples_per_channel).max(MIN_FFT_SIZE);
+        let fft_size = misc_math::next_pow_two(samples_per_channel).max(MIN_FFT_SIZE);
 
         Self
         {

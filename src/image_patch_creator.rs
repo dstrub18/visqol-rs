@@ -1,5 +1,5 @@
 use ndarray::{Array2, s};
-use crate::{audio_signal::AudioSignal, analysis_window::AnalysisWindow, patch_creator::PatchCreator};
+use crate::{audio_signal::AudioSignal, analysis_window::AnalysisWindow, patch_creator::PatchCreator, visqol_error::VisqolError};
 pub struct ImagePatchCreator
 {
     patch_size: usize
@@ -8,7 +8,7 @@ pub struct ImagePatchCreator
 impl PatchCreator for ImagePatchCreator 
 {
 
-    fn create_ref_patch_indices(&self, spectrogram: &Array2<f64>, _ref_signal: &AudioSignal, _window: &AnalysisWindow) -> Vec<usize>     
+    fn create_ref_patch_indices(&self, spectrogram: &Array2<f64>, _ref_signal: &AudioSignal, _window: &AnalysisWindow) -> Result<Vec<usize>, VisqolError>
     {
         self.create_ref_patch_indices_from_spectrogram(spectrogram)
     }
@@ -43,14 +43,14 @@ impl ImagePatchCreator
         }
     }
 
-    fn create_ref_patch_indices_from_spectrogram(&self, spectrogram: &Array2<f64>) -> Vec<usize>
+    fn create_ref_patch_indices_from_spectrogram(&self, spectrogram: &Array2<f64>) -> Result<Vec<usize>, VisqolError>
     {
         let spectrum_length = spectrogram.ncols();
         let init_patch_index = self.patch_size / 2;
 
         if spectrum_length < self.patch_size + init_patch_index
         {
-            panic!("reference spectrum size {x} smaller than minimum {y}",x=spectrum_length, y=self.patch_size - init_patch_index);
+            return Err(VisqolError::ReferenceSpectrogramTooSmall { spectrogram_length: spectrum_length, minimum_required: self.patch_size - init_patch_index });
         }
 
         let max_index = if init_patch_index < (spectrum_length - self.patch_size) 
@@ -65,7 +65,7 @@ impl ImagePatchCreator
         {
             ref_patch_indices.push(i - 1);
         }
-        ref_patch_indices
+        Ok(ref_patch_indices)
 
     }
 }

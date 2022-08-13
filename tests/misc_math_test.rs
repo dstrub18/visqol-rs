@@ -8,7 +8,7 @@ fn test_next_pow_two()
     let mut results = Vec::new();
     for i in inputs.iter()
     {
-        results.push(misc_math::next_pow_two(i));
+        results.push(misc_math::next_pow_two(*i));
     }
     assert_eq!(results, expected);
 }

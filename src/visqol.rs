@@ -2,7 +2,7 @@ use ndarray::{Array1};
 
 use crate::{similarity_to_quality_mapper::SimilarityToQualityMapper, patch_similarity_comparator::PatchSimilarityResult, audio_signal::AudioSignal, spectrogram_builder::SpectrogramBuilder, patch_creator::{PatchCreator}, misc_audio, analysis_window::{AnalysisWindow}, comparison_patches_selector::{ComparisonPatchesSelector}, similarity_result::SimilarityResult, visqol_error::VisqolError};
 
-pub fn calculate_similarity(ref_signal: &AudioSignal,
+pub fn calculate_similarity(ref_signal: &mut AudioSignal,
                             deg_signal: &mut AudioSignal,
                             spect_builder: &mut dyn SpectrogramBuilder,
                             window: &AnalysisWindow,
@@ -21,8 +21,7 @@ pub fn calculate_similarity(ref_signal: &AudioSignal,
     
 
     /////////////// Stage 2: Feature selection and similarity measure ////////////
-    let mut ref_patch_indices = patch_creator.create_ref_patch_indices(&ref_spectrogram.data, ref_signal, window);
-    
+    let mut ref_patch_indices = patch_creator.create_ref_patch_indices(&ref_spectrogram.data, ref_signal, window)?;
 
     let frame_duration = calc_frame_duration(window.size as f64 * window.overlap, ref_signal.sample_rate as usize);
     

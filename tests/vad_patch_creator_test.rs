@@ -16,7 +16,7 @@ fn clean_speech_vad()
     let ref_signal = load_as_mono("/Users/danielstrubig/Documents/CodingProjects/rust/exercises/visqol/visqol-rs/test_data/clean_speech/CA01_01.wav").unwrap();
 
     let vad = VadPatchCreator::new(20);
-    let res = vad.get_voice_activity(&ref_signal, K_START_SAMPLE, K_TOTAL_SAMPLE, K_FRAME_LEN);
+    let res = vad.get_voice_activity(ref_signal.data_matrix.as_slice().unwrap(), K_START_SAMPLE, K_TOTAL_SAMPLE, K_FRAME_LEN);
     assert_eq!(K_CA01_01_VAD_RES_COUNT, res.len());
 }
 
@@ -2832,7 +2832,7 @@ fn patch_indices()
     let spectro = Spectrogram::new(spectro_mat, cfb);
 
     let vad = VadPatchCreator::new(K_PATCH_SIZE);
-    let patches = vad.create_ref_patch_indices(&spectro.data, &ref_signal, &window);
+    let patches = vad.create_ref_patch_indices(&spectro.data, &ref_signal, &window).unwrap();
 
     assert_eq!(patches.len(), expected_patches.len());
     for (&a, b) in patches.iter().zip(expected_patches)

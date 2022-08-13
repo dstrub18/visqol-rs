@@ -1,4 +1,5 @@
 use crate::patch_creator::PatchCreator;
+use crate::visqol_error::VisqolError;
 use crate::{analysis_window::AnalysisWindow, audio_signal::AudioSignal, misc_math, rms_vad};
 use ndarray::{Array2, s};
 
@@ -10,9 +11,9 @@ pub struct VadPatchCreator
 impl PatchCreator for VadPatchCreator
 {
     fn create_ref_patch_indices(&self, spectrogram: &Array2<f64>, ref_signal: &AudioSignal, window: &AnalysisWindow)
-    -> Vec<usize>
+    -> Result<std::vec::Vec<usize>, VisqolError>
     {
-        let norm_mat = misc_math::normalize_2d_matrix(&ref_signal.data_matrix);
+        let norm_mat = misc_math::normalize_signal(&ref_signal.data_matrix);
         let norm_sig = AudioSignal::new(norm_mat.as_slice().expect("Failed to create AudioSignal from slice!"), ref_signal.sample_rate);
     
         let frame_size = (window.size as f64 * window.overlap) as usize;
@@ -27,7 +28,7 @@ impl PatchCreator for VadPatchCreator
         
         // Pass the reference signal to the VAD to determine which frames have voice
         // activity.
-        let vad_res = self.get_voice_activity(&norm_sig, first_patch_idx, total_sample_count, frame_size);
+        let vad_res = self.get_voice_activity(norm_sig.data_matrix.as_slice().unwrap(), first_patch_idx, total_sample_count, frame_size);
 
         let mut patch_idx = first_patch_idx;
         // Could be done more elegantly. :)
@@ -42,7 +43,7 @@ impl PatchCreator for VadPatchCreator
             }
             patch_idx += self.patch_size;
         }
-        ref_patch_indices
+        Ok(ref_patch_indices)
   
     }
 
@@ -81,17 +82,16 @@ impl VadPatchCreator
         }
     }
     
-    pub fn get_voice_activity(&self, signal: &AudioSignal, start_sample: usize, total_samples: usize, frame_length: usize)
+    pub fn get_voice_activity(&self, signal: &[f64], start_sample: usize, total_samples: usize, frame_length: usize)
     -> Vec<f64> {
         let mut vad = rms_vad::RmsVad::default();
     
-        let patch = signal.data_matrix.slice(s![start_sample..start_sample + total_samples]);
+        let patch = &signal[start_sample..start_sample + total_samples];
         
         let mut frame = Vec::<i16>::new();
         frame.reserve(frame_length);
-        for (_index, float_val) in patch.iter().enumerate()
+        for float_val in patch
         {
-            // check bounds
             let mut scaled_val = ((*float_val  * ((1 << 15) as f64)) as i16) as f64;
             scaled_val =  (-1.0 * (1 << 15) as f64).max(1.0 * ((1 << 15) - 1) as f64).min(scaled_val);
             frame.push(scaled_val as i16);

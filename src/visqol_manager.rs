@@ -89,18 +89,18 @@ impl VisqolManager
         deg_signal_path: &str,
     ) -> Result<SimilarityResult, VisqolError>
     {
-        let ref_signal = misc_audio::load_as_mono(ref_signal_path).unwrap();
+        let mut ref_signal = misc_audio::load_as_mono(ref_signal_path).unwrap();
         let mut deg_signal = misc_audio::load_as_mono(deg_signal_path).unwrap();
         
         self.validate_input_audio(&ref_signal, &deg_signal)?;
         
-        self.compute_results(&ref_signal, &mut deg_signal)
+        self.compute_results(&mut ref_signal, &mut deg_signal)
 
     }
 
     pub fn compute_results(
         &mut self,
-        ref_signal: &AudioSignal,
+        ref_signal: &mut AudioSignal,
         deg_signal: &mut AudioSignal,
     ) -> Result<SimilarityResult, VisqolError>
     {

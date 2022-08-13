@@ -21,7 +21,7 @@ fn small_test()
     -0.000124137, 2.84554e-05, 8.94924e-05, -0.00027673, -6.31002e-05,
     -0.000215693, 0.000425196, 8.94924e-05];
     let orig_samples = samples.clone();
-    let length = next_pow_two(&samples.len());
+    let length = next_pow_two(samples.len());
     samples.resize(length, 0.0);
     // make a planner
     let mut real_planner = RealFftPlanner::<f64>::new();
@@ -192,7 +192,7 @@ fn test_full_signal()
 
     let mut samples = input.data_matrix.to_vec();
 
-    let length = next_pow_two(&samples.len());
+    let length = next_pow_two(samples.len());
     samples.resize(length, 0.0);
     // make a planner
     let mut real_planner = RealFftPlanner::<f64>::new();
@@ -209,7 +209,7 @@ fn test_ones()
 
     let mut samples = vec![1.0; 262144];
 
-    let length = next_pow_two(&samples.len());
+    let length = next_pow_two(samples.len());
     samples.resize(length, 1.0);
     // make a planner
     let mut real_planner = RealFftPlanner::<f64>::new();

@@ -24,6 +24,13 @@ pub enum VisqolError
         minimum_required: usize
     },
 
+    #[error("reference spectrum size {spectrogram_length:?} smaller than minimum {minimum_required:?}")]
+    ReferenceSpectrogramTooSmall
+    {
+        spectrogram_length: usize,
+        minimum_required: usize
+    },
+
     #[error("File not found")]
     FileNotFound(#[from] hound::Error),
     

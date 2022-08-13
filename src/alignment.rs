@@ -17,7 +17,6 @@ pub fn align_and_truncate(ref_signal: &AudioSignal, deg_signal: &AudioSignal)
         {
             // For positive lag, the beginning of ref is now padded with zeros, so
             // that amount should be truncated.
-            // This could also be done better.
             new_ref_matrix = new_ref_matrix.slice(s![(lag * ref_signal.sample_rate as f64) as usize .. ref_signal.len()]).to_owned();
             new_deg_matrix = new_deg_matrix.slice(s![(lag * deg_signal.sample_rate as f64) as usize .. ref_signal.len()]).to_owned();
         },
@@ -44,7 +43,7 @@ pub fn globally_align(ref_signal: &AudioSignal, deg_signal: &AudioSignal)
 
     if best_lag == 0 || best_lag.abs() > (ref_signal.data_matrix.len() / 2) as i64 
     {
-        // return deg signal and 0.
+        // If signals are correlated already, return deg signal and 0.
         let new_deg_signal = AudioSignal::new(deg_signal.data_matrix.as_slice().expect("Failed to create AudioSignal from slice!"),deg_signal.sample_rate);
         Some((new_deg_signal, 0.0f64))
     }
