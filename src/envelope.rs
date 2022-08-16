@@ -10,14 +10,14 @@ pub fn calculate_upper_env(signal: &Array1<f64>)
     let mut signal_centered = signal - mean;
     let hilbert = hilbert(&mut signal_centered);
 
-    let mut hilbert_amp = Array1::<f64>::zeros(hilbert.len());
+    let mut hilbert_amplitude = Array1::<f64>::zeros(hilbert.len());
     
-    for i in 0..hilbert.len()
+    for (amplitude, h) in hilbert_amplitude.iter_mut().zip(&hilbert)
     {
-        hilbert_amp[i] = hilbert[i].norm();
+        *amplitude = h.norm();
     }
-    hilbert_amp += mean;
-    Some(hilbert_amp)
+    hilbert_amplitude += mean;
+    Some(hilbert_amplitude)
 }
 
 pub fn hilbert(signal: &mut Array1<f64>)

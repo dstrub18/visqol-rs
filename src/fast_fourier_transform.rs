@@ -1,18 +1,16 @@
 use ndarray::{Axis, Array1, Array0};
 use num::Zero;
 use num::complex::Complex64;
-use crate::audio_channel::AudioChannel;
 use crate::fft_manager::FftManager;
 
 pub fn forward_1d_from_matrix(fft_manager: &mut FftManager, in_matrix: &Array1::<f64>)
 -> Array1<Complex64> {
-  let mut temp_time_buffer = AudioChannel::<f64>::new(fft_manager.samples_per_channel);
-  temp_time_buffer.aligned_buffer = in_matrix.to_vec();
+  let mut temp_time_buffer = in_matrix.to_vec();
   
-  let mut temp_freq_buffer = AudioChannel::<Complex64>::new(fft_manager.fft_size);
+  let mut temp_freq_buffer = vec![Complex64::zero(); fft_manager.fft_size];
   fft_manager.freq_from_time_domain(&mut temp_time_buffer, &mut temp_freq_buffer);
   
-  Array1::from_vec(temp_freq_buffer.aligned_buffer)
+  Array1::from_vec(temp_freq_buffer)
 }
 
 pub fn forward_1d_from_points(fft_manager: &mut FftManager, in_matrix: &mut Array1::<f64>, points: usize)
@@ -32,9 +30,8 @@ pub fn forward_1d_from_points(fft_manager: &mut FftManager, in_matrix: &mut Arra
 
 pub fn inverse_1d(fft_manager: &mut FftManager, in_matrix: &mut Array1::<Complex64>)
 -> Array1<Complex64> {
-  let mut temp_freq_buffer = AudioChannel::<Complex64>::new(fft_manager.fft_size);
-  temp_freq_buffer.aligned_buffer = in_matrix.to_vec();
-  let mut temp_time_buffer = AudioChannel::<f64>::new(fft_manager.samples_per_channel);
+  let mut temp_freq_buffer = in_matrix.to_vec();
+  let mut temp_time_buffer = vec![f64::zero(); fft_manager.samples_per_channel];
   fft_manager.time_from_freq_domain(&mut temp_freq_buffer,  &mut temp_time_buffer);
   fft_manager.apply_reverse_fft_scaling(&mut temp_time_buffer);
 

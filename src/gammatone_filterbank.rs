@@ -80,7 +80,6 @@ impl GammatoneFilterbank
         let mut output = ndarray::Array2::<f64>::zeros((self.num_bands, signal.len()));
         for band in 0..self.num_bands
         {
-            // This can be done smarter :)
             a1[0] = self.filter_coeff_a0[band] / self.filter_coeff_gain[band];
             a1[1] = self.filter_coeff_a11[band] / self.filter_coeff_gain[band];
             a1[2] = self.filter_coeff_a2[band] / self.filter_coeff_gain[band];

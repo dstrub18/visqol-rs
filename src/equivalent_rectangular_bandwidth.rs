@@ -17,8 +17,8 @@ pub fn make_filters(sample_rate: usize, num_bands: usize, low_freq: f64, high_fr
     let pi = std::f64::consts::PI;
     let cf = float_vec_to_real_valued_complex_vec(&calculate_uniform_center_freqs(low_freq, high_freq, num_bands));
 
-    let earQ = 9.26449f64;  // Glasberg and Moore Parameters
-    let minBW = 24.7f64;
+    let ear_q = 9.26449f64;  // Glasberg and Moore Parameters
+    let min_bw = 24.7f64;
     let order = 1.0f64;
 
     let mut B = vec![Complex64::zero(); num_bands];
@@ -26,16 +26,16 @@ pub fn make_filters(sample_rate: usize, num_bands: usize, low_freq: f64, high_fr
 
     for (B_element, cf_element) in B.iter_mut().zip(&cf)
     {
-        let erb = ((cf_element / earQ).powf(order) + minBW.powf(order)).powf(1.0 / order);
+        let erb = ((cf_element / ear_q).powf(order) + min_bw.powf(order)).powf(1.0 / order);
         *B_element = 1.019 * 2.0 * pi * erb;
     }
     let t = 1.0 / sample_rate as f64;
 
     let mut exp_bt = vec![Complex64::zero(); num_bands];
 
-    for i in 0..exp_bt.len()
+    for (exp, b_element) in exp_bt.iter_mut().zip(&B)
     {
-        exp_bt[i] = (B[i] * t).exp();
+        *exp = (*b_element * t).exp();
     }
     
     let mut B1 = vec![Complex64::zero(); num_bands];

@@ -43,7 +43,7 @@ pub fn perform_valid_2d_conv_with_boundary(fir_filter: &Array2<f64>, input_matri
 }
 
 pub fn flatten_matrix(input_matrix: &Array2::<f64>) -> Vec::<f64>
-{   
+{
     let mut res = Vec::<f64>::new();
     for i in 0..input_matrix.nrows()
     {
@@ -67,8 +67,6 @@ pub fn add_matrix_boundary(input_matrix: &mut Array2<f64>) -> Array2::<f64>
     }
     let _nr = output_matrix.nrows();
 
-    let _b = output_matrix.column_mut(0);
-    
     for i in 0..output_matrix.nrows()
     {
         output_matrix.column_mut(0)[i] = output_matrix.column_mut(1)[i];

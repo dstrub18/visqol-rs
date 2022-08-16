@@ -76,7 +76,7 @@ pub fn prepare_spectrograms_for_comparison(reference: &mut Spectrogram, degraded
     degraded.subtract_floor(lowest_floor);
 }
 
-pub fn float_vec_to_real_valued_complex_vec(float_vector: &Vec<f64>)
+pub fn float_vec_to_real_valued_complex_vec(float_vector: &[f64])
 -> Vec<Complex64>
 {
     let mut complex_vec = vec![Complex64::zero(); float_vector.len()];
@@ -88,7 +88,7 @@ pub fn float_vec_to_real_valued_complex_vec(float_vector: &Vec<f64>)
     complex_vec
 }
 
-pub fn real_valued_complex_vec_to_float_vec(complex_vector: &Vec<Complex64>)
+pub fn real_valued_complex_vec_to_float_vec(complex_vector: &[Complex64])
 -> Vec<f64>
 {
     let mut real_vec = vec![f64::zero(); complex_vector.len()];
