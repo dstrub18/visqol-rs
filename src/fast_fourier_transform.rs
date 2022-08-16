@@ -7,7 +7,7 @@ use crate::fft_manager::FftManager;
 pub fn forward_1d_from_matrix(fft_manager: &mut FftManager, in_matrix: &Array1::<f64>)
 -> Array1<Complex64> {
   let mut temp_time_buffer = AudioChannel::<f64>::new(fft_manager.samples_per_channel);
-  temp_time_buffer.aligned_buffer = in_matrix.clone().to_vec();
+  temp_time_buffer.aligned_buffer = in_matrix.to_vec();
   
   let mut temp_freq_buffer = AudioChannel::<Complex64>::new(fft_manager.fft_size);
   fft_manager.freq_from_time_domain(&mut temp_time_buffer, &mut temp_freq_buffer);
@@ -18,7 +18,6 @@ pub fn forward_1d_from_matrix(fft_manager: &mut FftManager, in_matrix: &Array1::
 pub fn forward_1d_from_points(fft_manager: &mut FftManager, in_matrix: &mut Array1::<f64>, points: usize)
 -> Array1<Complex64> {
   let num_points_to_append = points - in_matrix.len();
-  // Continue here :)
   let mut signal = in_matrix.clone();
 
   let z = Array0::<f64>::zeros([]);
@@ -34,7 +33,7 @@ pub fn forward_1d_from_points(fft_manager: &mut FftManager, in_matrix: &mut Arra
 pub fn inverse_1d(fft_manager: &mut FftManager, in_matrix: &mut Array1::<Complex64>)
 -> Array1<Complex64> {
   let mut temp_freq_buffer = AudioChannel::<Complex64>::new(fft_manager.fft_size);
-  temp_freq_buffer.aligned_buffer = in_matrix.clone().to_vec();
+  temp_freq_buffer.aligned_buffer = in_matrix.to_vec();
   let mut temp_time_buffer = AudioChannel::<f64>::new(fft_manager.samples_per_channel);
   fft_manager.time_from_freq_domain(&mut temp_freq_buffer,  &mut temp_time_buffer);
   fft_manager.apply_reverse_fft_scaling(&mut temp_time_buffer);

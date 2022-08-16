@@ -1,3 +1,5 @@
+use std::error::Error;
+
 use log;
 use crate::constants;
 use crate::speech_similarity_to_quality_mapper::SpeechSimilarityToQualityMapper;
@@ -87,10 +89,10 @@ impl VisqolManager
         &mut self,
         ref_signal_path: &str,
         deg_signal_path: &str,
-    ) -> Result<SimilarityResult, VisqolError>
+    ) -> Result<SimilarityResult, Box<dyn Error>>
     {
-        let mut ref_signal = misc_audio::load_as_mono(ref_signal_path).unwrap();
-        let mut deg_signal = misc_audio::load_as_mono(deg_signal_path).unwrap();
+        let mut ref_signal = misc_audio::load_as_mono(ref_signal_path)?;
+        let mut deg_signal = misc_audio::load_as_mono(deg_signal_path)?;
         
         self.validate_input_audio(&ref_signal, &deg_signal)?;
         
@@ -102,9 +104,9 @@ impl VisqolManager
         &mut self,
         ref_signal: &mut AudioSignal,
         deg_signal: &mut AudioSignal,
-    ) -> Result<SimilarityResult, VisqolError>
+    ) -> Result<SimilarityResult, Box<dyn Error>>
     {
-        let (mut deg_signal, _) = alignment::globally_align(ref_signal, deg_signal).unwrap();
+        let (mut deg_signal, _) = alignment::globally_align(ref_signal, deg_signal).ok_or(VisqolError::FailedToAlignSignals)?;
 
         let window = AnalysisWindow::new(
             ref_signal.sample_rate,
@@ -134,6 +136,7 @@ impl VisqolManager
                 degraded: deg_signal.sample_rate,
             });
         }
+
 
         if self.use_speech_mode && (ref_signal.sample_rate != constants::SAMPLE_RATE_SPEECH_MODE || deg_signal.sample_rate != constants::SAMPLE_RATE_SPEECH_MODE) 
         {

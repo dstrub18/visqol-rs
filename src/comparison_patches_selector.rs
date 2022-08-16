@@ -1,3 +1,5 @@
+use std::error::Error;
+
 use ndarray::{s, Array2, concatenate, Axis, Array1};
 use log;
 use crate::{patch_similarity_comparator::{PatchSimilarityComparator, PatchSimilarityResult}, audio_signal::AudioSignal, neurogram_similiarity_index_measure::NeurogramSimiliarityIndexMeasure, spectrogram_builder::SpectrogramBuilder, analysis_window::AnalysisWindow, misc_audio, visqol_error::VisqolError};
@@ -80,7 +82,6 @@ impl ComparisonPatchesSelector
                 // The frame offset for degraded start patch cannot be more than the
                 // number of frames in the degraded spectrogram.
                 break;
-
             }
 
             if cumulative_similarity_dp[last_index][slide_offset] > max_similarity_score
@@ -280,7 +281,7 @@ impl ComparisonPatchesSelector
         ref_signal: &AudioSignal, deg_signal: &AudioSignal,
         spect_builder: &mut dyn SpectrogramBuilder, analysis_window: &AnalysisWindow
     )
-    -> Result<Vec<PatchSimilarityResult>, VisqolError>
+    -> Result<Vec<PatchSimilarityResult>, Box<dyn Error>>
     {
         
         // Case: The patches are already matched.  Iterate over each pair.
@@ -301,7 +302,7 @@ impl ComparisonPatchesSelector
             
             // 2. For any pair, we want to shift the degraded signal to be maximally
             // aligned.
-            let (ref_audio_aligned,deg_audio_aligned, lag) = align_and_truncate(&ref_patch_audio, &deg_patch_audio).unwrap();
+            let (ref_audio_aligned,deg_audio_aligned, lag) = align_and_truncate(&ref_patch_audio, &deg_patch_audio).ok_or(VisqolError::FailedToAlignSignals)?;
             
             let new_ref_duration = ref_audio_aligned.get_duration();
             let new_deg_duration = deg_audio_aligned.get_duration();

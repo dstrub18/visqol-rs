@@ -1,6 +1,7 @@
 use crate::patch_creator::PatchCreator;
 use crate::visqol_error::VisqolError;
 use crate::{analysis_window::AnalysisWindow, audio_signal::AudioSignal, misc_math, rms_vad};
+use itertools::Itertools;
 use ndarray::{Array2, s};
 
 pub struct VadPatchCreator
@@ -28,23 +29,21 @@ impl PatchCreator for VadPatchCreator
         
         // Pass the reference signal to the VAD to determine which frames have voice
         // activity.
-        let vad_res = self.get_voice_activity(norm_sig.data_matrix.as_slice().unwrap(), first_patch_idx, total_sample_count, frame_size);
+        let vad_result = self.get_voice_activity(norm_sig.data_matrix.as_slice().unwrap(), first_patch_idx, total_sample_count, frame_size);
 
         let mut patch_idx = first_patch_idx;
-        // Could be done more elegantly. :)
-        for i in 0..patch_count
+
+        for patch in &vad_result.iter().chunks(self.patch_size)
         {
-            let first = i * self.patch_size;
-            let &frames_with_va = &vad_res[first..first + self.patch_size].iter().sum::<f64>();
-            
-            if frames_with_va >= self.frames_with_va_threshold 
-            {
-                ref_patch_indices.push(patch_idx);    
+            let frames_with_va = patch.sum::<f64>();
+
+            if frames_with_va >= self.frames_with_va_threshold {
+                ref_patch_indices.push(patch_idx);
             }
             patch_idx += self.patch_size;
         }
+        
         Ok(ref_patch_indices)
-  
     }
 
     fn create_patches_from_indices(&self, spectrogram: &Array2<f64>, patch_indices: &[usize])
@@ -72,7 +71,6 @@ impl PatchCreator for VadPatchCreator
 
 impl VadPatchCreator
 {
-    
     pub fn new(patch_size: usize) -> Self
     {
         Self
@@ -90,9 +88,9 @@ impl VadPatchCreator
         
         let mut frame = Vec::<i16>::new();
         frame.reserve(frame_length);
-        for float_val in patch
+        for patch_element in patch
         {
-            let mut scaled_val = ((*float_val  * ((1 << 15) as f64)) as i16) as f64;
+            let mut scaled_val = ((*patch_element  * ((1 << 15) as f64)) as i16) as f64;
             scaled_val =  (-1.0 * (1 << 15) as f64).max(1.0 * ((1 << 15) - 1) as f64).min(scaled_val);
             frame.push(scaled_val as i16);
     

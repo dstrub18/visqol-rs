@@ -4,12 +4,6 @@ use thiserror::Error;
 #[derive(Error, Debug)]
 pub enum VisqolError
 {
-    #[error("Found invalid sample rate {sample_rate:?} detected")]
-    InvalidSampleRate
-    {
-        sample_rate: u32
-    },
-
     #[error("Sample rates differ! Reference signal is sampled at {reference:?} Hz, degraded signal is sampled at {degraded:?} Hz")]
     DifferentSampleRates
     {
@@ -30,13 +24,10 @@ pub enum VisqolError
         spectrogram_length: usize,
         minimum_required: usize
     },
-
-    #[error("File not found")]
-    FileNotFound(#[from] hound::Error),
-    
-    #[error("Could not compute prediction using SVM model")]
-    PredictionError,
     
     #[error("Degraded file was too short, different, or misaligned to score any of the reference patches.")]
-    SignalsTooDifferent
+    SignalsTooDifferent,
+
+    #[error("Failed to align signals!")]
+    FailedToAlignSignals,
 }

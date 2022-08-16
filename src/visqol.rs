@@ -1,6 +1,8 @@
-use ndarray::{Array1};
+use std::error::Error;
 
-use crate::{similarity_to_quality_mapper::SimilarityToQualityMapper, patch_similarity_comparator::PatchSimilarityResult, audio_signal::AudioSignal, spectrogram_builder::SpectrogramBuilder, patch_creator::{PatchCreator}, misc_audio, analysis_window::{AnalysisWindow}, comparison_patches_selector::{ComparisonPatchesSelector}, similarity_result::SimilarityResult, visqol_error::VisqolError};
+use ndarray::Array1;
+
+use crate::{similarity_to_quality_mapper::SimilarityToQualityMapper, patch_similarity_comparator::PatchSimilarityResult, audio_signal::AudioSignal, spectrogram_builder::SpectrogramBuilder, patch_creator::{PatchCreator}, misc_audio, analysis_window::{AnalysisWindow}, comparison_patches_selector::{ComparisonPatchesSelector}, similarity_result::SimilarityResult};
 
 pub fn calculate_similarity(ref_signal: &mut AudioSignal,
                             deg_signal: &mut AudioSignal,
@@ -10,7 +12,7 @@ pub fn calculate_similarity(ref_signal: &mut AudioSignal,
                             selector: &ComparisonPatchesSelector,
                             sim_to_qual_mapper: &dyn SimilarityToQualityMapper,
                             search_window: usize)
--> Result<SimilarityResult, VisqolError>
+-> Result<SimilarityResult, Box<dyn Error>>
 {
     /////////////////// Stage 1: Preprocessing ///////////////////
     let deg_signal_scaled = misc_audio::scale_to_match_sound_pressure_level(ref_signal, deg_signal);
@@ -43,7 +45,7 @@ pub fn calculate_similarity(ref_signal: &mut AudioSignal,
     let vnsim = fvnsim.mean().expect("Could not compute nsim mean");
     
     moslqo = alter_for_similarity_extremes(vnsim, moslqo as f64) as f32;
-    Ok(SimilarityResult::new(moslqo as f64, vnsim, fvnsim.to_vec(), fstdnsim.to_vec(), fvdegenergy.to_vec(), ref_spectrogram.center_freq_bands.clone(), sim_match_info))
+    Ok(SimilarityResult::new(moslqo as f64, vnsim, fvnsim.to_vec(), fstdnsim.to_vec(), fvdegenergy.to_vec(), ref_spectrogram.center_freq_bands, sim_match_info))
 }
 
 fn predict_mos(fvnsim: &[f64], mapper: &dyn SimilarityToQualityMapper)

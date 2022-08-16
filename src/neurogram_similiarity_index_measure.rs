@@ -1,6 +1,6 @@
 use crate::patch_similarity_comparator::{PatchSimilarityComparator, PatchSimilarityResult};
 use crate::convolution_2d::perform_valid_2d_conv_with_boundary;
-use ndarray::{Array2, ShapeBuilder, Axis, Array1};
+use ndarray::{Axis, Array1, arr2};
 pub struct NeurogramSimiliarityIndexMeasure
 {
     intensity_range: f64
@@ -21,10 +21,9 @@ impl PatchSimilarityComparator for NeurogramSimiliarityIndexMeasure
 {
     fn measure_patch_similarity(&self, ref_patch: &mut ndarray::Array2<f64>, deg_patch: &mut ndarray::Array2<f64>) -> PatchSimilarityResult
     {
-        let window_vec = vec![0.0113033910173052, 0.0838251475442633, 0.0113033910173052,
-        0.0838251475442633, 0.619485845753726,  0.0838251475442633,
-        0.0113033910173052, 0.0838251475442633, 0.0113033910173052];
-        let window = Array2::from_shape_vec((3,3).f(), window_vec).expect("Failed to create smoothing window!");
+        let window = arr2(&[[0.0113033910173052, 0.0838251475442633, 0.0113033910173052],
+            [0.0838251475442633, 0.619485845753726,  0.0838251475442633],
+        [0.0113033910173052, 0.0838251475442633, 0.0113033910173052]]);
 
         let k = [0.01, 0.03];
         let c1 = (k[0] * self.intensity_range).powf(2.0);
