@@ -1,4 +1,4 @@
-use std::path::PathBuf;
+use std::{path::PathBuf, error::Error};
 
 use crate::file_path::ReferenceDegradedPathPair;
 use clap::{Parser};
@@ -85,13 +85,13 @@ pub struct CommandLineArgs
 }
 
 pub fn build_file_pair_paths(args: &CommandLineArgs)
--> Vec<ReferenceDegradedPathPair> 
+-> Result<Vec<ReferenceDegradedPathPair>, Box<dyn Error> >
 {
     let mut file_pairs = Vec::<ReferenceDegradedPathPair>::new();
     if let (Some(ref_file), Some(deg_file)) = (&args.reference_file, &args.degraded_file)
     {
         file_pairs.push(ReferenceDegradedPathPair::new(ref_file, deg_file));
-        file_pairs
+        Ok(file_pairs)
     }
     else if let Some(csv_file) = &args.batch_input_csv
     {
@@ -99,13 +99,13 @@ pub fn build_file_pair_paths(args: &CommandLineArgs)
     }
     else
     {
-        file_pairs
+        Ok(file_pairs)
     }
 }
 
-// Todo: Replace with result type to handle errors.
+// Todo: Replace with result type to handle errors. Make custom error that specifies line number.
 pub fn read_files_to_compare(batch_input_path: &PathBuf)
--> Vec<ReferenceDegradedPathPair> 
+-> Result<Vec<ReferenceDegradedPathPair>, Box<dyn Error>>
 {
     let mut file_paths = Vec::<ReferenceDegradedPathPair>::new();
     let mut reader = ReaderBuilder::new().has_headers(true).delimiter(b',').from_path(batch_input_path).unwrap_or_else(|_| panic!("Failed to read csv file!"));
@@ -113,9 +113,9 @@ pub fn read_files_to_compare(batch_input_path: &PathBuf)
     let header = StringRecord::from(vec!["reference", "degraded"]);
     while let Some(result) = reader.records().next()
     {
-        let record = result.expect("Failed to deserialize line in csv file!");
+        let record = result?;
         let row: ReferenceDegradedPathPair = record.deserialize(Some(&header)).expect("Failed to deserialize line in csv file!");
         file_paths.push(row);
     }
-    file_paths
+    Ok(file_paths)
 }

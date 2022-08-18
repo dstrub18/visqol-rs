@@ -156,7 +156,7 @@ fn test_forward_1d()
     let expected_matrix = Array1::from_vec(expected_complex_result);
     let mut fft_manager = FftManager::new(samples_mat.len());
 
-    let out_matrix = fast_fourier_transform::forward_1d_from_matrix(&mut fft_manager, &samples_mat);
+    let out_matrix = fast_fourier_transform::forward_1d_from_matrix(&mut fft_manager, samples_mat.as_slice().unwrap());
     let tolerance = 0.00000001;
     compare_complex_vec(&expected_matrix.to_vec(), &out_matrix.to_vec(), tolerance);
 }
@@ -180,7 +180,7 @@ fn test_forward_1d_from_points()
     -0.000124137, 2.84554e-05, 8.94924e-05, -0.00027673, -6.31002e-05,
     -0.000215693, 0.000425196, 8.94924e-05];
 
-    let mut samples_mat = Array1::from_vec(samples);
+    let samples_mat = Array1::from_vec(samples);
 
     let expected_complex_result = vec![Complex64{re: 0.00322292904000000, im: 0.00000000000000}, // This is Nyqvist!!!
     Complex64{re: 0.00301682385173052, im: -0.00234848985608509}, // Imag component is flipped!
@@ -315,7 +315,7 @@ fn test_forward_1d_from_points()
 
     let mut fft_manager = FftManager::new(samples_mat.len());
     let num_points = samples_mat.len() + 1;
-    let out_matrix = fast_fourier_transform::forward_1d_from_points(&mut fft_manager, &mut samples_mat, num_points);
+    let out_matrix = fast_fourier_transform::forward_1d_from_points(&mut fft_manager, samples_mat.as_slice().unwrap(), num_points);
     assert_eq!(expected_matrix.len(), out_matrix.len());
     compare_complex_vec(&expected_matrix.to_vec(), &out_matrix.to_vec(), tolerance);
 }
@@ -344,9 +344,9 @@ fn test_inverse_1d()
 
     let mut fft_manager = FftManager::new(samples_mat.len());
 
-    let mut spectrum = fast_fourier_transform::forward_1d_from_matrix(&mut fft_manager, &samples_mat);
+    let spectrum = fast_fourier_transform::forward_1d_from_matrix(&mut fft_manager, samples_mat.as_slice().unwrap());
 
-    let inverse = fast_fourier_transform::inverse_1d_conj_sym(&mut fft_manager, &mut spectrum);
+    let inverse = fast_fourier_transform::inverse_1d_conj_sym(&mut fft_manager, &spectrum);
     
     compare_real_vec(&samples_mat.to_vec(), &inverse.to_vec(), tolerance);
 }
@@ -398,8 +398,8 @@ fn test_complex_inverse_1d()
 
     let length = 65;
     let mut fft_manager = FftManager::new(length);
-    let mut spectrum = fast_fourier_transform::forward_1d_from_matrix(&mut fft_manager, &samples_mat);
-    let complex_samples_result = fast_fourier_transform::inverse_1d(&mut fft_manager, &mut spectrum);
+    let spectrum = fast_fourier_transform::forward_1d_from_matrix(&mut fft_manager, samples_mat.as_slice().unwrap());
+    let complex_samples_result = fast_fourier_transform::inverse_1d(&mut fft_manager, &spectrum);
     
     compare_complex_vec(&expected_complex_samples_mat.to_vec(), &complex_samples_result.to_vec(), tolerance);
 }
@@ -418,9 +418,9 @@ fn test_zeros()
 
     let mut manager = FftManager::new(samples_mat.len());
 
-    let mut spectrum = fast_fourier_transform::forward_1d_from_matrix(&mut manager, &samples_mat);
+    let spectrum = fast_fourier_transform::forward_1d_from_matrix(&mut manager, samples_mat.as_slice().unwrap());
 
-    let result = fast_fourier_transform::inverse_1d_conj_sym(&mut manager, &mut spectrum);
+    let result = fast_fourier_transform::inverse_1d_conj_sym(&mut manager, &spectrum);
 
     compare_real_vec(&samples_mat.to_vec(), &result.to_vec(), tolerance);
 }

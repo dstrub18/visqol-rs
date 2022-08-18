@@ -56,7 +56,6 @@ impl SpectrogramBuilder for GammatoneSpectrogramBuilder
 
         center_freqs.as_mut_slice().sort_by(|a, b|{a.partial_cmp(b).expect("Failed to sort center frequencies!")});
         Ok(Spectrogram::new(out_matrix, center_freqs))
-
     }
 }
 

@@ -1,11 +1,6 @@
 use std::path::PathBuf;
 
-use visqol_rs::{command_line_parser};
-#[test]
-#[ignore = "Not finished"]
-fn test_parser()
-{
-}
+use visqol_rs::command_line_parser;
 
 #[test]
 fn test_csv()
@@ -18,7 +13,7 @@ fn test_csv()
 
     let batch_file_entry_count = 2;
 
-    let file_pairs = command_line_parser::read_files_to_compare(&PathBuf::from("test_data/example_batch/batch_input.csv"));
+    let file_pairs = command_line_parser::read_files_to_compare(&PathBuf::from("test_data/example_batch/batch_input.csv")).unwrap();
 
     assert_eq!(file_pairs.len(), batch_file_entry_count);
     assert_eq!(file_pairs[0].reference, ref_file_1);

@@ -29,7 +29,7 @@ impl PatchCreator for VadPatchCreator
         
         // Pass the reference signal to the VAD to determine which frames have voice
         // activity.
-        let vad_result = self.get_voice_activity(norm_sig.data_matrix.as_slice().unwrap(), first_patch_idx, total_sample_count, frame_size);
+        let vad_result = self.get_voice_activity(norm_sig.data_matrix.as_slice().ok_or(VisqolError::FailedToComputeVad)?, first_patch_idx, total_sample_count, frame_size);
 
         let mut patch_idx = first_patch_idx;
 

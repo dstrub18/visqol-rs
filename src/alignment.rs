@@ -10,7 +10,6 @@ pub fn align_and_truncate(ref_signal: &AudioSignal, deg_signal: &AudioSignal)
     let mut new_ref_matrix = ref_signal.data_matrix.clone();
     let mut new_deg_matrix = aligned_deg_signal.data_matrix;
 
-
     match new_ref_matrix.len().cmp(&new_deg_matrix.len())
     {
         std::cmp::Ordering::Less => 
@@ -65,4 +64,3 @@ pub fn globally_align(ref_signal: &AudioSignal, deg_signal: &AudioSignal)
         Some((new_deg_signal, (best_lag as f64 / deg_signal.sample_rate as f64) as f64))
     }
 }
-

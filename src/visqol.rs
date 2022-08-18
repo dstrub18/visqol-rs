@@ -104,7 +104,6 @@ fn calc_per_patch_mean_freq_band_std_devs(sim_match_info: &Vec<PatchSimilarityRe
             let dev = patch.freq_band_stddevs[index];
             let mean = patch.freq_band_means[index];
 
-            // Error occurs here!
             *contrib_element += (frame_count - 1) as f64  * dev * dev;
             *contrib_element += frame_count as f64  * mean * mean;
         }
@@ -114,20 +113,10 @@ fn calc_per_patch_mean_freq_band_std_devs(sim_match_info: &Vec<PatchSimilarityRe
 
     result.map_inplace(|element|
         {
-            if *element < 0.0 
-            {
-                *element = 0.0;    
-            }
-            else
-            {
-                *element = element.sqrt();
-            }
+            *element = if *element < 0.0 {0.0} else {element.sqrt()};
         });
     result
 }
-
-
-
 
 fn alter_for_similarity_extremes(vnsim: f64, moslqo: f64)
 -> f64 

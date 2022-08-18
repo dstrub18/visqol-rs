@@ -30,4 +30,8 @@ pub enum VisqolError
 
     #[error("Failed to align signals!")]
     FailedToAlignSignals,
+    
+    #[error("Failed to compute VAD!")]
+    FailedToComputeVad,
+
 }

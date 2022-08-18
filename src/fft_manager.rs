@@ -13,6 +13,7 @@ pub struct FftManager
     inverse_fft_scale: f64,
     pub samples_per_channel: usize,
 }
+
 impl FftManager
 {
     pub fn new(samples_per_channel: usize) -> Self
@@ -43,7 +44,6 @@ impl FftManager
             let mut scratch_buffer = vec![Complex64::zero();real_to_complex.get_outofplace_scratch_len()];
             real_to_complex.process_outofplace_with_scratch(&mut complex_time_domain[..], &mut freq_channel[..], &mut scratch_buffer[..]);
         }
-        
     }
     
     pub fn time_from_freq_domain(&mut self, freq_channel: &mut [Complex64], time_channel: &mut Vec<f64>)

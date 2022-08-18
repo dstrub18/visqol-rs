@@ -8,7 +8,7 @@ pub fn calculate_upper_env(signal: &Array1<f64>)
 {
     let mean = signal.mean()?;
     let mut signal_centered = signal - mean;
-    let hilbert = hilbert(&mut signal_centered);
+    let hilbert = hilbert(signal_centered.as_slice_mut()?)?;
 
     let mut hilbert_amplitude = Array1::<f64>::zeros(hilbert.len());
     
@@ -20,10 +20,9 @@ pub fn calculate_upper_env(signal: &Array1<f64>)
     Some(hilbert_amplitude)
 }
 
-pub fn hilbert(signal: &mut Array1<f64>)
--> Array1<Complex64> {
+pub fn hilbert(signal: &mut [f64])
+-> Option<Array1<Complex64>> {
     
-    // Continue here! You can do it!!!!
     let mut fft_manager = FftManager::new(signal.len());
     let freq_domain_signal = fast_fourier_transform::forward_1d_from_matrix(&mut fft_manager, signal);
     
@@ -56,7 +55,7 @@ pub fn hilbert(signal: &mut Array1<f64>)
         element_wise_product[i] = freq_domain_signal[i] * hilbert_scaling[i];
     }
 
-    let hilbert = fast_fourier_transform::inverse_1d(&mut fft_manager, &mut element_wise_product);
-    // ???
-    hilbert * 2.0 - 0.000001
+    let mut hilbert = fast_fourier_transform::inverse_1d(&mut fft_manager, element_wise_product.as_slice()?);
+    hilbert.iter_mut().for_each(|element|{*element = *element *2.0 - 0.000001});
+    Some(Array1::<Complex64>::from_vec(hilbert))
 }

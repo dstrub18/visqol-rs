@@ -5,7 +5,7 @@ use visqol_rs::{misc_audio::load_as_mono, envelope::{hilbert, calculate_upper_en
 fn test_hilbert_on_signal()
 {
     let mut signal = load_as_mono("/Users/danielstrubig/Documents/CodingProjects/rust/exercises/visqol/visqol-rs/test_data/clean_speech/CA01_01.wav").unwrap();
-    let result = hilbert(&mut signal.data_matrix);
+    let result = hilbert(signal.data_matrix.as_slice_mut().unwrap()).unwrap();
 
     assert_abs_diff_eq!(result[0].re,  0.000_303_661_691_188_833, epsilon=0.0001);
 }
@@ -43,7 +43,7 @@ fn test_calculate_inverse_fft_pointwise_product()
     let ref_signal = load_as_mono("/Users/danielstrubig/Documents/CodingProjects/rust/exercises/visqol/visqol-rs/test_data/clean_speech/CA01_01.wav").unwrap();
     let deg_signal = load_as_mono("/Users/danielstrubig/Documents/CodingProjects/rust/exercises/visqol/visqol-rs/test_data/clean_speech/transcoded_CA01_01.wav").unwrap();
 
-    let result = calculate_inverse_fft_pointwise_product(&ref_signal.data_matrix, &deg_signal.data_matrix);
+    let result = calculate_inverse_fft_pointwise_product(&mut ref_signal.data_matrix.to_vec(), &mut deg_signal.data_matrix.to_vec());
 
     assert_abs_diff_eq!(result[0], 79.66060597338944, epsilon=0.0001);
 }

@@ -40,7 +40,6 @@ impl PatchSimilarityComparator for NeurogramSimiliarityIndexMeasure
 
         let mut ref_neuro_sq = ref_patch.clone() * ref_patch.clone();
         let mut deg_neuro_sq = deg_patch.clone() * deg_patch.clone();    
-        
 
         // Compute sigmas
         let conv2_ref_neuro_squared = perform_valid_2d_conv_with_boundary(&window, &mut ref_neuro_sq);

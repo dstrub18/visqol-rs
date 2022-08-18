@@ -1,5 +1,6 @@
 use ffsvm::{self, DenseSVM, Predict, DenseProblem, Solution};
 use std::fs::read_to_string;
+use std::convert::TryFrom;
 pub struct SupportVectorRegressionModel
 {
     model: ffsvm::DenseSVM
