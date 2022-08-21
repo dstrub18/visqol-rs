@@ -1,36 +1,54 @@
 use ndarray::Array1;
 use ndarray_stats::QuantileExt;
-pub fn normalize_signal(mat: &Array1<f64>) -> Array1<f64>
-{
-    let normalized_mat = mat.clone();
-    let max = get_max(mat);
+
+/// Returns the normalized version of a signal
+///
+/// # Examples
+///
+/// ```
+/// use ndarray::arr1;
+/// use visqol_rs::misc_math::normalize_signal;
+/// let signal = arr1(&[1.0, 2.0]);
+/// let expected_result = arr1(&[0.5, 1.0]);
+/// assert_eq!(normalize_signal(&signal), expected_result);
+/// ```
+pub fn normalize_signal(signal: &Array1<f64>) -> Array1<f64> {
+    let normalized_mat = signal.clone();
+    let max = get_max(signal);
     normalized_mat / max
 }
 
-pub fn next_pow_two(input: usize) -> usize
-{
-    let mut number = input - 1;
+/// Returns the next power of two.
+///
+/// # Examples
+///
+/// ```
+/// use visqol_rs::misc_math::next_pow_two;
+/// let input = 5;
+/// let expected_result = 8;
+/// assert_eq!(next_pow_two(input), expected_result);
+/// ```
+pub fn next_pow_two(input: usize) -> usize {
+    let mut next_power_of_two = input - 1;
 
-    number |= number >> 1;
-    number |= number >> 2;
-    number |= number >> 4;
-    number |= number >> 1;
-    number |= number >> 16;
-    number + 1
+    next_power_of_two |= next_power_of_two >> 1;
+    next_power_of_two |= next_power_of_two >> 2;
+    next_power_of_two |= next_power_of_two >> 4;
+    next_power_of_two |= next_power_of_two >> 1;
+    next_power_of_two |= next_power_of_two >> 16;
+    next_power_of_two + 1
 }
 
-pub fn exponential_from_fit(x: f32, a: f32, b: f32, x_0: f32) -> f32
-{
-    a + (b * (x - x_0)).exp()
+/// Returns the exponential fit between 2 points
+pub fn exponential_from_fit(x: f32, a: f32, b: f32, x_0: f32) -> f32 { a + (b * (x - x_0)).exp() }
+
+/// Normalizes a slice of `i16` to a vector of `f64` values
+pub fn normalize_int16_to_double(input: &[i16]) -> Vec<f64> {
+    input
+        .iter()
+        .map(|x| *x as f64 / 32767.0f64)
+        .collect::<Vec<f64>>()
 }
 
-
-pub fn normalize_int16_to_double(input: &[i16]) -> Vec<f64>
-{
-    input.iter().map(|x| *x as f64 / 32767.0f64).collect::<Vec<f64>>()
-}
-
-fn get_max(mat: &Array1<f64>) -> f64
-{
-    *mat.max().expect("Could not compute maximum of matrix!")
-}
+/// Returns the maximum of an `ndarray::Array1<f64>`
+fn get_max(mat: &Array1<f64>) -> f64 { *mat.max().expect("Could not compute maximum of matrix!") }

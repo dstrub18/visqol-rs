@@ -1,5 +1,2 @@
 #[test]
-fn stream_l()
-{
-    
-}
+fn stream_l() {}

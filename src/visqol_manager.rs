@@ -1,6 +1,5 @@
 use std::error::Error;
 
-use log;
 use crate::constants;
 use crate::speech_similarity_to_quality_mapper::SpeechSimilarityToQualityMapper;
 use crate::{
@@ -16,8 +15,8 @@ use crate::{
     svr_similarity_to_quality_mapper::SvrSimilarityToQualityMapper,
     vad_patch_creator::VadPatchCreator, visqol, visqol_error::VisqolError,
 };
-pub struct VisqolManager
-{
+use log;
+pub struct VisqolManager {
     pub use_speech_mode: bool,
     pub use_unscaled_speech_mos_mapping: bool,
     pub search_window: usize,
@@ -27,44 +26,33 @@ pub struct VisqolManager
     pub sim_to_quality_mapper: Box<dyn SimilarityToQualityMapper>,
 }
 
-impl VisqolManager
-{
+impl VisqolManager {
     pub fn new(
         model_path: &str,
         use_speech_mode: bool,
         use_unscaled_speech_mos_mapping: bool,
         search_window: usize,
-    ) -> VisqolManager
-    {
-        let pc: Box<dyn PatchCreator> = if use_speech_mode
-        {
+    ) -> VisqolManager {
+        let pc: Box<dyn PatchCreator> = if use_speech_mode {
             Box::new(VadPatchCreator::new(constants::PATCH_SIZE_SPEECH))
-        }
-        else
-        {
+        } else {
             Box::new(ImagePatchCreator::new(constants::PATCH_SIZE_AUDIO))
         };
 
-        let sim_to_quality_mapper: Box<dyn SimilarityToQualityMapper> = if use_speech_mode
-        {
+        let sim_to_quality_mapper: Box<dyn SimilarityToQualityMapper> = if use_speech_mode {
             Box::new(SpeechSimilarityToQualityMapper::new(
                 !use_unscaled_speech_mos_mapping,
             ))
-        }
-        else
-        {
+        } else {
             Box::new(SvrSimilarityToQualityMapper::new(model_path))
         };
 
-        let sb: Box<dyn SpectrogramBuilder> = if use_speech_mode
-        {
+        let sb: Box<dyn SpectrogramBuilder> = if use_speech_mode {
             Box::new(GammatoneSpectrogramBuilder::new(
                 GammatoneFilterbank::new(constants::NUM_BANDS_SPEECH, constants::MINIMUM_FREQ),
                 use_speech_mode,
             ))
-        }
-        else
-        {
+        } else {
             Box::new(GammatoneSpectrogramBuilder::new(
                 GammatoneFilterbank::new(constants::NUM_BANDS_AUDIO, constants::MINIMUM_FREQ),
                 false,
@@ -89,24 +77,22 @@ impl VisqolManager
         &mut self,
         ref_signal_path: &str,
         deg_signal_path: &str,
-    ) -> Result<SimilarityResult, Box<dyn Error>>
-    {
+    ) -> Result<SimilarityResult, Box<dyn Error>> {
         let mut ref_signal = misc_audio::load_as_mono(ref_signal_path)?;
         let mut deg_signal = misc_audio::load_as_mono(deg_signal_path)?;
-        
-        self.validate_input_audio(&ref_signal, &deg_signal)?;
-        
-        self.compute_results(&mut ref_signal, &mut deg_signal)
 
+        self.validate_input_audio(&ref_signal, &deg_signal)?;
+
+        self.compute_results(&mut ref_signal, &mut deg_signal)
     }
 
     pub fn compute_results(
         &mut self,
         ref_signal: &mut AudioSignal,
         deg_signal: &mut AudioSignal,
-    ) -> Result<SimilarityResult, Box<dyn Error>>
-    {
-        let (mut deg_signal, _) = alignment::globally_align(ref_signal, deg_signal).ok_or(VisqolError::FailedToAlignSignals)?;
+    ) -> Result<SimilarityResult, Box<dyn Error>> {
+        let (mut deg_signal, _) = alignment::globally_align(ref_signal, deg_signal)
+            .ok_or(VisqolError::FailedToAlignSignals)?;
 
         let window = AnalysisWindow::new(
             ref_signal.sample_rate,
@@ -126,28 +112,31 @@ impl VisqolManager
         )
     }
 
-    fn validate_input_audio(&self, ref_signal: &AudioSignal, deg_signal: &AudioSignal) -> Result<(), VisqolError>
-    {
-        if ref_signal.sample_rate != deg_signal.sample_rate
-        {
-            return Err(VisqolError::DifferentSampleRates 
-            {
+    fn validate_input_audio(
+        &self,
+        ref_signal: &AudioSignal,
+        deg_signal: &AudioSignal,
+    ) -> Result<(), VisqolError> {
+        if ref_signal.sample_rate != deg_signal.sample_rate {
+            return Err(VisqolError::DifferentSampleRates {
                 reference: ref_signal.sample_rate,
                 degraded: deg_signal.sample_rate,
             });
         }
 
-
-        if self.use_speech_mode && (ref_signal.sample_rate != constants::SAMPLE_RATE_SPEECH_MODE || deg_signal.sample_rate != constants::SAMPLE_RATE_SPEECH_MODE) 
+        if self.use_speech_mode
+            && (ref_signal.sample_rate != constants::SAMPLE_RATE_SPEECH_MODE
+                || deg_signal.sample_rate != constants::SAMPLE_RATE_SPEECH_MODE)
         {
             log::warn!("Input audio sample rate is above 16kHz, which may have undesired effects for speech mode. Consider resampling to 16kHz.");
-        }
-        else if ref_signal.sample_rate != constants::SAMPLE_RATE_AUDIO_MODE || deg_signal.sample_rate != constants::SAMPLE_RATE_AUDIO_MODE
+        } else if ref_signal.sample_rate != constants::SAMPLE_RATE_AUDIO_MODE
+            || deg_signal.sample_rate != constants::SAMPLE_RATE_AUDIO_MODE
         {
             log::warn!("Input audio does not have the expected sample rate of 48kHz! This may negatively effect the prediction of the MOS-LQO score.");
         }
 
-        if (ref_signal.get_duration() - deg_signal.get_duration()).abs() > constants::DURATION_MISMATCH_TOLERANCE
+        if (ref_signal.get_duration() - deg_signal.get_duration()).abs()
+            > constants::DURATION_MISMATCH_TOLERANCE
         {
             log::warn!("Mismatch in duration between reference and degraded signal. Reference is {} seconds. Degraded is {} seconds.", ref_signal.get_duration(), deg_signal.get_duration());
         }

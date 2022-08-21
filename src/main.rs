@@ -1,18 +1,21 @@
 use clap::Parser;
+use log::LevelFilter;
+use simplelog::{ColorChoice, Config, TermLogger, TerminalMode};
 use std::error::Error;
 use visqol_rs::{
-    command_line_parser::{build_file_pair_paths, CommandLineArgs},
-    output_utility,
+    command_line_utils::{build_file_pair_paths, CommandLineArgs},
+    output_utils,
     similarity_result::SimilarityResult,
     visqol_manager::VisqolManager,
 };
-use simplelog::{TermLogger, TerminalMode, Config, ColorChoice};
-use log::LevelFilter;
-fn main() -> Result<(), Box<dyn Error>>
-{
-
+fn main() -> Result<(), Box<dyn Error>> {
     // Set up logger
-    TermLogger::init(LevelFilter::Trace, Config::default(), TerminalMode::Stdout, ColorChoice::Auto)?;
+    TermLogger::init(
+        LevelFilter::Trace,
+        Config::default(),
+        TerminalMode::Stdout,
+        ColorChoice::Auto,
+    )?;
 
     // Parse arguments
     let args = CommandLineArgs::parse();
@@ -27,12 +30,10 @@ fn main() -> Result<(), Box<dyn Error>>
         args.search_window_radius,
     );
 
-    for file_pair in &files_to_compare
-    {
-        let result = visqol
-            .run(&file_pair.reference, &file_pair.degraded)?;
+    for file_pair in &files_to_compare {
+        let result = visqol.run(&file_pair.reference, &file_pair.degraded)?;
         results.push(result);
     }
-    output_utility::write_results(&args, &results, &files_to_compare);
+    output_utils::write_results(&args, &results, &files_to_compare);
     Ok(())
 }

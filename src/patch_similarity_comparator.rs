@@ -1,8 +1,7 @@
 use ndarray::Array2 as ImagePatch;
 use serde::Serialize;
 #[derive(Debug, Clone, Serialize)]
-pub struct PatchSimilarityResult
-{
+pub struct PatchSimilarityResult {
     pub freq_band_means: Vec<f64>,
     pub freq_band_stddevs: Vec<f64>,
     pub freq_band_deg_energy: Vec<f64>,
@@ -13,15 +12,14 @@ pub struct PatchSimilarityResult
     pub deg_patch_end_time: f64,
 }
 
-impl PatchSimilarityResult
-{
-    pub fn new(freq_band_means: Vec<f64>,
+impl PatchSimilarityResult {
+    pub fn new(
+        freq_band_means: Vec<f64>,
         freq_band_stddevs: Vec<f64>,
         freq_band_deg_energy: Vec<f64>,
-        similarity: f64,) -> Self
-    {
-        Self
-        {
+        similarity: f64,
+    ) -> Self {
+        Self {
             freq_band_means,
             freq_band_stddevs,
             freq_band_deg_energy,
@@ -33,10 +31,8 @@ impl PatchSimilarityResult
         }
     }
 
-    pub fn empty() -> Self
-    {
-        Self
-        {
+    pub fn empty() -> Self {
+        Self {
             freq_band_means: Vec::<f64>::new(),
             freq_band_stddevs: Vec::<f64>::new(),
             freq_band_deg_energy: Vec::<f64>::new(),
@@ -49,8 +45,10 @@ impl PatchSimilarityResult
     }
 }
 
-
-pub trait PatchSimilarityComparator
-{
-    fn measure_patch_similarity(&self, ref_patch: &mut ImagePatch<f64>, deg_patch: &mut ImagePatch<f64>) -> PatchSimilarityResult;
+pub trait PatchSimilarityComparator {
+    fn measure_patch_similarity(
+        &self,
+        ref_patch: &mut ImagePatch<f64>,
+        deg_patch: &mut ImagePatch<f64>,
+    ) -> PatchSimilarityResult;
 }
