@@ -15,7 +15,7 @@ fn test_best_lag_same_length() {
     let ref_signal_mat = Array1::from_vec(ref_signal);
     let deg_signal_lag2_mat = Array1::from_vec(deg_signal_lag2);
     assert_eq!(ref_signal_mat.len(), deg_signal_lag2_mat.len());
-    let best_lag = xcorr::calculate_best_lag(&ref_signal_mat, &deg_signal_lag2_mat).unwrap();
+    let best_lag = xcorr::calculate_best_lag(ref_signal_mat.as_slice().unwrap(), deg_signal_lag2_mat.as_slice().unwrap()).unwrap();
 
     let expected_result = 2;
     assert_eq!(best_lag, expected_result);
@@ -33,7 +33,7 @@ fn test_best_lag_ref_shorter() {
     assert!(ref_signal.len() < deg_signal_lag2.len());
     let ref_signal_mat = Array1::from_vec(ref_signal);
     let deg_signal_lag2_mat = Array1::from_vec(deg_signal_lag2);
-    let best_lag = xcorr::calculate_best_lag(&ref_signal_mat, &deg_signal_lag2_mat).unwrap();
+    let best_lag = xcorr::calculate_best_lag(ref_signal_mat.as_slice().unwrap(), deg_signal_lag2_mat.as_slice().unwrap()).unwrap();
 
     let expected_result = 2;
     assert_eq!(best_lag, expected_result);
@@ -51,7 +51,7 @@ fn test_best_lag_ref_longer() {
 
     let ref_signal_mat = Array1::from_vec(ref_signal);
     let deg_signal_lag2_mat = Array1::from_vec(deg_signal_lag2);
-    let best_lag = xcorr::calculate_best_lag(&ref_signal_mat, &deg_signal_lag2_mat).unwrap();
+    let best_lag = xcorr::calculate_best_lag(ref_signal_mat.as_slice().unwrap(), deg_signal_lag2_mat.as_slice().unwrap()).unwrap();
 
     let expected_result = 2;
     assert_eq!(best_lag, expected_result);
@@ -67,7 +67,7 @@ fn test_negative_best_lag() {
 
     let ref_signal_mat = Array1::from_vec(ref_signal);
     let deg_signal_lag2_mat = Array1::from_vec(deg_signal_lag2);
-    let best_lag = xcorr::calculate_best_lag(&ref_signal_mat, &deg_signal_lag2_mat).unwrap();
+    let best_lag = xcorr::calculate_best_lag(ref_signal_mat.as_slice().unwrap(), deg_signal_lag2_mat.as_slice().unwrap()).unwrap();
 
     let expected_result = -2;
     assert_eq!(best_lag, expected_result);

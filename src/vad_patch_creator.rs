@@ -4,11 +4,14 @@ use crate::{analysis_window::AnalysisWindow, audio_signal::AudioSignal, misc_mat
 use itertools::Itertools;
 use ndarray::{s, Array2};
 
+/// Computes patch indices from a spectrogram by analyzing voice acitivity in the time domain and rejecting patches which are considered silent.
 pub struct VadPatchCreator {
     patch_size: usize,
     frames_with_va_threshold: f64,
 }
+
 impl PatchCreator for VadPatchCreator {
+    
     fn create_ref_patch_indices(
         &self,
         spectrogram: &Array2<f64>,
@@ -64,7 +67,7 @@ impl PatchCreator for VadPatchCreator {
         spectrogram: &Array2<f64>,
         patch_indices: &[usize],
     ) -> Vec<Array2<f64>> {
-        let mut patches = Vec::<Array2<f64>>::new();
+        let mut patches = Vec::<Array2<f64>>::with_capacity(patch_indices.len());
 
         let mut patch: Array2<f64>;
 
@@ -79,6 +82,8 @@ impl PatchCreator for VadPatchCreator {
 }
 
 impl VadPatchCreator {
+    
+    /// Creates a new `VadPatchCreator` with the desired patch size.
     pub fn new(patch_size: usize) -> Self {
         Self {
             patch_size,
@@ -86,6 +91,7 @@ impl VadPatchCreator {
         }
     }
 
+    /// Given a time domain signal, this function returns a vector with 1s indicating voice acitivity and 0s indicating the absence of acitivity.
     pub fn get_voice_activity(
         &self,
         signal: &[f64],
@@ -97,8 +103,7 @@ impl VadPatchCreator {
 
         let patch = &signal[start_sample..start_sample + total_samples];
 
-        let mut frame = Vec::<i16>::new();
-        frame.reserve(frame_length);
+        let mut frame = Vec::<i16>::with_capacity(frame_length);
         for patch_element in patch {
             let mut scaled_val = ((*patch_element * ((1 << 15) as f64)) as i16) as f64;
             scaled_val = (-1.0 * (1 << 15) as f64)

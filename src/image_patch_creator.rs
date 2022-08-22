@@ -3,11 +3,14 @@ use crate::{
     visqol_error::VisqolError,
 };
 use ndarray::{s, Array2};
+
+/// Creates patches from a spectrogram by segmenting it into equally-sized matrices.
 pub struct ImagePatchCreator {
     patch_size: usize,
 }
 
 impl PatchCreator for ImagePatchCreator {
+        
     fn create_ref_patch_indices(
         &self,
         spectrogram: &Array2<f64>,
@@ -33,14 +36,15 @@ impl PatchCreator for ImagePatchCreator {
             patch = spectrogram.slice(s![.., *start_col..end_col]).to_owned();
             patches.push(patch);
         }
-
         patches
     }
 }
 
 impl ImagePatchCreator {
+    /// Returns a new `ImagePatchCreator` with the desired patch size.
     pub fn new(patch_size: usize) -> Self { Self { patch_size } }
 
+    /// Computes the start indices of each patch by segmenting the entire spectrogram into equally-sized patches.
     fn create_ref_patch_indices_from_spectrogram(
         &self,
         spectrogram: &Array2<f64>,
@@ -61,8 +65,7 @@ impl ImagePatchCreator {
             init_patch_index + 1
         };
 
-        let mut ref_patch_indices = Vec::<usize>::new();
-        ref_patch_indices.reserve(spectrum_length / self.patch_size);
+        let mut ref_patch_indices = Vec::<usize>::with_capacity(spectrum_length / self.patch_size);
 
         for i in (init_patch_index..max_index).step_by(self.patch_size) {
             ref_patch_indices.push(i - 1);

@@ -14,6 +14,7 @@ impl SimilarityToQualityMapper for SpeechSimilarityToQualityMapper {
         const FIT_PARAMETERB: f32 = 4.685_115_3;
         const FIT_PARAMETERX0: f32 = 0.765_523_2;
         const FIT_SCALE: f32 = 1.2031409;
+        
         let nsim_mean =
             (similarity_vector.iter().sum::<f64>() as f32) / (similarity_vector.len() as f32);
         let mos = misc_math::exponential_from_fit(

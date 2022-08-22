@@ -3,17 +3,25 @@ use crate::misc_math;
 use num::complex::Complex64;
 use num::Zero;
 use rustfft::FftPlanner;
+
 // Constants
 const MIN_FFT_SIZE: usize = 32;
 
+/// Wrapper around the `rustfft` library to perform basic fft operations.
 pub struct FftManager {
+    /// Planner to perform fft operations
     planner: FftPlanner<f64>,
+    /// Length of the fft
     pub fft_size: usize,
+    /// Scale factor to apply after inverse fft
     inverse_fft_scale: f64,
+    /// Number of samples to apply fft on
     pub samples_per_channel: usize,
 }
 
 impl FftManager {
+
+    /// Creates a new fft manager, computes internal variables from `samples_per_channel`
     pub fn new(samples_per_channel: usize) -> Self {
         let fft_size = misc_math::next_pow_two(samples_per_channel).max(MIN_FFT_SIZE);
 
@@ -24,6 +32,8 @@ impl FftManager {
             inverse_fft_scale: 1.0f64 / (fft_size as f64),
         }
     }
+
+    /// Zero-pads `time_channel` if necessary, transforms its contents into the frequency domain and stores it in `freq_channel`
     pub fn freq_from_time_domain(
         &mut self,
         time_channel: &mut Vec<f64>,
@@ -53,7 +63,8 @@ impl FftManager {
             );
         }
     }
-
+    
+    /// Zero-pads `freq_channel` if necessary, transforms its contents into the time domain and stores it in `time_channel`
     pub fn time_from_freq_domain(
         &mut self,
         freq_channel: &mut [Complex64],
@@ -85,6 +96,7 @@ impl FftManager {
         }
     }
 
+    /// Multiplies each element in `time_channel` by `self.inverse_fft_scale`
     pub fn apply_reverse_fft_scaling(&self, time_channel: &mut [f64]) {
         time_channel.iter_mut().for_each(|x| {
             *x *= self.inverse_fft_scale;

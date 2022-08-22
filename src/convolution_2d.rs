@@ -1,5 +1,7 @@
 use ndarray::{Array2, ShapeBuilder};
 
+
+/// Computes the convolution of `input_matrix` with `fir_filter`
 pub fn perform_valid_2d_conv_with_boundary(
     fir_filter: &Array2<f64>,
     input_matrix: &mut Array2<f64>,
@@ -39,7 +41,7 @@ pub fn perform_valid_2d_conv_with_boundary(
     out_matrix
 }
 
-pub fn flatten_matrix(input_matrix: &Array2<f64>) -> Vec<f64> {
+fn flatten_matrix(input_matrix: &Array2<f64>) -> Vec<f64> {
     let mut res = Vec::<f64>::new();
     for i in 0..input_matrix.nrows() {
         for j in 0..input_matrix.ncols() {
@@ -49,16 +51,15 @@ pub fn flatten_matrix(input_matrix: &Array2<f64>) -> Vec<f64> {
     res
 }
 
+/// Compute zero-padded matrix and fill zero-padded boundaries with the adjacent non-zero rows and columns
 pub fn add_matrix_boundary(input_matrix: &mut Array2<f64>) -> Array2<f64> {
     let mut output_matrix = copy_matrix_within_padding(input_matrix, 1, 1, 1, 1);
 
-    let _a = output_matrix.row_mut(0);
     for i in 0..output_matrix.ncols() {
         output_matrix.row_mut(0)[i] = output_matrix.row(1)[i];
         output_matrix.row_mut(output_matrix.nrows() - 1)[i] =
             output_matrix.row(output_matrix.nrows() - 2)[i];
     }
-    let _nr = output_matrix.nrows();
 
     for i in 0..output_matrix.nrows() {
         output_matrix.column_mut(0)[i] = output_matrix.column_mut(1)[i];
@@ -68,7 +69,8 @@ pub fn add_matrix_boundary(input_matrix: &mut Array2<f64>) -> Array2<f64> {
     output_matrix
 }
 
-pub fn copy_matrix_within_padding(
+/// Returns a copy of `input matrix` which is zero-padded by the specified amounts.
+fn copy_matrix_within_padding(
     input_matrix: &Array2<f64>,
     row_prepad_amount: usize,
     row_postpad_amount: usize,

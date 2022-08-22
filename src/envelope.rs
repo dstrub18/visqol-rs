@@ -3,10 +3,11 @@ use crate::fft_manager::FftManager;
 use ndarray::Array1;
 use num::complex::Complex64;
 
+/// Calculates the upper envelope for a given time domain signal.
 pub fn calculate_upper_env(signal: &Array1<f64>) -> Option<ndarray::Array1<f64>> {
     let mean = signal.mean()?;
     let mut signal_centered = signal - mean;
-    let hilbert = hilbert(signal_centered.as_slice_mut()?)?;
+    let hilbert = calculate_hilbert(signal_centered.as_slice_mut()?)?;
 
     let mut hilbert_amplitude = Array1::<f64>::zeros(hilbert.len());
 
@@ -17,7 +18,9 @@ pub fn calculate_upper_env(signal: &Array1<f64>) -> Option<ndarray::Array1<f64>>
     Some(hilbert_amplitude)
 }
 
-pub fn hilbert(signal: &mut [f64]) -> Option<Array1<Complex64>> {
+
+/// Calculates the hilbert transform for a given time domain signal.
+pub fn calculate_hilbert(signal: &mut [f64]) -> Option<Array1<Complex64>> {
     let mut fft_manager = FftManager::new(signal.len());
     let freq_domain_signal =
         fast_fourier_transform::forward_1d_from_matrix(&mut fft_manager, signal);
@@ -41,9 +44,7 @@ pub fn hilbert(signal: &mut [f64]) -> Option<Array1<Complex64>> {
         freq_domain_signal.len() / 2
     };
 
-    (1..n).for_each(|row_index| {
-        hilbert_scaling[row_index] = 2.0;
-    });
+    hilbert_scaling[1..n].fill(2.0);
 
     let mut element_wise_product = Array1::<Complex64>::zeros(freq_domain_signal.len());
 

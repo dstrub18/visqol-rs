@@ -6,7 +6,6 @@ use crate::spectrogram_builder::SpectrogramBuilder;
 use crate::{audio_signal::AudioSignal, visqol_error::VisqolError};
 use ndarray::{Array2, Axis};
 
-//use rayon::prelude::*;
 pub struct GammatoneSpectrogramBuilder {
     filter_bank: GammatoneFilterbank,
     speech_mode: bool,

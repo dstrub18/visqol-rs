@@ -1,9 +1,10 @@
 use crate::fast_fourier_transform;
 use crate::fft_manager::FftManager;
-use ndarray::Array1;
 use num::complex::Complex64;
 
-pub fn calculate_best_lag(signal_1: &Array1<f64>, signal_2: &Array1<f64>) -> Option<i64> {
+/// Calculate the maximum delay between to signals.
+pub fn calculate_best_lag(signal_1: &[f64], signal_2: &[f64]) -> Option<i64> {
+    
     let max_lag = ((signal_1.len().max(signal_2.len())) - 1) as i64;
 
     let point_wise_fft_vec =
@@ -27,6 +28,7 @@ pub fn calculate_best_lag(signal_1: &Array1<f64>, signal_2: &Array1<f64>) -> Opt
     Some(best_corr_idx as i64 - max_lag)
 }
 
+/// Calculates the pointwise inverse fft product of 2 signals
 pub fn calculate_inverse_fft_pointwise_product(
     signal_1: &mut Vec<f64>,
     signal_2: &mut Vec<f64>,
@@ -51,6 +53,8 @@ pub fn calculate_inverse_fft_pointwise_product(
     fast_fourier_transform::inverse_1d_conj_sym(&mut manager, &point_wise_product)
 }
 
+
+/// Calculates the pointwise fft product of 2 signals
 pub fn calculate_fft_pointwise_product(
     signal_1: &[f64],
     signal_2: &[f64],
@@ -73,7 +77,7 @@ pub fn calculate_fft_pointwise_product(
 }
 
 ///
-///
+/// Returns the mantissa and the exponent of a given floating point value.
 /// # Examples
 ///
 /// ```

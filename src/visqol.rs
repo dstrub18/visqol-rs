@@ -83,7 +83,6 @@ fn predict_mos(fvnsim: &[f64], mapper: &dyn SimilarityToQualityMapper) -> f32 {
 }
 
 fn calc_per_patch_mean_freq_band_means(sim_match_info: &Vec<PatchSimilarityResult>) -> Array1<f64> {
-    // This is going great, mate. YOU'RE CLOSING IN! :)))
     let mut fvnsim = Array1::<f64>::zeros(sim_match_info[0].freq_band_means.len());
     for patch in sim_match_info {
         for (index, band) in fvnsim.iter_mut().enumerate() {

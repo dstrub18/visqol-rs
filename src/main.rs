@@ -14,7 +14,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         LevelFilter::Trace,
         Config::default(),
         TerminalMode::Stdout,
-        ColorChoice::Auto,
+        ColorChoice::Always,
     )?;
 
     // Parse arguments

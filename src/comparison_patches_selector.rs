@@ -51,7 +51,7 @@ impl ComparisonPatchesSelector {
 
         // The vector to store the similarity results
         let mut best_deg_patches = Vec::<PatchSimilarityResult>::new();
-        best_deg_patches.resize(num_patches, PatchSimilarityResult::empty());
+        best_deg_patches.resize(num_patches, PatchSimilarityResult::default());
 
         let mut cumulative_similarity_dp =
             vec![vec![0.0f64; spectrogram_data.ncols()]; ref_patch_indices.len()];
@@ -329,7 +329,7 @@ impl ComparisonPatchesSelector {
     ) -> Result<Vec<PatchSimilarityResult>, Box<dyn Error>> {
         // Case: The patches are already matched.  Iterate over each pair.
         let mut realigned_results = Vec::<PatchSimilarityResult>::with_capacity(sim_results.len());
-        realigned_results.resize(sim_results.len(), PatchSimilarityResult::empty());
+        realigned_results.resize(sim_results.len(), PatchSimilarityResult::default());
         for (i, result) in sim_results.iter_mut().enumerate() {
             if result.deg_patch_start_time == result.deg_patch_end_time
                 && result.deg_patch_start_time == 0.0

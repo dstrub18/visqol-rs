@@ -2,15 +2,16 @@
 use log;
 use ndarray::Array2;
 use num::{complex::Complex64, Zero};
+use crate::misc_audio::{
+    float_vec_to_real_valued_complex_vec, real_valued_complex_vec_to_float_vec,
+};
 
 // Glasberg and Moore Parameters
 const EAR_Q: f64 = 9.26449f64;
 const MIN_BW: f64 = 24.7f64;
 const ERB_ORDER: f64 = 1.0;
 
-use crate::misc_audio::{
-    float_vec_to_real_valued_complex_vec, real_valued_complex_vec_to_float_vec,
-};
+/// Computes the coefficients for an ERB filterbank.
 pub fn make_filters(
     sample_rate: usize,
     num_bands: usize,
@@ -207,15 +208,17 @@ pub fn make_filters(
     (vf_coeffs, real_valued_complex_vec_to_float_vec(&cf))
 }
 
-fn calculate_uniform_center_freqs(low_freq: f64, high_freq: f64, num_channels: usize) -> Vec<f64> {
+
+/// Given a lower frequency boundary, a higher frequency boundary and the number of bands, this function calculates the center frequencies on an ERB scale.
+fn calculate_uniform_center_freqs(low_freq: f64, high_freq: f64, num_bands: usize) -> Vec<f64> {
     // Glasberg and Moore Parameters
 
     let a = -(EAR_Q * MIN_BW);
     let b = -((high_freq + EAR_Q * MIN_BW).ln());
     let c = (low_freq + EAR_Q * MIN_BW).ln();
     let d = high_freq + EAR_Q * MIN_BW;
-    let e = (b + c) / num_channels as f64;
-    let mut coefficients = vec![0.0; num_channels];
+    let e = (b + c) / num_bands as f64;
+    let mut coefficients = vec![0.0; num_bands];
     for (i, coefficient) in coefficients.iter_mut().enumerate() {
         let f = ((i as f64 + 1.0) * e).exp() * d;
         *coefficient = a + f;

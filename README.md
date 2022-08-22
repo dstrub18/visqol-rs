@@ -5,7 +5,7 @@
 - [x] alignment.cc
 - [x] amatrix.cc
 - [x] analysis_window.h
-- [x] commandline_parser.cc (all tests work, but the tests don't cover everything)
+- [x] commandline_parser.cc 
 - [x] comparison_patches_selector.cc
 - [x] convolution_2d.cc
 - [x] envelope.cc
@@ -15,7 +15,6 @@
 - [x] gammatone_filterbank.cc
 - [x] gammatone_spectrogram_builder.cc
 - [x] image_patch_creator.cc
-- [x] libsvm_target_observation_convertor.cc (not needed)
 - [x] misc_audio.cc
 - [x] misc_math.cc
 - [x] misc_vector.cc

@@ -1,6 +1,6 @@
 use approx::assert_abs_diff_eq;
 use visqol_rs::{
-    envelope::{calculate_upper_env, hilbert},
+    envelope::{calculate_upper_env, calculate_hilbert},
     fft_manager,
     misc_audio::load_as_mono,
     xcorr::{
@@ -12,7 +12,7 @@ use visqol_rs::{
 #[test]
 fn test_hilbert_on_signal() {
     let mut signal = load_as_mono("/Users/danielstrubig/Documents/CodingProjects/rust/exercises/visqol/visqol-rs/test_data/clean_speech/CA01_01.wav").unwrap();
-    let result = hilbert(signal.data_matrix.as_slice_mut().unwrap()).unwrap();
+    let result = calculate_hilbert(signal.data_matrix.as_slice_mut().unwrap()).unwrap();
 
     assert_abs_diff_eq!(result[0].re, 0.000_303_661_691_188_833, epsilon = 0.0001);
 }
@@ -60,7 +60,7 @@ fn test_calculate_best_lag() {
     let ref_signal = load_as_mono("/Users/danielstrubig/Documents/CodingProjects/rust/exercises/visqol/visqol-rs/test_data/clean_speech/CA01_01.wav").unwrap();
     let deg_signal = load_as_mono("/Users/danielstrubig/Documents/CodingProjects/rust/exercises/visqol/visqol-rs/test_data/clean_speech/transcoded_CA01_01.wav").unwrap();
 
-    let result = calculate_best_lag(&ref_signal.data_matrix, &deg_signal.data_matrix).unwrap();
+    let result = calculate_best_lag(ref_signal.data_matrix.as_slice().unwrap(), deg_signal.data_matrix.as_slice().unwrap()).unwrap();
 
     assert_abs_diff_eq!(result, 0);
 }

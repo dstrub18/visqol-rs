@@ -3,6 +3,9 @@ use crate::envelope;
 use crate::xcorr;
 use ndarray::Array1;
 use ndarray::{concatenate, s, Axis};
+
+/// Creates copy of `deg_signal` which is time-aligned to `ref_signal` by either zero-padding the beginning and truncating at the end or truncating the signal at the beginning.
+/// Returns a copy of the reference signal, a copy of the aligned degraded signal and the delay between the signals.
 pub fn align_and_truncate(
     ref_signal: &AudioSignal,
     deg_signal: &AudioSignal,
@@ -35,20 +38,21 @@ pub fn align_and_truncate(
     Some((
         AudioSignal::new(
             new_ref_matrix
-                .as_slice()
-                .expect("Failed to create AudioSignal from slice!"),
+                .as_slice()?,
+
             ref_signal.sample_rate,
         ),
         AudioSignal::new(
             new_deg_matrix
-                .as_slice()
-                .expect("Failed to create AudioSignal from slice!"),
+                .as_slice()?,
             deg_signal.sample_rate,
         ),
         lag,
     ))
 }
 
+/// Aligns a degraded signal to the reference signal, truncating them to
+/// be the same length.
 pub fn globally_align(
     ref_signal: &AudioSignal,
     deg_signal: &AudioSignal,
@@ -56,17 +60,17 @@ pub fn globally_align(
     let ref_upper_env = envelope::calculate_upper_env(&ref_signal.data_matrix)?;
     let deg_upper_env = envelope::calculate_upper_env(&deg_signal.data_matrix)?;
 
-    let best_lag = xcorr::calculate_best_lag(&ref_upper_env, &deg_upper_env)?;
+    let best_lag = xcorr::calculate_best_lag(ref_upper_env.as_slice()?, deg_upper_env.as_slice()?)?;
 
     if best_lag == 0 || best_lag.abs() > (ref_signal.data_matrix.len() / 2) as i64 {
         // If signals are correlated already, return deg signal and 0.
         let new_deg_signal = AudioSignal::new(
             deg_signal
                 .data_matrix
-                .as_slice()
-                .expect("Failed to create AudioSignal from slice!"),
+                .as_slice()?,
             deg_signal.sample_rate,
         );
+        
         Some((new_deg_signal, 0.0f64))
     } else {
         let mut new_deg_matrix = deg_signal.data_matrix.clone();

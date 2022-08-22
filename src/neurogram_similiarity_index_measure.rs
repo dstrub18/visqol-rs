@@ -1,8 +1,18 @@
 use crate::convolution_2d::perform_valid_2d_conv_with_boundary;
 use crate::patch_similarity_comparator::{PatchSimilarityComparator, PatchSimilarityResult};
 use ndarray::{arr2, Array1, Axis};
+
+/// Provides a neurogram similarity index measure (NSIM) implementation for a
+/// patch similarity comparator. NSIM is a distance metric, adapted from the
+/// image processing technique called structural similarity (SSIM) and is here
+/// used to compare two patches taken from the reference and degraded
+/// spectrograms.
 pub struct NeurogramSimiliarityIndexMeasure {
     intensity_range: f64,
+}
+
+impl NeurogramSimiliarityIndexMeasure {
+    pub fn new(intensity_range: f64) -> Self { Self { intensity_range } }
 }
 
 impl Default for NeurogramSimiliarityIndexMeasure {
@@ -14,6 +24,7 @@ impl Default for NeurogramSimiliarityIndexMeasure {
 }
 
 impl PatchSimilarityComparator for NeurogramSimiliarityIndexMeasure {
+    /// Computes the NSIM between `ref_patch` and `deg_patch` and returns the mean and standard deviation of each frequency band, the energy of the degraded patch and the similarity score.
     fn measure_patch_similarity(
         &self,
         ref_patch: &mut ndarray::Array2<f64>,
