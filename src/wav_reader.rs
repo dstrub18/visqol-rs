@@ -1,23 +1,22 @@
-use hound;
+use hound::WavReader;
 use std::error::Error;
-const _WAV_FORMAT_SIZE: usize = 24;
-const _CHUNK_HEADER_SIZE_: usize = 8;
-const _WAV_HEADER_SIZE: usize = 44;
-const _EXTENSIBLE_WAV_FORMAT: u16 = 0xfffe;
-const _PCM_FORMAT: u16 = 0x1;
 
+/// Represents the metadata and contents of a wav file.
+/// Simple wrapper around the `hound` library.
 pub struct WavFile {
+    /// The number of channels in the wav file
     pub num_channels: u16,
+    /// The sample rate of the wav file
     pub sample_rate: u32,
-    pub num_total_samples: u32,
-    pub bytes_per_sample: u16,
-    pub format: hound::SampleFormat,
+    /// The samples in the wav file. Note that these are not scaled from -1.0 to 1.0 but its integer values.
     pub samples: Vec<i16>,
 }
 
 impl WavFile {
-    pub fn open(file_name: &str) -> Result<Self, Box<dyn Error>> {
-        let mut reader = hound::WavReader::open(file_name)?;
+    /// given a `file_path` to the desired wav file, the contents of the wav file are returned.
+    /// Any possible errors are reported by `hound`.
+    pub fn open(file_path: &str) -> Result<Self, Box<dyn Error>> {
+        let mut reader = WavReader::open(file_path)?;
         let spec = reader.spec();
 
         let samples: Vec<i16> = reader
@@ -28,9 +27,6 @@ impl WavFile {
         Ok(Self {
             num_channels: spec.channels,
             sample_rate: spec.sample_rate,
-            num_total_samples: 0,
-            bytes_per_sample: spec.bits_per_sample / 8,
-            format: spec.sample_format,
             samples,
         })
     }

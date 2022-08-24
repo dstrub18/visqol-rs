@@ -16,6 +16,8 @@ use crate::{
     vad_patch_creator::VadPatchCreator, visqol, visqol_error::VisqolError,
 };
 use log;
+
+/// Configures and executes Visqol comparisons.
 pub struct VisqolManager {
     pub use_speech_mode: bool,
     pub use_unscaled_speech_mos_mapping: bool,
@@ -27,13 +29,15 @@ pub struct VisqolManager {
 }
 
 impl VisqolManager {
+
+    /// Creates a new instance with the desired configurations.
     pub fn new(
         model_path: &str,
         use_speech_mode: bool,
         use_unscaled_speech_mos_mapping: bool,
         search_window: usize,
     ) -> VisqolManager {
-        let pc: Box<dyn PatchCreator> = if use_speech_mode {
+        let patch_creator: Box<dyn PatchCreator> = if use_speech_mode {
             Box::new(VadPatchCreator::new(constants::PATCH_SIZE_SPEECH))
         } else {
             Box::new(ImagePatchCreator::new(constants::PATCH_SIZE_AUDIO))
@@ -47,7 +51,7 @@ impl VisqolManager {
             Box::new(SvrSimilarityToQualityMapper::new(model_path))
         };
 
-        let sb: Box<dyn SpectrogramBuilder> = if use_speech_mode {
+        let spectrogram_builder: Box<dyn SpectrogramBuilder> = if use_speech_mode {
             Box::new(GammatoneSpectrogramBuilder::new(
                 GammatoneFilterbank::new(constants::NUM_BANDS_SPEECH, constants::MINIMUM_FREQ),
                 use_speech_mode,
@@ -66,13 +70,14 @@ impl VisqolManager {
             use_speech_mode,
             use_unscaled_speech_mos_mapping,
             search_window,
-            patch_creator: pc,
+            patch_creator,
             patch_selector,
-            spectrogram_builder: sb,
+            spectrogram_builder,
             sim_to_quality_mapper,
         }
     }
 
+    /// Loads the audio store in `ref_signal_path` and `deg_signal_path` and computes its MOS.
     pub fn run(
         &mut self,
         ref_signal_path: &str,
@@ -86,7 +91,7 @@ impl VisqolManager {
         self.compute_results(&mut ref_signal, &mut deg_signal)
     }
 
-    pub fn compute_results(
+    fn compute_results(
         &mut self,
         ref_signal: &mut AudioSignal,
         deg_signal: &mut AudioSignal,
@@ -112,6 +117,7 @@ impl VisqolManager {
         )
     }
 
+    /// Performs sanity checks on the configuration to prevent incorrect use of the algorithm.
     fn validate_input_audio(
         &self,
         ref_signal: &AudioSignal,

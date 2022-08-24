@@ -6,6 +6,7 @@ use crate::spectrogram_builder::SpectrogramBuilder;
 use crate::{audio_signal::AudioSignal, visqol_error::VisqolError};
 use ndarray::{Array2, Axis};
 
+/// Produces a frequency domain representation from a time domain signal using a gammatone filterbank.
 pub struct GammatoneSpectrogramBuilder {
     filter_bank: GammatoneFilterbank,
     speech_mode: bool,
@@ -76,7 +77,10 @@ impl SpectrogramBuilder for GammatoneSpectrogramBuilder {
 }
 
 impl GammatoneSpectrogramBuilder {
-    pub const SPEECH_MODE_MAX_FREQ: u32 = 8000;
+    const SPEECH_MODE_MAX_FREQ: u32 = 8000;
+    
+    /// Creates a new gammatone spectrogram builder with the given gammatone filterbank.
+    /// If `use_speech_mode` is set to `true`, the maximum frequency is determined to be 8000 Hz.
     pub fn new(filter_bank: GammatoneFilterbank, use_speech_mode: bool) -> Self {
         Self {
             filter_bank,

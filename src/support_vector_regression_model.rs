@@ -1,11 +1,14 @@
 use ffsvm::{self, DenseProblem, DenseSVM, Predict, Solution};
 use std::convert::TryFrom;
 use std::fs::read_to_string;
+
+/// Thin wrapper around `ffsvm` to compute a prediction from a support vector machine.
 pub struct SupportVectorRegressionModel {
     model: ffsvm::DenseSVM,
 }
 
 impl SupportVectorRegressionModel {
+    /// Given a path to a `LibSVM` formatted `.txt` file, the model is initialized with its corresponding weights.
     pub fn init(model_path: &str) -> Self {
         let model_description = read_to_string(model_path).expect("failed to read model path!");
         Self {
@@ -13,7 +16,7 @@ impl SupportVectorRegressionModel {
                 .expect("Failed to load SVM model"),
         }
     }
-
+    /// Given a slice of features, this function produces a single score.
     pub fn predict(&self, observation: &[f64]) -> f32 {
         let mut problem = DenseProblem::from(&self.model);
         let features = problem.features();

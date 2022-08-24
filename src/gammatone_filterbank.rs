@@ -1,5 +1,7 @@
 use crate::{constants, signal_filter};
 
+/// Bank of gammatone filters on each frame of a time domain signal to construct a spectrogram representation.
+/// This implementation is fixed to a 4th order filterbank.
 pub struct GammatoneFilterbank {
     pub num_bands: usize,
     pub min_freq: f64,
@@ -22,6 +24,7 @@ pub struct GammatoneFilterbank {
 }
 
 impl GammatoneFilterbank {
+    /// Creates a new gammatone filterbank with the desired number of frequency bands and the minimum frequency.
     pub fn new(num_bands: usize, min_freq: f64) -> Self {
         Self {
             num_bands,
@@ -43,13 +46,15 @@ impl GammatoneFilterbank {
         }
     }
 
+    /// Sets all internal states of the filterbank to 0.
     pub fn reset_filter_conditions(&mut self) {
         self.filter_conditions_1 = vec![[0.0, 0.0]; self.num_bands];
         self.filter_conditions_2 = vec![[0.0, 0.0]; self.num_bands];
         self.filter_conditions_3 = vec![[0.0, 0.0]; self.num_bands];
         self.filter_conditions_4 = vec![[0.0, 0.0]; self.num_bands];
     }
-
+    
+    /// Populates the filter coefficients with `filter_coeffs`.
     pub fn set_filter_coefficients(&mut self, filter_coeffs: &ndarray::Array2<f64>) {
         self.filter_coeff_a0 = filter_coeffs.column(0).to_vec();
         self.filter_coeff_a11 = filter_coeffs.column(1).to_vec();
@@ -63,14 +68,16 @@ impl GammatoneFilterbank {
         self.filter_coeff_gain = filter_coeffs.column(9).to_vec();
     }
 
-    pub fn apply_filter(&mut self, signal: &[f64]) -> ndarray::Array2<f64> {
+    /// Applies the gammatone filterbank on the time-domain signal `signal`, producing a Gammetone spectrogram.
+    #[inline(always)]
+    pub fn apply_filter(&mut self, input_signal: &[f64]) -> ndarray::Array2<f64> {
         let mut a1 = [0.0; 3];
         let mut a2 = [0.0; 3];
         let mut a3 = [0.0; 3];
         let mut a4 = [0.0; 3];
         let mut b = [0.0; 3];
 
-        let mut output = ndarray::Array2::<f64>::zeros((self.num_bands, signal.len()));
+        let mut output = ndarray::Array2::<f64>::zeros((self.num_bands, input_signal.len()));
         for band in 0..self.num_bands {
             a1[0] = self.filter_coeff_a0[band] / self.filter_coeff_gain[band];
             a1[1] = self.filter_coeff_a11[band] / self.filter_coeff_gain[band];
@@ -94,7 +101,7 @@ impl GammatoneFilterbank {
 
             // 1st filter
             let mut filter_result =
-                signal_filter::filter_signal(&a1, &b, signal, &mut self.filter_conditions_1[band]);
+                signal_filter::filter_signal(&a1, &b, input_signal, &mut self.filter_conditions_1[band]);
             self.filter_conditions_1[band] = filter_result.final_conditions;
 
             // 2nd filter

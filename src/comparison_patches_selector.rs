@@ -19,6 +19,7 @@ pub struct ComparisonPatchesSelector {
 impl ComparisonPatchesSelector {
     pub fn new(sim_comparator: NeurogramSimiliarityIndexMeasure) -> Self { Self { sim_comparator } }
 
+    /// This function composes the most suitable patches in a degraded signal given a reference signal.
     pub fn find_most_optimal_deg_patches(
         &self,
         ref_patches: &mut [Array2<f64>],
@@ -63,9 +64,7 @@ impl ComparisonPatchesSelector {
             deg_patches.push(Self::build_degraded_patch(
                 spectrogram_data,
                 slide_offset,
-                slide_offset + ref_patches[0].ncols(),
-                ref_patches[0].nrows(),
-                ref_patches[0].ncols(),
+                slide_offset + ref_patches[0].ncols()
             ));
         }
 
@@ -118,9 +117,7 @@ impl ComparisonPatchesSelector {
             let mut deg_patch = Self::build_degraded_patch(
                 spectrogram_data,
                 last_offset,
-                last_offset + ref_patch.ncols(),
-                ref_patch.nrows(),
-                ref_patch.ncols(),
+                last_offset + ref_patch.ncols()
             );
 
             best_deg_patches[patch_index as usize] = self
@@ -155,6 +152,7 @@ impl ComparisonPatchesSelector {
         Ok(best_deg_patches)
     }
 
+    /// This function finds the most suitable patch in a degraded signal given a reference patch.
     pub fn find_most_optimal_deg_patch(
         &self,
         spectrogram_data: &Array2<f64>,
@@ -241,6 +239,7 @@ impl ComparisonPatchesSelector {
         }
     }
 
+    /// Calculate the maximum number of patches that the degraded spectrogram can support.
     pub fn calc_max_num_patches(
         ref_patch_indices: &[usize],
         num_frames_in_deg_spectro: usize,
@@ -258,7 +257,7 @@ impl ComparisonPatchesSelector {
         num_patches
     }
 
-    /// Note: Start and end time are in seconds
+    /// Given an `AudioSignal` and the desired start and end times in seconds, this function returns a copy of the segment in the audio signal ranging from `start_time` to `end_time`
     pub fn slice(in_signal: &AudioSignal, start_time: f64, end_time: f64) -> AudioSignal {
         let start_index = ((start_time * in_signal.sample_rate as f64) as usize).max(0);
         let end_index =
@@ -296,9 +295,7 @@ impl ComparisonPatchesSelector {
     pub fn build_degraded_patch(
         spectrogram_data: &Array2<f64>,
         window_beginning: usize,
-        window_end: usize,
-        _window_height: usize,
-        _window_width: usize,
+        window_end: usize
     ) -> Array2<f64> {
         let first_real_frame = 0.max(window_beginning);
         let last_real_frame = window_end.min(spectrogram_data.ncols());
@@ -319,6 +316,7 @@ impl ComparisonPatchesSelector {
         deg_patch
     }
 
+    /// Performs alignment on a per-patch level.
     pub fn finely_align_and_recreate_patches(
         &self,
         sim_results: &mut [PatchSimilarityResult],

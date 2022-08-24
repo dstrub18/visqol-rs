@@ -7,6 +7,8 @@ use prettytable::{
     Cell, Row, Table,
 };
 use serde_json;
+
+/// Writes debug info to either console or to file.
 pub fn write_results(
     args: &CommandLineArgs,
     results: &Vec<SimilarityResult>,
@@ -33,6 +35,7 @@ pub fn write_results(
     }
 }
 
+/// Writes debug info to console
 fn write_to_console(args: &CommandLineArgs, result: &SimilarityResult, file_pair: &PathPair) {
     if args.verbose {
         println!("Reference Filepath:\t {:}", file_pair.reference);
@@ -42,11 +45,11 @@ fn write_to_console(args: &CommandLineArgs, result: &SimilarityResult, file_pair
     println!("MOS-LQO:\t\t{}", result.moslqo);
 
     if args.verbose {
-        write_fvnsim(result);
+        write_fvnsim_table(result);
         write_patch_similarity(result);
     }
 }
-
+/// Writes json formatted debug information.
 fn write_debug_json(json_output_path: &String, results: &Vec<SimilarityResult>) {
     let mut json_output = String::new();
     for result in results {
@@ -56,6 +59,7 @@ fn write_debug_json(json_output_path: &String, results: &Vec<SimilarityResult>) 
         .unwrap_or_else(|_| panic!("Could not write JSON to {}!", json_output_path.as_str()));
 }
 
+/// Writes computes MOS values to csv file.
 fn write_results_to_csv(csv_output_path: &String, results: &Vec<SimilarityResult>) {
     let mut writer = WriterBuilder::new()
         .has_headers(false)
@@ -70,7 +74,8 @@ fn write_results_to_csv(csv_output_path: &String, results: &Vec<SimilarityResult
     writer.flush().expect("Failed to flush csv file!")
 }
 
-fn write_fvnsim(result: &SimilarityResult) {
+/// Formats FVNSIM info to table and writes it to console.
+fn write_fvnsim_table(result: &SimilarityResult) {
     let mut table = Table::new();
 
     let format = get_default_table_format();
@@ -86,6 +91,7 @@ fn write_fvnsim(result: &SimilarityResult) {
     table.printstd();
 }
 
+/// Formats patch similarity info for a file pair to a table and outputs it to the console
 fn write_patch_similarity(result: &SimilarityResult) {
     let mut table = Table::new();
 
@@ -121,7 +127,9 @@ fn write_patch_similarity(result: &SimilarityResult) {
     table.printstd();
 }
 
-fn get_default_table_format() -> TableFormat {
+/// Returns the default table format for the path similarity table
+fn get_default_table_format() -> TableFormat 
+{
     FormatBuilder::new()
         .column_separator('|')
         .separator(LinePosition::Title, LineSeparator::new('-', '-', '-', '-'))

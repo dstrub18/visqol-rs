@@ -51,4 +51,4 @@ pub fn normalize_int16_to_double(input: &[i16]) -> Vec<f64> {
 }
 
 /// Returns the maximum of an `ndarray::Array1<f64>`
-fn get_max(mat: &Array1<f64>) -> f64 { *mat.max().expect("Could not compute maximum of matrix!") }
+fn get_max(mat: &Array1<f64>) -> f64 { *mat.max().expect("Failed to compute maximum of matrix!") }

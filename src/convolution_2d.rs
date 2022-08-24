@@ -70,7 +70,7 @@ pub fn add_matrix_boundary(input_matrix: &mut Array2<f64>) -> Array2<f64> {
 }
 
 /// Returns a copy of `input matrix` which is zero-padded by the specified amounts.
-fn copy_matrix_within_padding(
+pub fn copy_matrix_within_padding(
     input_matrix: &Array2<f64>,
     row_prepad_amount: usize,
     row_postpad_amount: usize,

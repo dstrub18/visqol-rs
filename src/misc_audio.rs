@@ -13,6 +13,7 @@ const SPL_REFERENCE_POINT: f64 = 0.00002;
 const NOISE_FLOOR_RELATIVE_TO_PEAK_DB: f64 = 45.0;
 const NOISE_FLOOR_ABSOLUTE_DB: f64 = -45.0;
 
+/// Returns a copy of `degraded` which has the same SPL as `reference`.
 pub fn scale_to_match_sound_pressure_level(
     reference: &AudioSignal,
     degraded: &AudioSignal,
@@ -30,7 +31,8 @@ pub fn scale_to_match_sound_pressure_level(
     )
 }
 
-pub fn calculate_sound_pressure_level(signal: &AudioSignal) -> f64 {
+/// Computes the sound pressure level of an audio signal in dB
+fn calculate_sound_pressure_level(signal: &AudioSignal) -> f64 {
     let energy: f64 = signal
         .data_matrix
         .iter()
@@ -40,10 +42,12 @@ pub fn calculate_sound_pressure_level(signal: &AudioSignal) -> f64 {
     20.0 * ((sound_pressure / SPL_REFERENCE_POINT).log10())
 }
 
-pub fn to_mono_matrix(sample_matrix: &Array2<f64>) -> Array1<f64> {
+/// Calculates the per-column sum of a 2d array and returns them as a 1d array
+fn to_mono_matrix(sample_matrix: &Array2<f64>) -> Array1<f64> {
     sample_matrix.sum_axis(Axis(1))
 }
 
+/// Given a `file_path` to a wav file on disk, this file is loaded. If there are multiple channels, these are summed and normalized to 1 mono channel.
 pub fn load_as_mono(file_path: &str) -> Result<AudioSignal, Box<dyn Error>> {
     let wav_reader = WavFile::open(file_path)?;
 
@@ -58,7 +62,8 @@ pub fn load_as_mono(file_path: &str) -> Result<AudioSignal, Box<dyn Error>> {
     })
 }
 
-pub fn extract_multichannel(num_channels: usize, interleaved_vector: &Vec<f64>) -> Array2<f64> {
+/// De-interleave an interleaved signal and returns them in a matrix. 1 row represents 1 channel.
+fn extract_multichannel(num_channels: usize, interleaved_vector: &Vec<f64>) -> Array2<f64> {
     assert!(interleaved_vector.len() % num_channels as usize == 0);
     let sub_vector_size = interleaved_vector.len() / num_channels as usize;
     Array2::from_shape_vec(
@@ -68,6 +73,7 @@ pub fn extract_multichannel(num_channels: usize, interleaved_vector: &Vec<f64>) 
     .expect("Failed to sum multichannel signal to mono signal!")
 }
 
+/// Scales 2 spectrograms to match their sound pressure levels.
 pub fn prepare_spectrograms_for_comparison(
     reference: &mut Spectrogram,
     degraded: &mut Spectrogram,
@@ -88,6 +94,7 @@ pub fn prepare_spectrograms_for_comparison(
     degraded.subtract_floor(lowest_floor);
 }
 
+/// Clones all elements of `float_vector` into the real elements of a complex vector and sets all imaginary parts to 0.0.
 pub fn float_vec_to_real_valued_complex_vec(float_vector: &[f64]) -> Vec<Complex64> {
     let mut complex_vec = vec![Complex64::zero(); float_vector.len()];
 
@@ -100,7 +107,7 @@ pub fn float_vec_to_real_valued_complex_vec(float_vector: &[f64]) -> Vec<Complex
 
     complex_vec
 }
-
+/// Clones all elements of `complex_vector` into a vector of `f64` values, ommitting the imaginary parts.
 pub fn real_valued_complex_vec_to_float_vec(complex_vector: &[Complex64]) -> Vec<f64> {
     let mut real_vec = vec![f64::zero(); complex_vector.len()];
 
@@ -114,6 +121,7 @@ pub fn real_valued_complex_vec_to_float_vec(complex_vector: &[Complex64]) -> Vec
     real_vec
 }
 
+/// Given a complex vector, this function will append its elements reversed and the imaginary part multiplied by -1.0. The 1st and last element of the original vector are ommitted in that process.
 pub fn mirror_spectrum(spectrum: &mut Vec<Complex64>) {
     let nyquist_bin = Complex64::new(
         spectrum.last().expect("Failed to copy Nyqvist bin!").re,
