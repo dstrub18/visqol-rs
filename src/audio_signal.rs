@@ -18,10 +18,10 @@ impl AudioSignal {
     }
     /// Returns the length of the signal in seconds
     pub fn get_duration(&self) -> f64 { self.len() as f64 / self.sample_rate as f64 }
-    
+
     /// Returns the length of the signal in samples
     pub fn len(&self) -> usize { self.data_matrix.len() }
-    
+
     /// Returns `true` if the number o samples is 0
     pub fn is_empty(&self) -> bool { self.len() == 0 }
 }

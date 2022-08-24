@@ -64,7 +64,7 @@ impl ComparisonPatchesSelector {
             deg_patches.push(Self::build_degraded_patch(
                 spectrogram_data,
                 slide_offset,
-                slide_offset + ref_patches[0].ncols()
+                slide_offset + ref_patches[0].ncols(),
             ));
         }
 
@@ -117,7 +117,7 @@ impl ComparisonPatchesSelector {
             let mut deg_patch = Self::build_degraded_patch(
                 spectrogram_data,
                 last_offset,
-                last_offset + ref_patch.ncols()
+                last_offset + ref_patch.ncols(),
             );
 
             best_deg_patches[patch_index as usize] = self
@@ -295,7 +295,7 @@ impl ComparisonPatchesSelector {
     pub fn build_degraded_patch(
         spectrogram_data: &Array2<f64>,
         window_beginning: usize,
-        window_end: usize
+        window_end: usize,
     ) -> Array2<f64> {
         let first_real_frame = 0.max(window_beginning);
         let last_real_frame = window_end.min(spectrogram_data.ncols());

@@ -1,6 +1,5 @@
 use ndarray::{Array2, ShapeBuilder};
 
-
 /// Computes the convolution of `input_matrix` with `fir_filter`
 pub fn perform_valid_2d_conv_with_boundary(
     fir_filter: &Array2<f64>,

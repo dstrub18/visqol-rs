@@ -18,7 +18,6 @@ pub fn calculate_upper_env(signal: &Array1<f64>) -> Option<ndarray::Array1<f64>>
     Some(hilbert_amplitude)
 }
 
-
 /// Calculates the hilbert transform for a given time domain signal.
 pub fn calculate_hilbert(signal: &mut [f64]) -> Option<Array1<Complex64>> {
     let mut fft_manager = FftManager::new(signal.len());

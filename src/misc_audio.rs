@@ -43,9 +43,7 @@ fn calculate_sound_pressure_level(signal: &AudioSignal) -> f64 {
 }
 
 /// Calculates the per-column sum of a 2d array and returns them as a 1d array
-fn to_mono_matrix(sample_matrix: &Array2<f64>) -> Array1<f64> {
-    sample_matrix.sum_axis(Axis(1))
-}
+fn to_mono_matrix(sample_matrix: &Array2<f64>) -> Array1<f64> { sample_matrix.sum_axis(Axis(1)) }
 
 /// Given a `file_path` to a wav file on disk, this file is loaded. If there are multiple channels, these are summed and normalized to 1 mono channel.
 pub fn load_as_mono(file_path: &str) -> Result<AudioSignal, Box<dyn Error>> {

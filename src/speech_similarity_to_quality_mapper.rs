@@ -9,7 +9,11 @@ pub struct SpeechSimilarityToQualityMapper {
 impl SpeechSimilarityToQualityMapper {
     /// Creates a new `SpeechSimilarityToQualityMapper`.
     /// If `scale_max_to_mos` is set to true, the a quality score of 1.0 will be mapped to 5.0. If not, will be mapped to 4.x.
-    pub fn new(scale_to_max_mos: bool) -> Self { Self { scale_max_to_mos: scale_to_max_mos } }
+    pub fn new(scale_to_max_mos: bool) -> Self {
+        Self {
+            scale_max_to_mos: scale_to_max_mos,
+        }
+    }
 }
 
 impl SimilarityToQualityMapper for SpeechSimilarityToQualityMapper {
@@ -18,7 +22,7 @@ impl SimilarityToQualityMapper for SpeechSimilarityToQualityMapper {
         const FIT_PARAMETER_B: f32 = 4.685_115_3;
         const FIT_PARAMETER_X0: f32 = 0.765_523_2;
         const FIT_SCALE: f32 = 1.2031409;
-        
+
         let nsim_mean =
             (similarity_vector.iter().sum::<f64>() as f32) / (similarity_vector.len() as f32);
         let mos = misc_math::exponential_from_fit(

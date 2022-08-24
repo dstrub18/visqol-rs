@@ -11,7 +11,6 @@ pub struct VadPatchCreator {
 }
 
 impl PatchCreator for VadPatchCreator {
-    
     fn create_ref_patch_indices(
         &self,
         spectrogram: &Array2<f64>,
@@ -82,7 +81,6 @@ impl PatchCreator for VadPatchCreator {
 }
 
 impl VadPatchCreator {
-    
     /// Creates a new `VadPatchCreator` with the desired patch size.
     pub fn new(patch_size: usize) -> Self {
         Self {

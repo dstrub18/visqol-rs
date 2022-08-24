@@ -10,7 +10,6 @@ pub struct ImagePatchCreator {
 }
 
 impl PatchCreator for ImagePatchCreator {
-        
     fn create_ref_patch_indices(
         &self,
         spectrogram: &Array2<f64>,

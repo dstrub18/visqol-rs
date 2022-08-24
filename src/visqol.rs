@@ -1,5 +1,5 @@
-use std::error::Error;
 use ndarray::Array1;
+use std::error::Error;
 
 use crate::{
     analysis_window::AnalysisWindow, audio_signal::AudioSignal,
@@ -79,7 +79,6 @@ pub fn calculate_similarity(
         sim_match_info,
     ))
 }
-
 
 /// Computes prediction with the given `SimilarityToQualityMapper`
 fn predict_mos(fvnsim: &[f64], mapper: &dyn SimilarityToQualityMapper) -> f32 {

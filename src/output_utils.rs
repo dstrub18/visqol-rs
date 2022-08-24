@@ -128,8 +128,7 @@ fn write_patch_similarity(result: &SimilarityResult) {
 }
 
 /// Returns the default table format for the path similarity table
-fn get_default_table_format() -> TableFormat 
-{
+fn get_default_table_format() -> TableFormat {
     FormatBuilder::new()
         .column_separator('|')
         .separator(LinePosition::Title, LineSeparator::new('-', '-', '-', '-'))

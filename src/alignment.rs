@@ -36,17 +36,8 @@ pub fn align_and_truncate(
         _ => (),
     }
     Some((
-        AudioSignal::new(
-            new_ref_matrix
-                .as_slice()?,
-
-            ref_signal.sample_rate,
-        ),
-        AudioSignal::new(
-            new_deg_matrix
-                .as_slice()?,
-            deg_signal.sample_rate,
-        ),
+        AudioSignal::new(new_ref_matrix.as_slice()?, ref_signal.sample_rate),
+        AudioSignal::new(new_deg_matrix.as_slice()?, deg_signal.sample_rate),
         lag,
     ))
 }
@@ -64,13 +55,9 @@ pub fn globally_align(
 
     if best_lag == 0 || best_lag.abs() > (ref_signal.data_matrix.len() / 2) as i64 {
         // If signals are correlated already, return deg signal and 0.
-        let new_deg_signal = AudioSignal::new(
-            deg_signal
-                .data_matrix
-                .as_slice()?,
-            deg_signal.sample_rate,
-        );
-        
+        let new_deg_signal =
+            AudioSignal::new(deg_signal.data_matrix.as_slice()?, deg_signal.sample_rate);
+
         Some((new_deg_signal, 0.0f64))
     } else {
         let mut new_deg_matrix = deg_signal.data_matrix.clone();

@@ -78,7 +78,7 @@ impl SpectrogramBuilder for GammatoneSpectrogramBuilder {
 
 impl GammatoneSpectrogramBuilder {
     const SPEECH_MODE_MAX_FREQ: u32 = 8000;
-    
+
     /// Creates a new gammatone spectrogram builder with the given gammatone filterbank.
     /// If `use_speech_mode` is set to `true`, the maximum frequency is determined to be 8000 Hz.
     pub fn new(filter_bank: GammatoneFilterbank, use_speech_mode: bool) -> Self {

@@ -1,4 +1,3 @@
-
 /// Stores a filtered signal and the final conditions after applying a filter.
 pub struct FilterResults {
     pub filtered_signal: Vec<f64>,

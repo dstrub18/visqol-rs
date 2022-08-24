@@ -29,7 +29,6 @@ pub struct VisqolManager {
 }
 
 impl VisqolManager {
-
     /// Creates a new instance with the desired configurations.
     pub fn new(
         model_path: &str,

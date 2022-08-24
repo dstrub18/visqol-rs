@@ -4,7 +4,10 @@ use num::complex::Complex64;
 use num::Zero;
 
 /// Performs a fast fourier transform on `input_signal` using `fft_manager` and returns the complex signal in the frequency domain.
-pub fn forward_1d_from_matrix(fft_manager: &mut FftManager, input_signal: &[f64]) -> Vec<Complex64> {
+pub fn forward_1d_from_matrix(
+    fft_manager: &mut FftManager,
+    input_signal: &[f64],
+) -> Vec<Complex64> {
     let mut temp_time_buffer = input_signal.to_vec();
 
     let mut temp_freq_buffer = vec![Complex64::zero(); fft_manager.fft_size];

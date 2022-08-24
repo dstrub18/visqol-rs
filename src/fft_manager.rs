@@ -20,7 +20,6 @@ pub struct FftManager {
 }
 
 impl FftManager {
-
     /// Creates a new fft manager, computes internal variables from `samples_per_channel`
     pub fn new(samples_per_channel: usize) -> Self {
         let fft_size = misc_math::next_pow_two(samples_per_channel).max(MIN_FFT_SIZE);
@@ -63,7 +62,7 @@ impl FftManager {
             );
         }
     }
-    
+
     /// Zero-pads `freq_channel` if necessary, transforms its contents into the time domain and stores it in `time_channel`
     pub fn time_from_freq_domain(
         &mut self,

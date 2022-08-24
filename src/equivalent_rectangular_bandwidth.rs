@@ -1,10 +1,10 @@
 #![allow(warnings)]
-use log;
-use ndarray::Array2;
-use num::{complex::Complex64, Zero};
 use crate::misc_audio::{
     float_vec_to_real_valued_complex_vec, real_valued_complex_vec_to_float_vec,
 };
+use log;
+use ndarray::Array2;
+use num::{complex::Complex64, Zero};
 
 // Glasberg and Moore Parameters
 const EAR_Q: f64 = 9.26449f64;
@@ -207,7 +207,6 @@ pub fn make_filters(
 
     (vf_coeffs, real_valued_complex_vec_to_float_vec(&cf))
 }
-
 
 /// Given a lower frequency boundary, a higher frequency boundary and the number of bands, this function calculates the center frequencies on an ERB scale.
 fn calculate_uniform_center_freqs(low_freq: f64, high_freq: f64, num_bands: usize) -> Vec<f64> {
