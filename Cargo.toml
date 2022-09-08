@@ -26,10 +26,12 @@ ffsvm = "0.8"
 realfft = "3.0.0"
 rayon = "1.5.3"
 prettytable-rs = "0.8.0"
-thiserror = "1.0.31"
+thiserror = "1.0.32"
 log = "0.4.17"
 simplelog = "0.12.0"
+tract-onnx = "0.17.4"
 
 [patch.crates-io]
 ffsvm = { path = "../../libs/ffsvm-rust"}
 simd_aligned = { path = "../../libs/simd_aligned_rust"}
+#tflite = { git = "https://github.com/Marekkon5/tflite-rs"}

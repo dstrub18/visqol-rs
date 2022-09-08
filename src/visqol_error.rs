@@ -30,4 +30,10 @@ pub enum VisqolError {
 
     #[error("Failed to compute VAD!")]
     FailedToComputeVad,
+
+    #[error("Visqol input files must be quantized to 16 bit. Found {bits_per_sample:?}!")]
+    InvalidBitsPerSample
+    {
+        bits_per_sample: u16
+    }
 }

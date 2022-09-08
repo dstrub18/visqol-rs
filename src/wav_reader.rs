@@ -1,6 +1,6 @@
 use hound::WavReader;
 use std::error::Error;
-
+use crate::visqol_error;
 /// Represents the metadata and contents of a wav file.
 /// Simple wrapper around the `hound` library.
 pub struct WavFile {
@@ -19,15 +19,22 @@ impl WavFile {
         let mut reader = WavReader::open(file_path)?;
         let spec = reader.spec();
 
-        let samples: Vec<i16> = reader
-            .samples::<i16>()
+        if spec.bits_per_sample != 16 
+        {
+            return Err(Box::new(visqol_error::VisqolError::InvalidBitsPerSample { bits_per_sample: spec.bits_per_sample }));
+        }
+
+
+        let samples: Vec<i32> = reader
+            .samples::<i32>()
             .map(|x| x.expect("Failed to read samples"))
             .collect();
+        let samples_quantized = samples.iter().map(|&e| e as i16).collect();
 
         Ok(Self {
             num_channels: spec.channels,
             sample_rate: spec.sample_rate,
-            samples,
+            samples:samples_quantized,
         })
     }
 }

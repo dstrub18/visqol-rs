@@ -36,3 +36,4 @@ pub mod visqol_error;
 pub mod visqol_manager;
 pub mod wav_reader;
 pub mod xcorr;
+pub mod tflite_quality_mapper;

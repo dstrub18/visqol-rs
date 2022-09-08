@@ -71,3 +71,17 @@ fn test_mirror_spectrum() {
     misc_audio::mirror_spectrum(&mut some_vec);
     assert_eq!(some_vec, expected_result);
 }
+
+#[test]
+#[should_panic]
+fn test_32_bit()
+{
+    misc_audio::load_as_mono("test_data/clean_speech/CA01_01_32bits.wav").unwrap();
+}
+
+#[test]
+#[should_panic]
+fn test_8_bit()
+{
+    misc_audio::load_as_mono("test_data/clean_speech/CA01_01_8bits.wav").unwrap();
+}
