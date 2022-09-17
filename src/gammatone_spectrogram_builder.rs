@@ -93,8 +93,8 @@ impl GammatoneSpectrogramBuilder {
 mod tests {
     use super::*;
     use crate::analysis_window::AnalysisWindow;
+    use crate::audio_utils;
     use crate::gammatone_filterbank::GammatoneFilterbank;
-    use crate::misc_audio;
     use crate::spectrogram_builder::SpectrogramBuilder;
     use approx::assert_abs_diff_eq;
 
@@ -107,7 +107,7 @@ mod tests {
 
         const REF_SPECTRO_NUM_COLS: usize = 802;
 
-        let signal_ref = misc_audio::load_as_mono("/Users/danielstrubig/Documents/CodingProjects/rust/exercises/visqol/visqol-rs/test_data/conformance_testdata_subset/contrabassoon48_stereo.wav").unwrap();
+        let signal_ref = audio_utils::load_as_mono("/Users/danielstrubig/Documents/CodingProjects/rust/exercises/visqol/visqol-rs/test_data/conformance_testdata_subset/contrabassoon48_stereo.wav").unwrap();
         let filter_bank = GammatoneFilterbank::new(NUM_BANDS, MINIMUM_FREQ);
         let window = AnalysisWindow::new(signal_ref.sample_rate, OVERLAP, 0.08);
 

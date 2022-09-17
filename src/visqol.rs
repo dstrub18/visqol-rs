@@ -2,10 +2,10 @@ use ndarray::Array1;
 use std::error::Error;
 
 use crate::{
-    analysis_window::AnalysisWindow, audio_signal::AudioSignal,
-    comparison_patches_selector::ComparisonPatchesSelector, misc_audio,
-    patch_creator::PatchCreator, patch_similarity_comparator::PatchSimilarityResult,
-    similarity_result::SimilarityResult, similarity_to_quality_mapper::SimilarityToQualityMapper,
+    analysis_window::AnalysisWindow, audio_signal::AudioSignal, audio_utils,
+    comparison_patches_selector::ComparisonPatchesSelector, patch_creator::PatchCreator,
+    patch_similarity_comparator::PatchSimilarityResult, similarity_result::SimilarityResult,
+    similarity_to_quality_mapper::SimilarityToQualityMapper,
     spectrogram_builder::SpectrogramBuilder,
 };
 
@@ -23,11 +23,12 @@ pub fn calculate_similarity(
     search_window: usize,
 ) -> Result<SimilarityResult, Box<dyn Error>> {
     /////////////////// Stage 1: Preprocessing ///////////////////
-    let deg_signal_scaled = misc_audio::scale_to_match_sound_pressure_level(ref_signal, deg_signal);
+    let deg_signal_scaled =
+        audio_utils::scale_to_match_sound_pressure_level(ref_signal, deg_signal);
     let mut ref_spectrogram = spect_builder.build(ref_signal, window)?;
     let mut deg_spectrogram = spect_builder.build(&deg_signal_scaled, window)?;
 
-    misc_audio::prepare_spectrograms_for_comparison(&mut ref_spectrogram, &mut deg_spectrogram);
+    audio_utils::prepare_spectrograms_for_comparison(&mut ref_spectrogram, &mut deg_spectrogram);
 
     /////////////// Stage 2: Feature selection and similarity measure ////////////
     let mut ref_patch_indices =

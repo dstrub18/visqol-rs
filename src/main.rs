@@ -20,6 +20,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     // Parse arguments
     let args = CommandLineArgs::parse();
 
+    // Figure out file paths
     let files_to_compare = build_file_pair_paths(&args)?;
 
     let mut results = Vec::<SimilarityResult>::with_capacity(files_to_compare.len());

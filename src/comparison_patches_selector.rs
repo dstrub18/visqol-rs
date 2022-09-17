@@ -4,13 +4,12 @@ use crate::alignment::align_and_truncate;
 use crate::{
     analysis_window::AnalysisWindow,
     audio_signal::AudioSignal,
-    misc_audio,
+    audio_utils,
     neurogram_similiarity_index_measure::NeurogramSimiliarityIndexMeasure,
     patch_similarity_comparator::{PatchSimilarityComparator, PatchSimilarityResult},
     spectrogram_builder::SpectrogramBuilder,
     visqol_error::VisqolError,
 };
-use log;
 use ndarray::{concatenate, s, Array1, Array2, Axis};
 pub struct ComparisonPatchesSelector {
     sim_comparator: NeurogramSimiliarityIndexMeasure,
@@ -362,7 +361,7 @@ impl ComparisonPatchesSelector {
             let mut deg_spectrogram = spect_builder.build(&deg_audio_aligned, analysis_window)?;
             // 4. Recreate an aligned degraded patch from the new spectrogram.
 
-            misc_audio::prepare_spectrograms_for_comparison(
+            audio_utils::prepare_spectrograms_for_comparison(
                 &mut ref_spectrogram,
                 &mut deg_spectrogram,
             );

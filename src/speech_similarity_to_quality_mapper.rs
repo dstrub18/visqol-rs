@@ -1,4 +1,4 @@
-use crate::misc_math;
+use crate::math_utils;
 use crate::similarity_to_quality_mapper::SimilarityToQualityMapper;
 
 /// Maps a similarity score to a MOS using polynomial mapping.
@@ -25,7 +25,7 @@ impl SimilarityToQualityMapper for SpeechSimilarityToQualityMapper {
 
         let nsim_mean =
             (similarity_vector.iter().sum::<f64>() as f32) / (similarity_vector.len() as f32);
-        let mos = misc_math::exponential_from_fit(
+        let mos = math_utils::exponential_from_fit(
             nsim_mean,
             FIT_PARAMETER_A,
             FIT_PARAMETER_B,

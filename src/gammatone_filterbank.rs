@@ -167,9 +167,7 @@ mod tests {
 
         filter_coeffs.invert_axis(Axis(0));
 
-
         let epsilon = 0.0001;
-
 
         // Check if filtering works as intended.
         let mut filterbank = GammatoneFilterbank::new(num_bands, min_freq);

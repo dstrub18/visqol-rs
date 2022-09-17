@@ -1,5 +1,5 @@
 #![allow(warnings)]
-use crate::misc_audio::{
+use crate::audio_utils::{
     float_vec_to_real_valued_complex_vec, real_valued_complex_vec_to_float_vec,
 };
 use log;
@@ -225,27 +225,19 @@ fn calculate_uniform_center_freqs(low_freq: f64, high_freq: f64, num_bands: usiz
     coefficients
 }
 
-
 #[cfg(test)]
-mod tests
-{
+mod tests {
     use approx::assert_abs_diff_eq;
     use ndarray::Axis;
 
     use super::*;
     #[test]
-    fn test_erb_coefficient_creation()
-    {
+    fn test_erb_coefficient_creation() {
         let fs = 48000;
         let num_bands = 32;
         let min_freq = 50.0f64;
 
-        let (mut filter_coeffs, _) = make_filters(
-            fs,
-            num_bands,
-            min_freq,
-            fs as f64 / 2.0,
-        );
+        let (mut filter_coeffs, _) = make_filters(fs, num_bands, min_freq, fs as f64 / 2.0);
 
         let expected_filter_coefficients = vec![
             2.08333e-05,

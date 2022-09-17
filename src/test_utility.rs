@@ -43,7 +43,6 @@ pub fn compare_real_vec(vec_a: &[f64], vec_b: &[f64], tolerance: f64) {
     });
 }
 
-
 #[cfg(test)]
 mod tests {
     use super::*;

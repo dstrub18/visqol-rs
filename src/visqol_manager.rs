@@ -3,11 +3,11 @@ use std::error::Error;
 use crate::constants;
 use crate::speech_similarity_to_quality_mapper::SpeechSimilarityToQualityMapper;
 use crate::{
-    alignment, analysis_window::AnalysisWindow, audio_signal::AudioSignal,
+    alignment, analysis_window::AnalysisWindow, audio_signal::AudioSignal, audio_utils,
     comparison_patches_selector::ComparisonPatchesSelector,
     gammatone_filterbank::GammatoneFilterbank,
     gammatone_spectrogram_builder::GammatoneSpectrogramBuilder,
-    image_patch_creator::ImagePatchCreator, misc_audio,
+    image_patch_creator::ImagePatchCreator,
     neurogram_similiarity_index_measure::NeurogramSimiliarityIndexMeasure,
     patch_creator::PatchCreator, similarity_result::SimilarityResult,
     similarity_to_quality_mapper::SimilarityToQualityMapper,
@@ -82,8 +82,8 @@ impl VisqolManager {
         ref_signal_path: &str,
         deg_signal_path: &str,
     ) -> Result<SimilarityResult, Box<dyn Error>> {
-        let mut ref_signal = misc_audio::load_as_mono(ref_signal_path)?;
-        let mut deg_signal = misc_audio::load_as_mono(deg_signal_path)?;
+        let mut ref_signal = audio_utils::load_as_mono(ref_signal_path)?;
+        let mut deg_signal = audio_utils::load_as_mono(deg_signal_path)?;
 
         self.validate_input_audio(&ref_signal, &deg_signal)?;
 

@@ -1,7 +1,7 @@
 use std::error::Error;
 
 use crate::audio_signal::AudioSignal;
-use crate::misc_math;
+use crate::math_utils;
 use crate::spectrogram::Spectrogram;
 use crate::wav_reader::WavFile;
 use ndarray::{Array1, Array2, Axis, ShapeBuilder};
@@ -49,7 +49,7 @@ fn to_mono_matrix(sample_matrix: &Array2<f64>) -> Array1<f64> { sample_matrix.su
 pub fn load_as_mono(file_path: &str) -> Result<AudioSignal, Box<dyn Error>> {
     let wav_reader = WavFile::open(file_path)?;
 
-    let data_vector_float = misc_math::normalize_int16_to_double(&wav_reader.samples);
+    let data_vector_float = math_utils::normalize_int16_to_double(&wav_reader.samples);
     let final_signal = extract_multichannel(wav_reader.num_channels as usize, &data_vector_float);
 
     let final_signal = to_mono_matrix(&final_signal);
@@ -141,24 +141,22 @@ pub fn mirror_spectrum(spectrum: &mut Vec<Complex64>) {
     spectrum.insert(0, zero_hz_bin);
 }
 
-
 #[cfg(test)]
-mod tests
-{
+mod tests {
     use approx::assert_abs_diff_eq;
     use num::complex::Complex64;
- 
+
     use super::*;
-    
+
     #[test]
     fn test_load_as_mono() {
         let expected_mono_test_sample_rate = 48000;
         let expected_mono_test_num_rows = 131444;
         let expected_mono_test_num_cols = 1;
         let expected_mono_duration = 2.74;
-    
+
         let tolerance = 0.01;
-    
+
         let signal = load_as_mono("test_data/CA01_01.wav").unwrap();
         assert_eq!(signal.sample_rate, expected_mono_test_sample_rate);
         assert_eq!(signal.data_matrix.len(), expected_mono_test_num_rows);
@@ -169,7 +167,7 @@ mod tests
             epsilon = tolerance
         );
     }
-    
+
     #[test]
     fn test_load_stereo() {
         let expected_stereo_test_sample_rate = 48000;
@@ -177,10 +175,9 @@ mod tests
         let expected_stereo_test_num_cols = 1;
         let expected_stereo_duration = 12.45;
         let tolerance = 0.01;
-    
+
         let signal =
-            load_as_mono("test_data/conformance_testdata_subset/guitar48_stereo.wav")
-                .unwrap();
+            load_as_mono("test_data/conformance_testdata_subset/guitar48_stereo.wav").unwrap();
         assert_eq!(signal.sample_rate, expected_stereo_test_sample_rate);
         assert_eq!(signal.len() as u32, expected_stereo_test_num_rows);
         assert_eq!(
@@ -199,7 +196,7 @@ mod tests
             epsilon = tolerance
         );
     }
-    
+
     #[test]
     fn test_mirror_spectrum() {
         let mut some_vec = vec![
@@ -216,22 +213,16 @@ mod tests
             Complex64 { re: 3.0, im: -3.0 },
             Complex64 { re: 2.0, im: -2.0 },
         ];
-    
+
         mirror_spectrum(&mut some_vec);
         assert_eq!(some_vec, expected_result);
     }
-    
+
     #[test]
     #[should_panic]
-    fn test_32_bit()
-    {
-        load_as_mono("test_data/clean_speech/CA01_01_32bits.wav").unwrap();
-    }
-    
+    fn test_32_bit() { load_as_mono("test_data/clean_speech/CA01_01_32bits.wav").unwrap(); }
+
     #[test]
     #[should_panic]
-    fn test_8_bit()
-    {
-        load_as_mono("test_data/clean_speech/CA01_01_8bits.wav").unwrap();
-    }
+    fn test_8_bit() { load_as_mono("test_data/clean_speech/CA01_01_8bits.wav").unwrap(); }
 }

@@ -1,6 +1,6 @@
 use crate::patch_creator::PatchCreator;
 use crate::visqol_error::VisqolError;
-use crate::{analysis_window::AnalysisWindow, audio_signal::AudioSignal, misc_math, rms_vad};
+use crate::{analysis_window::AnalysisWindow, audio_signal::AudioSignal, math_utils, rms_vad};
 use itertools::Itertools;
 use ndarray::{s, Array2};
 
@@ -17,7 +17,7 @@ impl PatchCreator for VadPatchCreator {
         ref_signal: &AudioSignal,
         window: &AnalysisWindow,
     ) -> Result<std::vec::Vec<usize>, VisqolError> {
-        let norm_mat = misc_math::normalize_signal(&ref_signal.data_matrix);
+        let norm_mat = math_utils::normalize_signal(&ref_signal.data_matrix);
         let norm_sig = AudioSignal::new(
             norm_mat
                 .as_slice()
@@ -122,7 +122,7 @@ impl VadPatchCreator {
 mod tests {
     use super::*;
     use crate::analysis_window::AnalysisWindow;
-    use crate::misc_audio::load_as_mono;
+    use crate::audio_utils::load_as_mono;
     use crate::patch_creator::PatchCreator;
     use crate::spectrogram::Spectrogram;
 

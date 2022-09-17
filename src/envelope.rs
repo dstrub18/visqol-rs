@@ -63,8 +63,8 @@ pub fn calculate_hilbert(signal: &mut [f64]) -> Option<Array1<Complex64>> {
 mod tests {
     use super::*;
     use crate::{
+        audio_utils::load_as_mono,
         fft_manager,
-        misc_audio::load_as_mono,
         xcorr::{
             calculate_best_lag, calculate_fft_pointwise_product,
             calculate_inverse_fft_pointwise_product, frexp,
