@@ -42,3 +42,49 @@ pub fn compare_real_vec(vec_a: &[f64], vec_b: &[f64], tolerance: f64) {
         assert_abs_diff_eq!(a, b, epsilon = tolerance);
     });
 }
+
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use ndarray::Array2;
+    use num::complex::Complex;
+
+    #[test]
+    #[should_panic]
+    fn test_faulty_dimensions() {
+        let a = Array2::<f64>::zeros((2, 2));
+        let b = Array2::<f64>::zeros((4, 1));
+        compare_matrix_dimensions(&a, &b);
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_for_different_elements_real() {
+        let a = Array2::<f64>::zeros((2, 2));
+        let b = Array2::<f64>::ones((2, 2));
+        compare_real_matrix(&a, &b, 0.00001);
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_for_different_elements_complex() {
+        let a = Array2::<Complex<f64>>::zeros((2, 2));
+        let b = Array2::<Complex<f64>>::ones((2, 2));
+        compare_complex_matrix(&a, &b, 0.00001);
+    }
+
+    #[test]
+    fn test_for_identical_real_elements() {
+        let a = Array2::<f64>::zeros((2, 2));
+        let b = Array2::<f64>::zeros((2, 2));
+        compare_real_matrix(&a, &b, 0.00001);
+    }
+
+    #[test]
+    fn test_for_identical_elements_complex() {
+        let a = Array2::<Complex<f64>>::zeros((2, 2));
+        let b = Array2::<Complex<f64>>::zeros((2, 2));
+        compare_complex_matrix(&a, &b, 0.00001);
+    }
+}

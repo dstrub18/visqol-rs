@@ -140,3 +140,98 @@ pub fn mirror_spectrum(spectrum: &mut Vec<Complex64>) {
     spectrum.extend(mirrored_spectrum);
     spectrum.insert(0, zero_hz_bin);
 }
+
+
+#[cfg(test)]
+mod tests
+{
+    use approx::assert_abs_diff_eq;
+    use num::complex::Complex64;
+ 
+    use super::*;
+    
+    #[test]
+    fn test_load_as_mono() {
+        let expected_mono_test_sample_rate = 48000;
+        let expected_mono_test_num_rows = 131444;
+        let expected_mono_test_num_cols = 1;
+        let expected_mono_duration = 2.74;
+    
+        let tolerance = 0.01;
+    
+        let signal = load_as_mono("test_data/CA01_01.wav").unwrap();
+        assert_eq!(signal.sample_rate, expected_mono_test_sample_rate);
+        assert_eq!(signal.data_matrix.len(), expected_mono_test_num_rows);
+        assert_eq!(signal.data_matrix.ndim(), expected_mono_test_num_cols);
+        assert_abs_diff_eq!(
+            signal.get_duration(),
+            expected_mono_duration,
+            epsilon = tolerance
+        );
+    }
+    
+    #[test]
+    fn test_load_stereo() {
+        let expected_stereo_test_sample_rate = 48000;
+        let expected_stereo_test_num_rows = 597784;
+        let expected_stereo_test_num_cols = 1;
+        let expected_stereo_duration = 12.45;
+        let tolerance = 0.01;
+    
+        let signal =
+            load_as_mono("test_data/conformance_testdata_subset/guitar48_stereo.wav")
+                .unwrap();
+        assert_eq!(signal.sample_rate, expected_stereo_test_sample_rate);
+        assert_eq!(signal.len() as u32, expected_stereo_test_num_rows);
+        assert_eq!(
+            signal.data_matrix.ndim() as u32,
+            expected_stereo_test_num_cols
+        );
+        assert_abs_diff_eq!(
+            signal.get_duration(),
+            expected_stereo_duration,
+            epsilon = tolerance
+        );
+        assert_abs_diff_eq!(signal[2], -0.000_015_258_789_062_5, epsilon = tolerance);
+        assert_abs_diff_eq!(
+            signal[597782],
+            -0.000_259_399_414_062_5,
+            epsilon = tolerance
+        );
+    }
+    
+    #[test]
+    fn test_mirror_spectrum() {
+        let mut some_vec = vec![
+            Complex64 { re: 1.0, im: 1.0 },
+            Complex64 { re: 2.0, im: 2.0 },
+            Complex64 { re: 3.0, im: 3.0 },
+            Complex64 { re: 4.0, im: 4.0 },
+        ];
+        let expected_result = vec![
+            Complex64 { re: 1.0, im: 0.0 },
+            Complex64 { re: 2.0, im: 2.0 },
+            Complex64 { re: 3.0, im: 3.0 },
+            Complex64 { re: 4.0, im: 0.0 },
+            Complex64 { re: 3.0, im: -3.0 },
+            Complex64 { re: 2.0, im: -2.0 },
+        ];
+    
+        mirror_spectrum(&mut some_vec);
+        assert_eq!(some_vec, expected_result);
+    }
+    
+    #[test]
+    #[should_panic]
+    fn test_32_bit()
+    {
+        load_as_mono("test_data/clean_speech/CA01_01_32bits.wav").unwrap();
+    }
+    
+    #[test]
+    #[should_panic]
+    fn test_8_bit()
+    {
+        load_as_mono("test_data/clean_speech/CA01_01_8bits.wav").unwrap();
+    }
+}

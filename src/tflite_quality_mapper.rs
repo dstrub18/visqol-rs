@@ -3,16 +3,16 @@ use tract_onnx::prelude::*;
 
 pub struct TfLiteQualityMapper {
     model_path: String,
-    num_frequency_bands: usize,
+    _num_frequency_bands: usize,
 }
 
 impl TfLiteQualityMapper {
 
     const _TAU_IDX: usize  = 84;
-    pub fn new(model_path: &str, num_frequency_bands: usize) -> Self {
+    pub fn new(model_path: &str, _num_frequency_bands: usize) -> Self {
         Self {
             model_path: String::from(model_path),
-            num_frequency_bands,
+            _num_frequency_bands,
         }
     }
 }
@@ -43,6 +43,7 @@ mod tests
     use super::TfLiteQualityMapper;
 
     #[test]
+    #[ignore = "Feature not complete"]
     fn test_lattice()
     {
         let tf = TfLiteQualityMapper::new("/Users/danielstrubig/Documents/CodingProjects/rust/exercises/visqol/visqol-rs/model/model.onnx", 21);

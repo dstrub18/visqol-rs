@@ -29,7 +29,6 @@ pub mod spectrogram_builder;
 pub mod speech_similarity_to_quality_mapper;
 pub mod support_vector_regression_model;
 pub mod svr_similarity_to_quality_mapper;
-pub mod test_utility;
 pub mod vad_patch_creator;
 pub mod visqol;
 pub mod visqol_error;
@@ -37,3 +36,6 @@ pub mod visqol_manager;
 pub mod wav_reader;
 pub mod xcorr;
 pub mod tflite_quality_mapper;
+
+#[cfg(test)]
+pub mod test_utility;
