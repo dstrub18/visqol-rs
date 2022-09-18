@@ -63,6 +63,7 @@ pub fn calculate_hilbert(signal: &mut [f64]) -> Option<Array1<Complex64>> {
 mod tests {
     use super::*;
     use crate::{
+        audio_signal::AudioSignal,
         audio_utils::load_as_mono,
         fft_manager,
         xcorr::{
@@ -73,35 +74,33 @@ mod tests {
     use approx::assert_abs_diff_eq;
 
     #[test]
-    fn test_hilbert_on_signal() {
-        let mut signal = load_as_mono("/Users/danielstrubig/Documents/CodingProjects/rust/exercises/visqol/visqol-rs/test_data/clean_speech/CA01_01.wav").unwrap();
+    fn hilbert_transform_on_audio_signal() {
+        let (mut signal, _) = load_audio_files();
         let result = calculate_hilbert(signal.data_matrix.as_slice_mut().unwrap()).unwrap();
 
         assert_abs_diff_eq!(result[0].re, 0.000_303_661_691_188_833, epsilon = 0.0001);
     }
 
     #[test]
-    fn test_envelope_on_signal() {
-        let signal = load_as_mono("/Users/danielstrubig/Documents/CodingProjects/rust/exercises/visqol/visqol-rs/test_data/clean_speech/CA01_01.wav").unwrap();
+    fn envelope_on_audio_signal() {
+        let (signal, _) = load_audio_files();
         let result = calculate_upper_env(&signal.data_matrix).unwrap();
 
         assert_abs_diff_eq!(result[0], 0.00030159861338215923, epsilon = 0.0001);
     }
 
     #[test]
-    fn test_xcorr_pointwise_prod_on_signal() {
-        let ref_signal = load_as_mono("/Users/danielstrubig/Documents/CodingProjects/rust/exercises/visqol/visqol-rs/test_data/clean_speech/CA01_01.wav").unwrap();
+    fn xcorr_pointwise_prod_on_audio_signal() {
+        let (ref_signal, deg_signal) = load_audio_files();
         let ref_signal_vec = ref_signal.data_matrix.to_vec();
-        let deg_signal = load_as_mono("/Users/danielstrubig/Documents/CodingProjects/rust/exercises/visqol/visqol-rs/test_data/clean_speech/transcoded_CA01_01.wav").unwrap();
-        let deg_signal_vec = deg_signal.data_matrix.to_vec();
 
         let (_, exponent) = frexp((ref_signal_vec.len() * 2 - 1) as f32);
         let fft_points = 2i32.pow(exponent as u32) as usize;
         let mut manager = fft_manager::FftManager::new(fft_points);
 
         let result = calculate_fft_pointwise_product(
-            &ref_signal_vec,
-            &deg_signal_vec,
+            &ref_signal.data_matrix.to_vec(),
+            &deg_signal.data_matrix.to_vec(),
             &mut manager,
             fft_points,
         );
@@ -110,9 +109,8 @@ mod tests {
     }
 
     #[test]
-    fn test_calculate_inverse_fft_pointwise_product() {
-        let ref_signal = load_as_mono("/Users/danielstrubig/Documents/CodingProjects/rust/exercises/visqol/visqol-rs/test_data/clean_speech/CA01_01.wav").unwrap();
-        let deg_signal = load_as_mono("/Users/danielstrubig/Documents/CodingProjects/rust/exercises/visqol/visqol-rs/test_data/clean_speech/transcoded_CA01_01.wav").unwrap();
+    fn calculate_inverse_fft_pointwise_product_on_audio_pair() {
+        let (ref_signal, deg_signal) = load_audio_files();
 
         let result = calculate_inverse_fft_pointwise_product(
             &mut ref_signal.data_matrix.to_vec(),
@@ -123,9 +121,8 @@ mod tests {
     }
 
     #[test]
-    fn test_calculate_best_lag() {
-        let ref_signal = load_as_mono("/Users/danielstrubig/Documents/CodingProjects/rust/exercises/visqol/visqol-rs/test_data/clean_speech/CA01_01.wav").unwrap();
-        let deg_signal = load_as_mono("/Users/danielstrubig/Documents/CodingProjects/rust/exercises/visqol/visqol-rs/test_data/clean_speech/transcoded_CA01_01.wav").unwrap();
+    fn calculate_best_lag_on_audio_signal() {
+        let (ref_signal, deg_signal) = load_audio_files();
 
         let result = calculate_best_lag(
             ref_signal.data_matrix.as_slice().unwrap(),
@@ -134,5 +131,12 @@ mod tests {
         .unwrap();
 
         assert_abs_diff_eq!(result, 0);
+    }
+
+    fn load_audio_files() -> (AudioSignal, AudioSignal) 
+    {
+        let ref_signal_path = "test_data/clean_speech/CA01_01.wav";
+        let deg_signal_path = "test_data/clean_speech/transcoded_CA01_01.wav";
+        (load_as_mono(ref_signal_path).unwrap(), load_as_mono(deg_signal_path).unwrap())
     }
 }

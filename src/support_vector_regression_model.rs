@@ -41,8 +41,8 @@ mod tests {
     use super::SupportVectorRegressionModel;
     use approx::assert_abs_diff_eq;
     #[test]
-    fn test_svn() {
-        let model_path = "/Users/danielstrubig/Documents/CodingProjects/rust/exercises/visqol/visqol-rs/model/libsvm_nu_svr_model.txt";
+    fn svn_predicts_known_mos() {
+        let model_path = "model/libsvm_nu_svr_model.txt";
         let svm = SupportVectorRegressionModel::init(model_path);
 
         // This is the FVNSIM results for a ViSQOL comparison between

@@ -1,33 +1,11 @@
 use ndarray::Array1;
 use ndarray_stats::QuantileExt;
-
-/// Returns the normalized version of a signal
-///
-/// # Examples
-///
-/// ```
-/// use ndarray::arr1;
-/// use visqol_rs::misc_math::normalize_signal;
-/// let signal = arr1(&[1.0, 2.0]);
-/// let expected_result = arr1(&[0.5, 1.0]);
-/// assert_eq!(normalize_signal(&signal), expected_result);
-/// ```
 pub fn normalize_signal(signal: &Array1<f64>) -> Array1<f64> {
     let normalized_mat = signal.clone();
     let max = get_max(signal);
     normalized_mat / max
 }
 
-/// Returns the next power of two.
-///
-/// # Examples
-///
-/// ```
-/// use visqol_rs::misc_math::next_pow_two;
-/// let input = 5;
-/// let expected_result = 8;
-/// assert_eq!(next_pow_two(input), expected_result);
-/// ```
 pub fn next_pow_two(input: usize) -> usize {
     let mut next_power_of_two = input - 1;
 

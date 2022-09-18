@@ -71,7 +71,8 @@ pub struct CommandLineArgs {
     ///default model will be used.
     #[clap(
         long = "similarity_to_quality_model",
-        default_value = "/model/libsvm_nu_svr_model.txt"
+        default_value = "./model/libsvm_nu_svr_model.txt",
+        conflicts_with = "use_speech_mode"
     )]
     pub similarity_to_quality_model: String,
 
@@ -80,7 +81,7 @@ pub struct CommandLineArgs {
     /// that normalizes the polynomial NSIM->MOS mapping so that a perfect
     /// NSIM
     /// score of 1.0 translates to 5.0. [default: false]
-    #[clap(long = "use_speech_mode")]
+    #[clap(long = "use_speech_mode", conflicts_with = "similarity_to_quality_model")]
     pub use_speech_mode: bool,
 
     /// When used in conjunction with --use_speech_mode, this flag will
@@ -136,7 +137,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_csv() {
+    fn file_pairs_are_constructed_correctly() {
         // Expected results
         let ref_file_1 = "ref_1.wav";
         let deg_file_1 = "deg_1.wav";

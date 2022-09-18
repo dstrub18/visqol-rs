@@ -58,7 +58,7 @@ mod tests {
     use num::complex::Complex64;
 
     #[test]
-    fn test_forward_1d() {
+    fn forward_1d() {
         let samples = vec![
             0.000150529f64,
             5.89739e-05,
@@ -656,7 +656,7 @@ mod tests {
     }
 
     #[test]
-    fn test_forward_1d_from_points() {
+    fn forward_1d_from_points() {
         let tolerance = 0.0001;
         let samples = vec![
             0.000150529f64,
@@ -1257,7 +1257,7 @@ mod tests {
     }
 
     #[test]
-    fn test_inverse_1d() {
+    fn inverse_1d() {
         let tolerance = 0.0001;
         let samples = vec![
             0.000150529f64,
@@ -1342,7 +1342,7 @@ mod tests {
     }
 
     #[test]
-    fn test_complex_inverse_1d() {
+    fn complex_inverse_1d() {
         let tolerance = 0.0001;
         let samples = vec![
             0.000150529f64,
@@ -1500,7 +1500,7 @@ mod tests {
     }
 
     #[test]
-    fn test_zeros() {
+    fn zeros() {
         let tolerance = 0.0001;
 
         let zeros = vec![

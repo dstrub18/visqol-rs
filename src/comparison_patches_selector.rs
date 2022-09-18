@@ -403,7 +403,7 @@ mod tests {
     use ndarray::{arr2, Array1, Array2};
 
     #[test]
-    fn test_calc_num_patches() {
+    fn calculate_num_patches() {
         let patch_indices = vec![0, 15, 30, 45, 60];
 
         let slide_offset = 45;
@@ -420,7 +420,7 @@ mod tests {
     }
 
     #[test]
-    fn test_slice() {
+    fn slice_signals() {
         let fs = 16000;
         let num_seconds = 3;
 
@@ -438,7 +438,7 @@ mod tests {
     }
 
     #[test]
-    fn test_optimal_patches() {
+    fn optimal_patches_start_times() {
         let ref_matrix = arr2(&[
             [1.0, 1.0, 1.0, 2.0, 2.0, 2.0, 2.0, 2.0, 3.0, 3.0],
             [0.0, 1.0, 0.0, 2.0, 1.0, 1.0, 2.0, 3.0, 1.0, 2.0],
@@ -487,7 +487,7 @@ mod tests {
     }
 
     #[test]
-    fn out_of_order_matches() {
+    fn matches_are_out_of_order() {
         let ref_matrix = arr2(&[[1.0, 100.0, 3.0, 4.0], [0.0; 4], [1.0, 100.0, 3.0, 4.0]]);
 
         let patch_size = 1;
@@ -522,7 +522,7 @@ mod tests {
     }
 
     #[test]
-    fn different_results() {
+    fn results_are_different() {
         let ref_matrix = arr2(&[[1.0], [1.0], [0.0]]);
 
         let patch_size = 1;
@@ -558,7 +558,7 @@ mod tests {
     }
 
     #[test]
-    fn big_example() {
+    fn longer_example() {
         let ref_vec = vec![
             0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 2.0, 2.0, 2.0, 2.0, 2.0, 0.0,
             0.0, 0.0, 0.0, 0.0, 0.0, 3.0, 3.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,

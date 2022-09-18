@@ -47,7 +47,7 @@ mod tests {
     #[test]
     #[ignore = "Feature not complete"]
     fn test_lattice() {
-        let tf = TfLiteQualityMapper::new("/Users/danielstrubig/Documents/CodingProjects/rust/exercises/visqol/visqol-rs/model/model.onnx", 21);
+        let tf = TfLiteQualityMapper::new("model/model.onnx", 21);
         tf.predict_quality(&[0.0]);
     }
 }

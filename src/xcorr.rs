@@ -76,13 +76,6 @@ pub fn calculate_fft_pointwise_product(
 
 ///
 /// Returns the mantissa and the exponent of a given floating point value.
-/// # Examples
-///
-/// ```
-/// use visqol_rs::xcorr::frexp;
-/// let (_, result) = frexp(27.0f32);
-/// assert_eq!(result, 5);
-/// ```
 pub fn frexp(s: f32) -> (f32, i32) {
     if 0.0 == s {
         (s, 0)
@@ -100,7 +93,7 @@ mod tests {
     use ndarray::Array1;
 
     #[test]
-    fn test_best_lag_same_length() {
+    fn best_lag_signals_have_equal_length() {
         let ref_signal = vec![
             2.0, 2.0, 1.0, 0.1, -3.0, 0.1, 1.0, 2.0, 2.0, 6.0, 8.0, 6.0, 2.0, 2.0,
         ];
@@ -123,7 +116,7 @@ mod tests {
     }
 
     #[test]
-    fn test_best_lag_ref_shorter() {
+    fn best_lag_reference_is_shorter_than_degraded() {
         let ref_signal = vec![
             2.0, 2.0, 1.0, 0.1, -3.0, 0.1, 1.0, 2.0, 2.0, 6.0, 8.0, 6.0, 2.0, 2.0,
         ];
@@ -145,7 +138,7 @@ mod tests {
     }
 
     #[test]
-    fn test_best_lag_ref_longer() {
+    fn best_lag_reference_is_longer_than_degraded() {
         let ref_signal = vec![
             2.0, 2.0, 1.0, 0.1, -3.0, 0.1, 1.0, 2.0, 2.0, 6.0, 8.0, 6.0, 2.0, 2.0,
         ];
@@ -166,7 +159,7 @@ mod tests {
         assert_eq!(best_lag, expected_result);
     }
     #[test]
-    fn test_negative_best_lag() {
+    fn best_lag_is_negative() {
         let ref_signal = vec![
             2.0, 2.0, 1.0, 0.1, -3.0, 0.1, 1.0, 2.0, 2.0, 6.0, 8.0, 6.0, 2.0, 2.0,
         ];

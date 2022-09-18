@@ -119,37 +119,14 @@ pub fn real_valued_complex_vec_to_float_vec(complex_vector: &[Complex64]) -> Vec
     real_vec
 }
 
-/// Given a complex vector, this function will append its elements reversed and the imaginary part multiplied by -1.0. The 1st and last element of the original vector are ommitted in that process.
-pub fn mirror_spectrum(spectrum: &mut Vec<Complex64>) {
-    let nyquist_bin = Complex64::new(
-        spectrum.last().expect("Failed to copy Nyqvist bin!").re,
-        0.0,
-    ); // Copy Nyqvist real part
-    let zero_hz_bin = Complex64::new(spectrum[0].re, 0.0); // Copy 0 hz bin
-
-    spectrum.pop(); //  Remove Nyqvist
-    spectrum.remove(0); // Remove 0 hz
-
-    let mut mirrored_spectrum = spectrum.clone();
-    mirrored_spectrum.reverse();
-    mirrored_spectrum.iter_mut().for_each(|element| {
-        element.im *= -1.0;
-    });
-    // Push Nyqivst in middle of Vec
-    spectrum.push(nyquist_bin);
-    spectrum.extend(mirrored_spectrum);
-    spectrum.insert(0, zero_hz_bin);
-}
-
 #[cfg(test)]
 mod tests {
     use approx::assert_abs_diff_eq;
-    use num::complex::Complex64;
 
     use super::*;
 
     #[test]
-    fn test_load_as_mono() {
+    fn load_mono_file() {
         let expected_mono_test_sample_rate = 48000;
         let expected_mono_test_num_rows = 131444;
         let expected_mono_test_num_cols = 1;
@@ -169,7 +146,7 @@ mod tests {
     }
 
     #[test]
-    fn test_load_stereo() {
+    fn load_stereo_file() {
         let expected_stereo_test_sample_rate = 48000;
         let expected_stereo_test_num_rows = 597784;
         let expected_stereo_test_num_cols = 1;
@@ -198,31 +175,10 @@ mod tests {
     }
 
     #[test]
-    fn test_mirror_spectrum() {
-        let mut some_vec = vec![
-            Complex64 { re: 1.0, im: 1.0 },
-            Complex64 { re: 2.0, im: 2.0 },
-            Complex64 { re: 3.0, im: 3.0 },
-            Complex64 { re: 4.0, im: 4.0 },
-        ];
-        let expected_result = vec![
-            Complex64 { re: 1.0, im: 0.0 },
-            Complex64 { re: 2.0, im: 2.0 },
-            Complex64 { re: 3.0, im: 3.0 },
-            Complex64 { re: 4.0, im: 0.0 },
-            Complex64 { re: 3.0, im: -3.0 },
-            Complex64 { re: 2.0, im: -2.0 },
-        ];
-
-        mirror_spectrum(&mut some_vec);
-        assert_eq!(some_vec, expected_result);
-    }
+    #[should_panic]
+    fn loading_32_bit_quantization_fails() { load_as_mono("test_data/clean_speech/CA01_01_32bits.wav").unwrap(); }
 
     #[test]
     #[should_panic]
-    fn test_32_bit() { load_as_mono("test_data/clean_speech/CA01_01_32bits.wav").unwrap(); }
-
-    #[test]
-    #[should_panic]
-    fn test_8_bit() { load_as_mono("test_data/clean_speech/CA01_01_8bits.wav").unwrap(); }
+    fn loading_8_bit_quantization_fails() { load_as_mono("test_data/clean_speech/CA01_01_8bits.wav").unwrap(); }
 }

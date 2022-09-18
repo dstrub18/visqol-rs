@@ -2,7 +2,6 @@
 use crate::audio_utils::{
     float_vec_to_real_valued_complex_vec, real_valued_complex_vec_to_float_vec,
 };
-use log;
 use ndarray::Array2;
 use num::{complex::Complex64, Zero};
 
@@ -232,7 +231,7 @@ mod tests {
 
     use super::*;
     #[test]
-    fn test_erb_coefficient_creation() {
+    fn create_erb_coefficients() {
         let fs = 48000;
         let num_bands = 32;
         let min_freq = 50.0f64;
