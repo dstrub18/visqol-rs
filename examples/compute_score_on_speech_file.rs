@@ -3,8 +3,8 @@ use std::error::Error;
 use visqol_rs::*;
 fn main() -> Result<(), Box<dyn Error>> {
     
-    let path_to_reference_file = "./test_data/clean_speech/CA01_01.wav";
-    let path_to_degraded_file = "./test_data/clean_speech/transcoded_CA01_01.wav";
+    let path_to_reference_file = "./test_data/clean_speech/reference_signal.wav";
+    let path_to_degraded_file = "./test_data/clean_speech/degraded_signal.wav";
 
     let config = visqol_config::VisqolConfig::get_speech_mode_config();
 
