@@ -394,6 +394,7 @@ dependencies = [
 [[package]]
 name = "ffsvm"
 version = "0.8.0"
+source = "git+https://github.com/dstrub18/ffsvm-rust#c8168c75d64c65a1209f50c0f85a704d0272a2ef"
 dependencies = [
  "packed_simd_2",
  "simd_aligned",
@@ -1420,6 +1421,7 @@ dependencies = [
 [[package]]
 name = "simd_aligned"
 version = "0.2.1"
+source = "git+https://github.com/dstrub18/simd_aligned_rust#85034c25fe2520657fc7659b62978a7150a11bdd"
 dependencies = [
  "packed_simd_2",
 ]

@@ -79,7 +79,7 @@ mod tests {
     use super::RmsVad;
 
     #[test]
-    fn rms_vad_test_short_sequence() {
+    fn short_sequence() {
         let k_chunk = vec![
             186, 236, 44, -152, -155, -2, 66, 5, -108, -107, 14, 141, 151, 31, -90,
         ];
@@ -93,7 +93,7 @@ mod tests {
     }
 
     #[test]
-    fn rms_vad_test_long_sequence() {
+    fn long_sequence() {
         let signal = vec![
             10000, 10000, 10000, 10000, 10000, 10, 10, 10, 10, 10, 10000, 10000, 10000, 10000,
             10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10, 10,

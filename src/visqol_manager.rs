@@ -1,10 +1,8 @@
 use std::error::Error;
 
-use crate::constants;
-use crate::speech_similarity_to_quality_mapper::SpeechSimilarityToQualityMapper;
 use crate::{
     alignment, analysis_window::AnalysisWindow, audio_signal::AudioSignal, audio_utils,
-    comparison_patches_selector::ComparisonPatchesSelector,
+    comparison_patches_selector::ComparisonPatchesSelector, constants,
     gammatone_filterbank::GammatoneFilterbank,
     gammatone_spectrogram_builder::GammatoneSpectrogramBuilder,
     image_patch_creator::ImagePatchCreator,
@@ -12,12 +10,14 @@ use crate::{
     patch_creator::PatchCreator, similarity_result::SimilarityResult,
     similarity_to_quality_mapper::SimilarityToQualityMapper,
     spectrogram_builder::SpectrogramBuilder,
+    speech_similarity_to_quality_mapper::SpeechSimilarityToQualityMapper,
     svr_similarity_to_quality_mapper::SvrSimilarityToQualityMapper,
-    vad_patch_creator::VadPatchCreator, visqol, visqol_error::VisqolError,
+    vad_patch_creator::VadPatchCreator, visqol, visqol_config::VisqolConfig,
+    visqol_error::VisqolError,
 };
 use log;
 
-/// Configures and executes Visqol comparisons.
+/// Configures and executes audio evaluation using ViSQOL.
 pub struct VisqolManager {
     pub use_speech_mode: bool,
     pub use_unscaled_speech_mos_mapping: bool,
@@ -29,13 +29,21 @@ pub struct VisqolManager {
 }
 
 impl VisqolManager {
-    /// Creates a new instance with the desired configurations.
+    pub fn from_config(config: &VisqolConfig) -> Self {
+        Self::new(
+            &config.similarity_to_quality_model_path,
+            config.use_speech_mode,
+            config.use_unscaled_speech_mos_mapping,
+            config.search_window,
+        )
+    }
+    /// Creates a new instance of with the desired configurations.
     pub fn new(
         model_path: &str,
         use_speech_mode: bool,
         use_unscaled_speech_mos_mapping: bool,
         search_window: usize,
-    ) -> VisqolManager {
+    ) -> Self {
         let patch_creator: Box<dyn PatchCreator> = if use_speech_mode {
             Box::new(VadPatchCreator::new(constants::PATCH_SIZE_SPEECH))
         } else {
@@ -90,7 +98,7 @@ impl VisqolManager {
         self.compute_results(&mut ref_signal, &mut deg_signal)
     }
 
-    fn compute_results(
+    pub fn compute_results(
         &mut self,
         ref_signal: &mut AudioSignal,
         deg_signal: &mut AudioSignal,

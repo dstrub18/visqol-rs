@@ -2,10 +2,15 @@
 name = "visqol-rs"
 version = "0.1.0"
 edition = "2018"
+authors = ["Daniel Strübig"]
+categories = ["multimedia::audio", "science"]
+keywords = ["speech-quality", "audio", "voice"]
 
 [profile.release]
 opt-level = 3
-debug = true
+strip = "symbols"
+debug = false
+lto = "fat"
 
 [dependencies]
 ndarray = "0.15.4"
@@ -30,6 +35,5 @@ simplelog = "0.12.0"
 tract-onnx = "0.17.4"
 
 [patch.crates-io]
-ffsvm = { path = "../../libs/ffsvm-rust"}
-simd_aligned = { path = "../../libs/simd_aligned_rust"}
-#tflite = { git = "https://github.com/Marekkon5/tflite-rs"}
+ffsvm = { git  = "https://github.com/dstrub18/ffsvm-rust"}
+simd_aligned = { git = "https://github.com/dstrub18/simd_aligned_rust"}
