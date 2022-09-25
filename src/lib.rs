@@ -2,7 +2,7 @@
 //! 
 //! # Example
 //! 
-//! ```
+//! ```ignore
 //! use visqol_rs::*;
 //!     
 //! let path_to_reference_file = "./test_data/clean_speech/reference_signal.wav";
@@ -12,7 +12,7 @@
 //! 
 //! let mut visqol = visqol_manager::VisqolManager::from_config(&config);
 //! 
-//! let similarity_result = visqol.run(path_to_reference_file, path_to_degraded_file)?;
+//! let similarity_result = visqol.run(path_to_reference_file, path_to_degraded_file).unwrap();
 //! 
 //! println!("Mean objective score for degraded file {}: {}", path_to_degraded_file, similarity_result.moslqo);
 //! ```
