@@ -57,7 +57,7 @@ impl SpectrogramBuilder for GammatoneSpectrogramBuilder {
 
             let mut row_means = filtered_signal
                 .mean_axis(Axis(1))
-                .expect("Failed to compute for gammatone spectrogram!");
+                .expect("Failed to compute means for gammatone spectrogram!");
 
             row_means.map_inplace(|e| {
                 *e = e.sqrt();
