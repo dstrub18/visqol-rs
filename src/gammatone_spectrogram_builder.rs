@@ -107,7 +107,10 @@ mod tests {
 
         const REF_SPECTRO_NUM_COLS: usize = 802;
 
-        let signal_ref = audio_utils::load_as_mono("test_data/conformance_testdata_subset/contrabassoon48_stereo.wav").unwrap();
+        let signal_ref = audio_utils::load_as_mono(
+            "test_data/conformance_testdata_subset/contrabassoon48_stereo.wav",
+        )
+        .unwrap();
         let filter_bank = GammatoneFilterbank::new(NUM_BANDS, MINIMUM_FREQ);
         let window = AnalysisWindow::new(signal_ref.sample_rate, OVERLAP, 0.08);
 

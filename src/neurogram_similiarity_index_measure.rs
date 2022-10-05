@@ -11,6 +11,7 @@ pub struct NeurogramSimiliarityIndexMeasure {
     intensity_range: f64,
 }
 
+#[allow(unused)]
 impl NeurogramSimiliarityIndexMeasure {
     pub fn new(intensity_range: f64) -> Self { Self { intensity_range } }
 }

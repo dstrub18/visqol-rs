@@ -231,7 +231,7 @@ mod tests {
 
     use super::*;
     #[test]
-    fn create_erb_coefficients() {
+    fn erb_coefficients_are_computed_correctly() {
         let fs = 48000;
         let num_bands = 32;
         let min_freq = 50.0f64;

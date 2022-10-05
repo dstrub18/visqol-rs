@@ -57,7 +57,6 @@ mod tests {
         compare_matrix_dimensions(&a, &b);
     }
 
-
     #[test]
     fn compare_identical_real_elements() {
         let a = Array2::<f64>::zeros((2, 2));

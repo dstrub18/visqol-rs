@@ -133,10 +133,12 @@ mod tests {
         assert_abs_diff_eq!(result, 0);
     }
 
-    fn load_audio_files() -> (AudioSignal, AudioSignal) 
-    {
+    fn load_audio_files() -> (AudioSignal, AudioSignal) {
         let ref_signal_path = "test_data/clean_speech/CA01_01.wav";
         let deg_signal_path = "test_data/clean_speech/transcoded_CA01_01.wav";
-        (load_as_mono(ref_signal_path).unwrap(), load_as_mono(deg_signal_path).unwrap())
+        (
+            load_as_mono(ref_signal_path).unwrap(),
+            load_as_mono(deg_signal_path).unwrap(),
+        )
     }
 }

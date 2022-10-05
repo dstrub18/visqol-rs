@@ -1,4 +1,3 @@
-
 use crate::patch_creator::PatchCreator;
 use crate::visqol_error::VisqolError;
 use crate::{analysis_window::AnalysisWindow, audio_signal::AudioSignal, math_utils, rms_vad};
@@ -157,11 +156,11 @@ mod tests {
         let expected_patches = vec![9, 29, 49, 69, 89];
         let ref_signal = load_as_mono("test_data/clean_speech/CA01_01.wav").unwrap();
 
-
-        let mut spectrogram_builder = GammatoneSpectrogramBuilder::new(GammatoneFilterbank::new(21, 50.0), true);
+        let mut spectrogram_builder =
+            GammatoneSpectrogramBuilder::new(GammatoneFilterbank::new(21, 50.0), true);
         let window = AnalysisWindow::new(ref_signal.sample_rate, 0.25, 0.08);
 
-        let spectrogram =  spectrogram_builder.build(&ref_signal, &window).unwrap();
+        let spectrogram = spectrogram_builder.build(&ref_signal, &window).unwrap();
 
         let vad = VadPatchCreator::new(K_PATCH_SIZE);
         let patches = vad

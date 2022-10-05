@@ -73,7 +73,8 @@ fn test_identical_stddev_nsim() {
 
 #[test]
 fn test_non48k_sample_rate() {
-    let ref_path = "test_data/conformance_testdata_subset/non_48k_sample_rate/guitar48_stereo_44100Hz.wav";
+    let ref_path =
+        "test_data/conformance_testdata_subset/non_48k_sample_rate/guitar48_stereo_44100Hz.wav";
     let deg_path = &(*ref_path);
 
     let use_speech_mode = false;
@@ -132,12 +133,16 @@ fn test_scaled_speech_mode() {
     assert_abs_diff_eq!(result.moslqo, 5.0, epsilon = 0.001);
 }
 
-fn get_paths_to_speech_files()
--> (&'static str, &'static str) {
-    ("test_data/clean_speech/CA01_01.wav", "test_data/clean_speech/transcoded_CA01_01.wav")
+fn get_paths_to_speech_files() -> (&'static str, &'static str) {
+    (
+        "test_data/clean_speech/CA01_01.wav",
+        "test_data/clean_speech/transcoded_CA01_01.wav",
+    )
 }
 
-fn get_paths_to_guitar_files()
--> (&'static str, &'static str) {
-    ("test_data/conformance_testdata_subset/guitar48_stereo.wav", "test_data/conformance_testdata_subset/guitar48_stereo_64kbps_aac.wav")
+fn get_paths_to_guitar_files() -> (&'static str, &'static str) {
+    (
+        "test_data/conformance_testdata_subset/guitar48_stereo.wav",
+        "test_data/conformance_testdata_subset/guitar48_stereo_64kbps_aac.wav",
+    )
 }

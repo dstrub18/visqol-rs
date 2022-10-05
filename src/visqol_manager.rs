@@ -19,13 +19,12 @@ use log;
 
 /// Configures and executes audio evaluation using ViSQOL.
 pub struct VisqolManager {
-    pub use_speech_mode: bool,
-    pub use_unscaled_speech_mos_mapping: bool,
-    pub search_window: usize,
-    pub patch_creator: Box<dyn PatchCreator>,
-    pub patch_selector: ComparisonPatchesSelector,
-    pub spectrogram_builder: Box<dyn SpectrogramBuilder>,
-    pub sim_to_quality_mapper: Box<dyn SimilarityToQualityMapper>,
+    use_speech_mode: bool,
+    search_window: usize,
+    patch_creator: Box<dyn PatchCreator>,
+    patch_selector: ComparisonPatchesSelector,
+    spectrogram_builder: Box<dyn SpectrogramBuilder>,
+    sim_to_quality_mapper: Box<dyn SimilarityToQualityMapper>,
 }
 
 impl VisqolManager {
@@ -75,7 +74,6 @@ impl VisqolManager {
 
         Self {
             use_speech_mode,
-            use_unscaled_speech_mos_mapping,
             search_window,
             patch_creator,
             patch_selector,

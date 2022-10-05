@@ -2,7 +2,6 @@ use std::error::Error;
 
 use visqol_rs::*;
 fn main() -> Result<(), Box<dyn Error>> {
-    
     let path_to_reference_file = "./test_data/clean_speech/reference_signal.wav";
     let path_to_degraded_file = "./test_data/clean_speech/degraded_signal.wav";
 
@@ -12,7 +11,10 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     let similarity_result = visqol.run(path_to_reference_file, path_to_degraded_file)?;
 
-    println!("Mean objective score for degraded file {}: {}", path_to_degraded_file, similarity_result.moslqo);
+    println!(
+        "Mean objective score for degraded file {}: {}",
+        path_to_degraded_file, similarity_result.moslqo
+    );
 
     Ok(())
 }

@@ -126,7 +126,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn load_mono_file() {
+    fn mono_file_is_read_successfully() {
         let expected_mono_test_sample_rate = 48000;
         let expected_mono_test_num_rows = 131444;
         let expected_mono_test_num_cols = 1;
@@ -146,7 +146,7 @@ mod tests {
     }
 
     #[test]
-    fn load_stereo_file() {
+    fn stereo_file_is_read_and_summed() {
         let expected_stereo_test_sample_rate = 48000;
         let expected_stereo_test_num_rows = 597784;
         let expected_stereo_test_num_cols = 1;
@@ -176,9 +176,13 @@ mod tests {
 
     #[test]
     #[should_panic]
-    fn loading_32_bit_quantization_fails() { load_as_mono("test_data/clean_speech/CA01_01_32bits.wav").unwrap(); }
+    fn loading_32_bit_quantization_fails() {
+        load_as_mono("test_data/clean_speech/CA01_01_32bits.wav").unwrap();
+    }
 
     #[test]
     #[should_panic]
-    fn loading_8_bit_quantization_fails() { load_as_mono("test_data/clean_speech/CA01_01_8bits.wav").unwrap(); }
+    fn loading_8_bit_quantization_fails() {
+        load_as_mono("test_data/clean_speech/CA01_01_8bits.wav").unwrap();
+    }
 }

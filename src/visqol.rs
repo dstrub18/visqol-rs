@@ -67,7 +67,7 @@ pub fn calculate_similarity(
 
     let mut moslqo = predict_mos(&fvnsim.to_vec(), sim_to_qual_mapper);
 
-    let vnsim = fvnsim.mean().expect("Could not compute nsim mean");
+    let vnsim = fvnsim.mean().expect("Failed to compute nsim mean");
 
     moslqo = alter_for_similarity_extremes(vnsim, moslqo as f64) as f32;
     Ok(SimilarityResult::new(

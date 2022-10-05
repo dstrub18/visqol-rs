@@ -5,6 +5,9 @@ edition = "2018"
 authors = ["Daniel Strübig"]
 categories = ["multimedia::audio", "science"]
 keywords = ["speech-quality", "audio", "voice"]
+license = "Apache-2.0"
+readme = "README.md"
+
 
 [profile.release]
 opt-level = 3

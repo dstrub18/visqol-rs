@@ -81,7 +81,10 @@ pub struct CommandLineArgs {
     /// that normalizes the polynomial NSIM->MOS mapping so that a perfect
     /// NSIM
     /// score of 1.0 translates to 5.0. [default: false]
-    #[clap(long = "use_speech_mode", conflicts_with = "similarity_to_quality_model")]
+    #[clap(
+        long = "use_speech_mode",
+        conflicts_with = "similarity_to_quality_model"
+    )]
     pub use_speech_mode: bool,
 
     /// When used in conjunction with --use_speech_mode, this flag will

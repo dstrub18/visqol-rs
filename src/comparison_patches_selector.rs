@@ -403,7 +403,7 @@ mod tests {
     use ndarray::{arr2, Array1, Array2};
 
     #[test]
-    fn calculate_num_patches() {
+    fn num_patches_is_computed_correctly() {
         let patch_indices = vec![0, 15, 30, 45, 60];
 
         let slide_offset = 45;
@@ -420,7 +420,7 @@ mod tests {
     }
 
     #[test]
-    fn slice_signals() {
+    fn time_slicing_signal_is_sample_accurate() {
         let fs = 16000;
         let num_seconds = 3;
 
@@ -438,7 +438,7 @@ mod tests {
     }
 
     #[test]
-    fn optimal_patches_start_times() {
+    fn optimal_patches_start_times_are_correct() {
         let ref_matrix = arr2(&[
             [1.0, 1.0, 1.0, 2.0, 2.0, 2.0, 2.0, 2.0, 3.0, 3.0],
             [0.0, 1.0, 0.0, 2.0, 1.0, 1.0, 2.0, 3.0, 1.0, 2.0],
@@ -558,7 +558,7 @@ mod tests {
     }
 
     #[test]
-    fn longer_example() {
+    fn start_times_in_longer_file_are_correct() {
         let ref_vec = vec![
             0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 2.0, 2.0, 2.0, 2.0, 2.0, 0.0,
             0.0, 0.0, 0.0, 0.0, 0.0, 3.0, 3.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
