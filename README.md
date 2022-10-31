@@ -17,3 +17,4 @@ println!("Mean objective score for degraded file {}: {}", path_to_degraded_file,
 
 # Notes
 - For reasonable computation times, it is recommended to compile this library in Release mode. Due to the high complexity of the gammatone filterbank, ViSQOL tends to be rather slow in debug mode.
+- There is a known issue when compiling using MSVC. A fix is underway!
