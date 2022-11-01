@@ -1,13 +1,14 @@
 use std::{error::Error, path::PathBuf};
 
 use crate::path_pair::PathPair;
-use clap::Parser;
+use clap::{Parser};
 use csv::{ReaderBuilder, StringRecord};
 
 #[derive(Parser, Debug)]
 #[clap(name = "visqol-rs")]
 #[clap(version)]
 #[clap(about = "Perceptual quality estimator for speech and audio")]
+#[clap(arg_required_else_help = true)]
 pub struct CommandLineArgs {
     /// Used to specify a path to a CSV file with the format:{n}
     /// ------------------{n}
