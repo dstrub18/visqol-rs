@@ -43,7 +43,7 @@ pub struct CommandLineArgs {
     pub degraded_file: Option<String>,
 
     /// Used to specify a path that the similarity score results will be
-    /// . This will be a CSV file with the format:{n}
+    /// stored in. This will be a CSV file with the format:{n}
     /// ------------------{n}
     /// reference,degraded,moslqo{n}
     /// ref1.wav,deg1.wav,3.4{n}

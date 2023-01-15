@@ -18,7 +18,7 @@ impl SpectrogramBuilder for GammatoneSpectrogramBuilder {
         signal: &AudioSignal,
         window: &AnalysisWindow,
     ) -> Result<Spectrogram, VisqolError> {
-        let sig = &signal.data_matrix.to_vec();
+        let time_domain_signal = &signal.data_matrix.to_vec();
         let sample_rate = signal.sample_rate;
         let max_freq = if self.speech_mode {
             Self::SPEECH_MODE_MAX_FREQ
@@ -39,17 +39,21 @@ impl SpectrogramBuilder for GammatoneSpectrogramBuilder {
 
         let hop_size = (window.size as f64 * window.overlap) as usize;
 
-        if sig.len() < window.size {
+        if time_domain_signal.len() < window.size {
             return Err(VisqolError::TooFewSamples {
-                found: sig.len(),
+                found: time_domain_signal.len(),
                 minimum_required: window.size,
             });
         }
 
-        let num_cols = 1 + ((sig.len() - window.size) / hop_size);
+        let num_cols = 1 + ((time_domain_signal.len() - window.size) / hop_size);
         let mut out_matrix = Array2::<f64>::zeros((self.filter_bank.num_bands, num_cols));
 
-        for (i, frame) in sig.windows(window.size).step_by(hop_size).enumerate() {
+        for (index, frame) in time_domain_signal
+            .windows(window.size)
+            .step_by(hop_size)
+            .enumerate()
+        {
             self.filter_bank.reset_filter_conditions();
             let mut filtered_signal = self.filter_bank.apply_filter(frame);
 
@@ -64,7 +68,7 @@ impl SpectrogramBuilder for GammatoneSpectrogramBuilder {
             });
 
             for j in 0..row_means.to_vec().len() {
-                out_matrix[(j, i)] = row_means[j];
+                out_matrix[(j, index)] = row_means[j];
             }
         }
 

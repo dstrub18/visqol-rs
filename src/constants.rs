@@ -1,5 +1,3 @@
-pub const SAMPLE_RATE_SPEECH_MODE: u32 = 16000;
-pub const SAMPLE_RATE_AUDIO_MODE: u32 = 48000;
 pub const DURATION_MISMATCH_TOLERANCE: f64 = 1.0;
 
 pub const NUM_BANDS_SPEECH: usize = 21;

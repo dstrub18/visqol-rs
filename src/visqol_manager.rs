@@ -19,7 +19,6 @@ use log;
 
 /// Configures and executes audio evaluation using ViSQOL.
 pub struct VisqolManager {
-    use_speech_mode: bool,
     search_window: usize,
     patch_creator: Box<dyn PatchCreator>,
     patch_selector: ComparisonPatchesSelector,
@@ -73,7 +72,6 @@ impl VisqolManager {
             ComparisonPatchesSelector::new(NeurogramSimiliarityIndexMeasure::default());
 
         Self {
-            use_speech_mode,
             search_window,
             patch_creator,
             patch_selector,
@@ -133,17 +131,6 @@ impl VisqolManager {
                 reference: ref_signal.sample_rate,
                 degraded: deg_signal.sample_rate,
             });
-        }
-
-        if self.use_speech_mode
-            && (ref_signal.sample_rate != constants::SAMPLE_RATE_SPEECH_MODE
-                || deg_signal.sample_rate != constants::SAMPLE_RATE_SPEECH_MODE)
-        {
-            log::warn!("Input audio sample rate is above 16kHz, which may have undesired effects for speech mode. Consider resampling to 16kHz.");
-        } else if ref_signal.sample_rate != constants::SAMPLE_RATE_AUDIO_MODE
-            || deg_signal.sample_rate != constants::SAMPLE_RATE_AUDIO_MODE
-        {
-            log::warn!("Input audio does not have the expected sample rate of 48kHz! This may negatively effect the prediction of the MOS-LQO score.");
         }
 
         if (ref_signal.get_duration() - deg_signal.get_duration()).abs()

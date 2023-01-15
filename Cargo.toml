@@ -17,11 +17,11 @@ lto = "fat"
 
 [dependencies]
 ndarray = "0.15.4"
-ndarray-linalg = { version = "0.10" }
+ndarray-linalg = "0.16.0"
 ndarray-stats = "0.5.0"
 hound = "3.4.0"
 approx = "0.5.1"
-more-asserts = "0.2.2"
+more-asserts = "0.3.1"
 num = "0.4.0"
 itertools = "0.10.3"
 num-traits = "0.2.15"
@@ -31,11 +31,11 @@ csv = "1.1.6"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0.82"
 ffsvm = "0.8"
-prettytable-rs = "0.8.0"
+prettytable-rs ="0.10.0"
 thiserror = "1.0.32"
 log = "0.4.17"
 simplelog = "0.12.0"
-tract-onnx = "0.17.4"
+tract-onnx = "0.18.2"
 
 [patch.crates-io]
 ffsvm = { git  = "https://github.com/dstrub18/ffsvm-rust"}
