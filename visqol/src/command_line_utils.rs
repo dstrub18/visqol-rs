@@ -1,7 +1,7 @@
 use std::{error::Error, path::PathBuf};
 
 use crate::path_pair::PathPair;
-use clap::{Parser};
+use clap::Parser;
 use csv::{ReaderBuilder, StringRecord};
 
 #[derive(Parser, Debug)]

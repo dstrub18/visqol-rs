@@ -2,12 +2,13 @@ use clap::Parser;
 use log::LevelFilter;
 use simplelog::{ColorChoice, Config, TermLogger, TerminalMode};
 use std::error::Error;
+
 use visqol_rs::{
-    command_line_utils::{build_file_pair_paths, CommandLineArgs},
-    output_utils,
     similarity_result::SimilarityResult,
     visqol_manager::VisqolManager,
 };
+
+use visqol::{command_line_utils::{CommandLineArgs, build_file_pair_paths}, output_utils};
 fn main() -> Result<(), Box<dyn Error>> {
     // Set up logger
     TermLogger::init(

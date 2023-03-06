@@ -1,6 +1,8 @@
 use crate::{
-    command_line_utils::CommandLineArgs, path_pair::PathPair, similarity_result::SimilarityResult,
+    command_line_utils::CommandLineArgs, path_pair::PathPair,
 };
+use visqol_rs::similarity_result::SimilarityResult;
+
 use csv::WriterBuilder;
 use prettytable::{
     format::{FormatBuilder, LinePosition, LineSeparator, TableFormat},

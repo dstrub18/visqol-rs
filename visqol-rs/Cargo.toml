@@ -1,0 +1,28 @@
+[package]
+name = "visqol-rs"
+version = "0.1.0"
+edition = "2018"
+authors = ["Daniel Strübig"]
+categories = ["multimedia::audio", "science"]
+keywords = ["speech-quality", "audio", "voice"]
+license = "Apache-2.0"
+readme = "README.md"
+
+
+[dependencies]
+ndarray = "0.15.4"
+ndarray-linalg = "0.16.0"
+ndarray-stats = "0.5.0"
+hound = "3.4.0"
+approx = "0.5.1"
+more-asserts = "0.3.1"
+num = "0.4.0"
+itertools = "0.10.3"
+num-traits = "0.2.15"
+rustfft = "6.0.1"
+serde = { version = "1.0", features = ["derive"] }
+ffsvm = "0.8"
+thiserror = "1.0.32"
+packed_simd_2 =  "0.3.8"
+tract-onnx = "0.18.2"
+log = "0.4.17"
