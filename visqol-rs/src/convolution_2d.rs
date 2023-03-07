@@ -29,9 +29,7 @@ pub fn perform_valid_2d_conv_with_boundary(
                 for f_row in 0..f_r_c {
                     let idx = ((f_row + o_row) * i_c_c) + f_col + o_col;
                     sum += padded_flattened_matrix[idx] * flattened_filter[filter_index];
-                    if filter_index > 0 {
-                        filter_index -= 1;
-                    }
+                    filter_index = filter_index.saturating_sub(1);
                 }
             }
             out_matrix[(o_row, o_col)] = sum;

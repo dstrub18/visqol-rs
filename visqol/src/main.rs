@@ -8,7 +8,10 @@ use visqol_rs::{
     visqol_manager::VisqolManager,
 };
 
-use visqol::{command_line_utils::{CommandLineArgs, build_file_pair_paths}, output_utils};
+pub mod command_line_utils;
+pub mod output_utils;
+pub mod path_pair;
+pub use crate::{command_line_utils::{CommandLineArgs, build_file_pair_paths}};
 fn main() -> Result<(), Box<dyn Error>> {
     // Set up logger
     TermLogger::init(

@@ -167,8 +167,8 @@ impl ComparisonPatchesSelector {
 
         let mut sim_result;
 
-        let mut slide_offset = ref_frame_index as i32 - search_window as i32;
-        while slide_offset <= ref_frame_index as i32 + search_window as i32 {
+        let mut slide_offset = ref_frame_index as i32 - search_window;
+        while slide_offset <= ref_frame_index as i32 + search_window {
             if slide_offset < 0 {
                 // The degraded patch index cannot be less than 0.
                 slide_offset = 0;

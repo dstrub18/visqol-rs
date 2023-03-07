@@ -82,7 +82,7 @@ pub fn globally_align(
         );
         Some((
             new_deg_signal,
-            (best_lag as f64 / deg_signal.sample_rate as f64) as f64,
+            (best_lag as f64 / deg_signal.sample_rate as f64),
         ))
     }
 }
