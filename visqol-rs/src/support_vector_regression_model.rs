@@ -17,7 +17,7 @@ impl SupportVectorRegressionModel {
         }
     }
     /// Given a slice of features, this function produces a single score.
-    pub fn predict(&self, observation: &[f64]) -> f32 {
+    pub fn predict(&self, observation: &[f64]) -> f64 {
         let mut problem = DenseProblem::from(&self.model);
         let features = problem.features();
 
@@ -32,7 +32,7 @@ impl SupportVectorRegressionModel {
         if let Solution::Value(s) = solution {
             score = s;
         }
-        score
+        score as f64
     }
 }
 

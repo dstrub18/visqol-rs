@@ -18,7 +18,7 @@ impl TfLiteQualityMapper {
 }
 
 impl SimilarityToQualityMapper for TfLiteQualityMapper {
-    fn predict_quality(&self, _features: &[f64]) -> f32 {
+    fn predict_quality(&self, _features: &[f64]) -> f64 {
         // Model must have 85 inputs.
         // Tau might be index 84?
         let model = tract_onnx::onnx()

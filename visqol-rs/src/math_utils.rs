@@ -18,7 +18,7 @@ pub fn next_pow_two(input: usize) -> usize {
 }
 
 /// Returns the exponential fit between 2 points
-pub fn exponential_from_fit(x: f32, a: f32, b: f32, x_0: f32) -> f32 { a + (b * (x - x_0)).exp() }
+pub fn exponential_from_fit(x: f64, a: f64, b: f64, x_0: f64) -> f64 { a + (b * (x - x_0)).exp() }
 
 /// Normalizes a slice of `i16` to a vector of `f64` values
 pub fn normalize_int16_to_double(input: &[i16]) -> Vec<f64> {

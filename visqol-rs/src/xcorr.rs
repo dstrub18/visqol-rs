@@ -43,7 +43,7 @@ pub fn calculate_inverse_fft_pointwise_product(
         }
         _ => {}
     }
-    let (_, exp) = frexp((signal_1.len() * 2 - 1) as f32);
+    let (_, exp) = frexp((signal_1.len() * 2 - 1) as f64);
     let fft_points = 2usize.pow(exp as u32);
     let mut manager = FftManager::new(fft_points);
     let point_wise_product =
@@ -76,7 +76,7 @@ pub fn calculate_fft_pointwise_product(
 
 ///
 /// Returns the mantissa and the exponent of a given floating point value.
-pub fn frexp(s: f32) -> (f32, i32) {
+pub fn frexp(s: f64) -> (f64, i32) {
     if 0.0 == s {
         (s, 0)
     } else {
@@ -181,7 +181,7 @@ mod tests {
 
     #[test]
     fn test_frexp() {
-        let (_, result) = frexp(27.0f32);
+        let (_, result) = frexp(27.0f64);
         let expected_result = 5;
 
         assert_eq!(result, expected_result);

@@ -94,7 +94,7 @@ mod tests {
         let (ref_signal, deg_signal) = load_audio_files();
         let ref_signal_vec = ref_signal.data_matrix.to_vec();
 
-        let (_, exponent) = frexp((ref_signal_vec.len() * 2 - 1) as f32);
+        let (_, exponent) = frexp((ref_signal_vec.len() * 2 - 1) as f64);
         let fft_points = 2i32.pow(exponent as u32) as usize;
         let mut manager = fft_manager::FftManager::new(fft_points);
 

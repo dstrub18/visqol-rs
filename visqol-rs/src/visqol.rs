@@ -69,10 +69,10 @@ pub fn calculate_similarity(
 
     let vnsim = fvnsim.mean().expect("Failed to compute nsim mean");
 
-    moslqo = alter_for_similarity_extremes(vnsim, moslqo as f64) as f32;
+    moslqo = alter_for_similarity_extremes(vnsim, moslqo);
     Ok(SimilarityResult::new(
-        moslqo as f64,
         vnsim,
+        moslqo,
         fvnsim.to_vec(),
         fstdnsim.to_vec(),
         fvdegenergy.to_vec(),
@@ -82,7 +82,7 @@ pub fn calculate_similarity(
 }
 
 /// Computes prediction with the given `SimilarityToQualityMapper`
-fn predict_mos(fvnsim: &[f64], mapper: &dyn SimilarityToQualityMapper) -> f32 {
+fn predict_mos(fvnsim: &[f64], mapper: &dyn SimilarityToQualityMapper) -> f64 {
     mapper.predict_quality(fvnsim)
 }
 
