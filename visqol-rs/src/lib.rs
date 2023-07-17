@@ -44,7 +44,6 @@ mod spectrogram_builder;
 mod speech_similarity_to_quality_mapper;
 mod support_vector_regression_model;
 mod svr_similarity_to_quality_mapper;
-mod tflite_quality_mapper;
 mod vad_patch_creator;
 mod visqol;
 pub mod visqol_config;
