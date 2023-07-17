@@ -7,7 +7,7 @@ categories = ["multimedia::audio", "science"]
 keywords = ["speech-quality", "audio", "voice"]
 license = "Apache-2.0"
 readme = "README.md"
-
+description = "The Visqol v3.1 algorithm for speech quality evaluation in Rust"
 
 [dependencies]
 ndarray = "0.15.4"
