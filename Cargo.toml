@@ -1,9 +1,6 @@
 [workspace]
 members = ["visqol-rs", "visqol"]
-
-[patch.crates-io]
-ffsvm = { git  = "https://github.com/dstrub18/ffsvm-rust"}
-simd_aligned = { git = "https://github.com/dstrub18/simd_aligned_rust"}
+resolver = "2"
 
 [profile.release]
 opt-level = 3
