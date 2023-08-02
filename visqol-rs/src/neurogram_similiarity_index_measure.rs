@@ -122,7 +122,7 @@ mod tests {
         let mut ref_patch_mat = Array2::from_shape_vec((3, 1), ref_patch).unwrap();
         let deg_patch = vec![0.0, 0.0, 0.0];
         let mut deg_patch_mat = Array2::from_shape_vec((3, 1), deg_patch).unwrap();
-        let expected_result = vec![0.000125225, 0.00875062, 1.0];
+        let expected_result = [0.000125225, 0.00875062, 1.0];
 
         let sim_comparator = NeurogramSimiliarityIndexMeasure::default();
 

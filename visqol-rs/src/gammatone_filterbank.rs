@@ -181,7 +181,7 @@ mod tests {
         assert_eq!(filtered_signal.nrows(), 32);
 
         // Check individual elements
-        let expected_output = vec![1.028e-10, 6.15143e-10, 2.14718e-09];
+        let expected_output = [1.028e-10, 6.15143e-10, 2.14718e-09];
 
         for (&res, ex) in expected_output.iter().zip(filtered_signal) {
             assert_abs_diff_eq!(res, ex, epsilon = epsilon);

@@ -36,7 +36,7 @@ mod tests {
     use super::*;
     #[test]
     fn test_next_pow_two() {
-        let inputs = vec![2, 10, 3, 5, 48000, 7, 23, 32];
+        let inputs = [2, 10, 3, 5, 48000, 7, 23, 32];
         let expected = vec![2, 16, 4, 8, 65536, 8, 32, 32];
 
         let mut results = Vec::new();
