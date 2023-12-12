@@ -11,7 +11,7 @@ pub fn compare_matrix_dimensions<T>(matrix_a: &Array2<T>, matrix_b: &Array2<T>) 
 
 pub fn compare_real_matrix(matrix_a: &Array2<f64>, matrix_b: &Array2<f64>, tolerance: f64) {
     compare_matrix_dimensions(matrix_a, matrix_b);
-    for (_idx, (elements_a, elements_b)) in matrix_a.iter().zip(matrix_b).enumerate() {
+    for (elements_a, elements_b) in matrix_a.iter().zip(matrix_b) {
         assert_abs_diff_eq!(elements_a, elements_b, epsilon = tolerance);
     }
 }

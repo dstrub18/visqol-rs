@@ -61,12 +61,12 @@ pub fn load_as_mono(file_path: &str) -> Result<AudioSignal, Box<dyn Error>> {
 }
 
 /// De-interleave an interleaved signal and returns them in a matrix. 1 row represents 1 channel.
-fn extract_multichannel(num_channels: usize, interleaved_vector: &Vec<f64>) -> Array2<f64> {
+fn extract_multichannel(num_channels: usize, interleaved_vector: &[f64]) -> Array2<f64> {
     assert!(interleaved_vector.len() % num_channels == 0);
     let sub_vector_size = interleaved_vector.len() / num_channels;
     Array2::from_shape_vec(
         (sub_vector_size, num_channels).strides((num_channels, 1)),
-        interleaved_vector.clone(),
+        interleaved_vector.to_vec(),
     )
     .expect("Failed to sum multichannel signal to mono signal!")
 }

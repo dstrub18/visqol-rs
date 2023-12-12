@@ -32,8 +32,7 @@ impl PatchCreator for VadPatchCreator {
         let patch_count = (spectrum_length - first_patch_idx) / self.patch_size;
         let total_sample_count = patch_count * patch_sample_length;
 
-        let mut ref_patch_indices = Vec::<usize>::new();
-        ref_patch_indices.reserve(patch_count);
+        let mut ref_patch_indices = Vec::<usize>::with_capacity(patch_count);
 
         // Pass the reference signal to the VAD to determine which frames have voice
         // activity.
