@@ -3,15 +3,12 @@ use log::LevelFilter;
 use simplelog::{ColorChoice, Config, TermLogger, TerminalMode};
 use std::error::Error;
 
-use visqol_rs::{
-    similarity_result::SimilarityResult,
-    visqol_manager::VisqolManager,
-};
+use visqol_rs::{similarity_result::SimilarityResult, visqol_manager::VisqolManager};
 
 pub mod command_line_utils;
 pub mod output_utils;
 pub mod path_pair;
-pub use crate::{command_line_utils::{CommandLineArgs, build_file_pair_paths}};
+pub use crate::command_line_utils::{build_file_pair_paths, CommandLineArgs};
 fn main() -> Result<(), Box<dyn Error>> {
     // Set up logger
     TermLogger::init(
