@@ -9,7 +9,7 @@ license = "Apache-2.0"
 readme = "README.md"
 description = "The Visqol v3.1 cli tool for speech quality evaluation in Rust"
 exclude = ["test_data"]
-repository = "https://github.com/dstrub18/visqol-rs"
+repository = "https://github.com/dstrub18/visqol-rs/tree/main/visqol"
 
 [[bin]]
 name = "visqol"
