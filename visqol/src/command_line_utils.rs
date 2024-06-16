@@ -61,9 +61,8 @@ pub struct CommandLineArgs {
     /// between the
     /// reference and degraded audio signals and is in JSON format. The
     /// file does
-    /// not need to previously exist. Contents will be appended to the file
-    /// if it
-    /// does already exist or if ViSQOL is run in batch mode.
+    /// not need to previously exist. {n}
+    /// Contents will be appended to the file if it already exist or if ViSQOL is run in batch mode.
     #[clap(long = "output_debug")]
     pub output_debug: Option<String>,
 
