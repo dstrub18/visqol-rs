@@ -10,7 +10,8 @@ pub struct SupportVectorRegressionModel {
 impl SupportVectorRegressionModel {
     /// Given a path to a `LibSVM` formatted `.txt` file, the model is initialized with its corresponding weights.
     pub fn init(model_path: &str) -> Self {
-        let model_description = read_to_string(model_path).expect("failed to read model path!");
+        let model_description = read_to_string(model_path)
+            .expect(&format!("failed to read model path from {}!", model_path));
         Self {
             model: DenseSVM::try_from(model_description.as_str())
                 .expect("Failed to load SVM model"),
@@ -42,7 +43,13 @@ mod tests {
     use approx::assert_abs_diff_eq;
     #[test]
     fn svn_predicts_known_mos() {
-        let model_path = "model/libsvm_nu_svr_model.txt";
+        let model_path = concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/",
+            "..",
+            "/",
+            "model/libsvm_nu_svr_model.txt"
+        );
         let svm = SupportVectorRegressionModel::init(model_path);
 
         // This is the FVNSIM results for a ViSQOL comparison between
