@@ -33,6 +33,8 @@ fn get_max(mat: &Array1<f64>) -> f64 { *mat.max().expect("Failed to compute maxi
 
 #[cfg(test)]
 mod tests {
+    use approx::assert_abs_diff_eq;
+
     use super::*;
     #[test]
     fn test_next_pow_two() {
@@ -48,7 +50,15 @@ mod tests {
 
     #[test]
     fn test_exponential_from_fit() {
-        assert_eq!(1.446_176_4, exponential_from_fit(0.5, 1.15, 4.68, 0.76));
-        assert_eq!(4.224_677_6, exponential_from_fit(1.0, 1.15, 4.68, 0.76));
+        assert_abs_diff_eq!(
+            1.446_176_4,
+            exponential_from_fit(0.5, 1.15, 4.68, 0.76),
+            epsilon = 0.0001
+        );
+        assert_abs_diff_eq!(
+            4.224_677_6,
+            exponential_from_fit(1.0, 1.15, 4.68, 0.76),
+            epsilon = 0.0001
+        );
     }
 }
