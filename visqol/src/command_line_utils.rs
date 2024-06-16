@@ -150,9 +150,13 @@ mod tests {
 
         let batch_file_entry_count = 2;
 
-        let file_pairs =
-            read_files_to_compare(&PathBuf::from("test_data/example_batch/batch_input.csv"))
-                .unwrap();
+        let path_to_csv = concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/",
+            "test_data/example_batch/batch_input.csv"
+        );
+        eprintln!("{path_to_csv:}");
+        let file_pairs = read_files_to_compare(&PathBuf::from(path_to_csv)).unwrap();
 
         assert_eq!(file_pairs.len(), batch_file_entry_count);
         assert_eq!(file_pairs[0].reference, ref_file_1);
