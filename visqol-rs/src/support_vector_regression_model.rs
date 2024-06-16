@@ -11,7 +11,7 @@ impl SupportVectorRegressionModel {
     /// Given a path to a `LibSVM` formatted `.txt` file, the model is initialized with its corresponding weights.
     pub fn init(model_path: &str) -> Self {
         let model_description = read_to_string(model_path)
-            .expect(&format!("failed to read model path from {}!", model_path));
+            .unwrap_or_else(|_| panic!("failed to read model path from {}!", model_path));
         Self {
             model: DenseSVM::try_from(model_description.as_str())
                 .expect("Failed to load SVM model"),
