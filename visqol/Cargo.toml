@@ -11,6 +11,11 @@ description = "The Visqol v3.1 cli tool for speech quality evaluation in Rust"
 exclude = ["test_data"]
 repository = "https://github.com/dstrub18/visqol-rs"
 
+[[bin]]
+name = "visqol"
+test = false
+example = false
+
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
