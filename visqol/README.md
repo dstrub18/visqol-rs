@@ -4,5 +4,8 @@
 - Builds a command line executable which produces Visqol scores, with a command line interface similar to the C++ implementation.
 - Also check out [the library](https://crates.io/crates/visqol-rs) for using visqol within your Rust project!
 
+## Installation
+- Assuming you have the `cargo` package manager installed, type `cargo install visqol` to install the binary.
+
 ## Usage
 - `visqol --help` or simply `visqol` will show you all the flags you can set when invoking the binary.
