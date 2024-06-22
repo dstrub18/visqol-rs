@@ -58,14 +58,14 @@ impl VisqolManager {
 
         let spectrogram_builder: Box<dyn SpectrogramBuilder> = if use_speech_mode {
             Box::new(GammatoneSpectrogramBuilder::new(
-                GammatoneFilterbank::new::<{ constants::NUM_BANDS_SPEECH }>(
+                GammatoneFilterbank::<{ constants::NUM_BANDS_SPEECH }>::new(
                     constants::MINIMUM_FREQ,
                 ),
                 use_speech_mode,
             ))
         } else {
             Box::new(GammatoneSpectrogramBuilder::new(
-                GammatoneFilterbank::new::<{ constants::NUM_BANDS_AUDIO }>(constants::MINIMUM_FREQ),
+                GammatoneFilterbank::<{ constants::NUM_BANDS_AUDIO }>::new(constants::MINIMUM_FREQ),
                 false,
             ))
         };

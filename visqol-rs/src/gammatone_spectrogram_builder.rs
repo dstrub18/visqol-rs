@@ -7,12 +7,12 @@ use crate::{audio_signal::AudioSignal, visqol_error::VisqolError};
 use ndarray::{Array2, Axis};
 
 /// Produces a frequency domain representation from a time domain signal using a gammatone filterbank.
-pub struct GammatoneSpectrogramBuilder {
-    filter_bank: GammatoneFilterbank,
+pub struct GammatoneSpectrogramBuilder<const NUM_BANDS: usize> {
+    filter_bank: GammatoneFilterbank<NUM_BANDS>,
     speech_mode: bool,
 }
 
-impl SpectrogramBuilder for GammatoneSpectrogramBuilder {
+impl<const NUM_BANDS: usize> SpectrogramBuilder for GammatoneSpectrogramBuilder<NUM_BANDS> {
     fn build(
         &mut self,
         signal: &AudioSignal,
@@ -80,12 +80,12 @@ impl SpectrogramBuilder for GammatoneSpectrogramBuilder {
     }
 }
 
-impl GammatoneSpectrogramBuilder {
+impl<const NUM_BANDS: usize> GammatoneSpectrogramBuilder<NUM_BANDS> {
     const SPEECH_MODE_MAX_FREQ: u32 = 8000;
 
     /// Creates a new gammatone spectrogram builder with the given gammatone filterbank.
     /// If `use_speech_mode` is set to `true`, the maximum frequency is determined to be 8000 Hz.
-    pub fn new(filter_bank: GammatoneFilterbank, use_speech_mode: bool) -> Self {
+    pub fn new(filter_bank: GammatoneFilterbank<NUM_BANDS>, use_speech_mode: bool) -> Self {
         Self {
             filter_bank,
             speech_mode: use_speech_mode,
@@ -99,7 +99,6 @@ mod tests {
     use crate::analysis_window::AnalysisWindow;
     use crate::audio_utils;
     use crate::gammatone_filterbank::GammatoneFilterbank;
-    use crate::spectrogram_builder::SpectrogramBuilder;
     use approx::assert_abs_diff_eq;
 
     #[test]
@@ -115,7 +114,7 @@ mod tests {
             "test_data/conformance_testdata_subset/contrabassoon48_stereo.wav",
         )
         .unwrap();
-        let filter_bank = GammatoneFilterbank::new::<{ NUM_BANDS }>(MINIMUM_FREQ);
+        let filter_bank = GammatoneFilterbank::<{ NUM_BANDS }>::new(MINIMUM_FREQ);
         let window = AnalysisWindow::new(signal_ref.sample_rate, OVERLAP, 0.08);
 
         let mut spectro_builder = GammatoneSpectrogramBuilder::new(filter_bank, false);

@@ -2,14 +2,14 @@ use crate::{constants, signal_filter};
 
 /// Bank of gammatone filters on each frame of a time domain signal to construct a spectrogram representation.
 /// This implementation is fixed to a 4th order filterbank.
-pub struct GammatoneFilterbank {
+pub struct GammatoneFilterbank<const NUM_BANDS: usize> {
     pub num_bands: usize,
     pub min_freq: f64,
 
-    filter_conditions_1: Vec<[f64; constants::NUM_FILTER_CONDITIONS]>,
-    filter_conditions_2: Vec<[f64; constants::NUM_FILTER_CONDITIONS]>,
-    filter_conditions_3: Vec<[f64; constants::NUM_FILTER_CONDITIONS]>,
-    filter_conditions_4: Vec<[f64; constants::NUM_FILTER_CONDITIONS]>,
+    filter_conditions_1: [[f64; constants::NUM_FILTER_CONDITIONS]; NUM_BANDS],
+    filter_conditions_2: [[f64; constants::NUM_FILTER_CONDITIONS]; NUM_BANDS],
+    filter_conditions_3: [[f64; constants::NUM_FILTER_CONDITIONS]; NUM_BANDS],
+    filter_conditions_4: [[f64; constants::NUM_FILTER_CONDITIONS]; NUM_BANDS],
 
     filter_coeff_a0: Vec<f64>,
     filter_coeff_a11: Vec<f64>,
@@ -23,16 +23,16 @@ pub struct GammatoneFilterbank {
     filter_coeff_gain: Vec<f64>,
 }
 
-impl GammatoneFilterbank {
+impl<const NUM_BANDS: usize> GammatoneFilterbank<NUM_BANDS> {
     /// Creates a new gammatone filterbank with the desired number of frequency bands and the minimum frequency.
-    pub fn new<const NUM_BANDS: usize>(min_freq: f64) -> Self {
+    pub fn new(min_freq: f64) -> Self {
         Self {
             num_bands: NUM_BANDS,
             min_freq,
-            filter_conditions_1: vec![[0.0; constants::NUM_FILTER_CONDITIONS]; NUM_BANDS],
-            filter_conditions_2: vec![[0.0; constants::NUM_FILTER_CONDITIONS]; NUM_BANDS],
-            filter_conditions_3: vec![[0.0; constants::NUM_FILTER_CONDITIONS]; NUM_BANDS],
-            filter_conditions_4: vec![[0.0; constants::NUM_FILTER_CONDITIONS]; NUM_BANDS],
+            filter_conditions_1: [[0.0; constants::NUM_FILTER_CONDITIONS]; NUM_BANDS],
+            filter_conditions_2: [[0.0; constants::NUM_FILTER_CONDITIONS]; NUM_BANDS],
+            filter_conditions_3: [[0.0; constants::NUM_FILTER_CONDITIONS]; NUM_BANDS],
+            filter_conditions_4: [[0.0; constants::NUM_FILTER_CONDITIONS]; NUM_BANDS],
             filter_coeff_a0: Vec::new(),
             filter_coeff_a11: Vec::new(),
             filter_coeff_a12: Vec::new(),
@@ -48,10 +48,10 @@ impl GammatoneFilterbank {
 
     /// Sets all internal states of the filterbank to 0.
     pub fn reset_filter_conditions(&mut self) {
-        self.filter_conditions_1 = vec![[0.0, 0.0]; self.num_bands];
-        self.filter_conditions_2 = vec![[0.0, 0.0]; self.num_bands];
-        self.filter_conditions_3 = vec![[0.0, 0.0]; self.num_bands];
-        self.filter_conditions_4 = vec![[0.0, 0.0]; self.num_bands];
+        self.filter_conditions_1 = [[0.0, 0.0]; NUM_BANDS];
+        self.filter_conditions_2 = [[0.0, 0.0]; NUM_BANDS];
+        self.filter_conditions_3 = [[0.0, 0.0]; NUM_BANDS];
+        self.filter_conditions_4 = [[0.0, 0.0]; NUM_BANDS];
     }
 
     /// Populates the filter coefficients with `filter_coeffs`.
@@ -170,7 +170,7 @@ mod tests {
         let epsilon = 0.0001;
 
         // Check if filtering works as intended.
-        let mut filterbank = GammatoneFilterbank::new::<{ NUM_BANDS }>(min_freq);
+        let mut filterbank = GammatoneFilterbank::<{ NUM_BANDS }>::new(min_freq);
         filterbank.reset_filter_conditions();
         filterbank.set_filter_coefficients(&filter_coeffs);
 
