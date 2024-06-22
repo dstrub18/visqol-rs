@@ -156,7 +156,7 @@ mod tests {
         let ref_signal = load_as_mono("test_data/clean_speech/CA01_01.wav").unwrap();
 
         let mut spectrogram_builder =
-            GammatoneSpectrogramBuilder::new(GammatoneFilterbank::new(21, 50.0), true);
+            GammatoneSpectrogramBuilder::new(GammatoneFilterbank::new::<21>(50.0), true);
         let window = AnalysisWindow::new(ref_signal.sample_rate, 0.25, 0.08);
 
         let spectrogram = spectrogram_builder.build(&ref_signal, &window).unwrap();

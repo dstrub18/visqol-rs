@@ -115,7 +115,7 @@ mod tests {
             "test_data/conformance_testdata_subset/contrabassoon48_stereo.wav",
         )
         .unwrap();
-        let filter_bank = GammatoneFilterbank::new(NUM_BANDS, MINIMUM_FREQ);
+        let filter_bank = GammatoneFilterbank::new::<{ NUM_BANDS }>(MINIMUM_FREQ);
         let window = AnalysisWindow::new(signal_ref.sample_rate, OVERLAP, 0.08);
 
         let mut spectro_builder = GammatoneSpectrogramBuilder::new(filter_bank, false);

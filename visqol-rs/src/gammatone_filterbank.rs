@@ -25,14 +25,14 @@ pub struct GammatoneFilterbank {
 
 impl GammatoneFilterbank {
     /// Creates a new gammatone filterbank with the desired number of frequency bands and the minimum frequency.
-    pub fn new(num_bands: usize, min_freq: f64) -> Self {
+    pub fn new<const NUM_BANDS: usize>(min_freq: f64) -> Self {
         Self {
-            num_bands,
+            num_bands: NUM_BANDS,
             min_freq,
-            filter_conditions_1: vec![[0.0; constants::NUM_FILTER_CONDITIONS]; num_bands],
-            filter_conditions_2: vec![[0.0; constants::NUM_FILTER_CONDITIONS]; num_bands],
-            filter_conditions_3: vec![[0.0; constants::NUM_FILTER_CONDITIONS]; num_bands],
-            filter_conditions_4: vec![[0.0; constants::NUM_FILTER_CONDITIONS]; num_bands],
+            filter_conditions_1: vec![[0.0; constants::NUM_FILTER_CONDITIONS]; NUM_BANDS],
+            filter_conditions_2: vec![[0.0; constants::NUM_FILTER_CONDITIONS]; NUM_BANDS],
+            filter_conditions_3: vec![[0.0; constants::NUM_FILTER_CONDITIONS]; NUM_BANDS],
+            filter_conditions_4: vec![[0.0; constants::NUM_FILTER_CONDITIONS]; NUM_BANDS],
             filter_coeff_a0: Vec::new(),
             filter_coeff_a11: Vec::new(),
             filter_coeff_a12: Vec::new(),
@@ -153,14 +153,14 @@ mod tests {
     #[test]
     fn gammatone_filterbank() {
         let fs = 48000;
-        let num_bands = 32;
+        const NUM_BANDS: usize = 32;
         let min_freq = 50.0f64;
 
         let ten_samples = vec![0.2, 0.4, 0.6, 0.8, 0.9, 0.1, 0.3, 0.5, 0.7, 0.9];
 
         let (mut filter_coeffs, _) = equivalent_rectangular_bandwidth::make_filters(
             fs,
-            num_bands,
+            NUM_BANDS,
             min_freq,
             fs as f64 / 2.0,
         );
@@ -170,7 +170,7 @@ mod tests {
         let epsilon = 0.0001;
 
         // Check if filtering works as intended.
-        let mut filterbank = GammatoneFilterbank::new(num_bands, min_freq);
+        let mut filterbank = GammatoneFilterbank::new::<{ NUM_BANDS }>(min_freq);
         filterbank.reset_filter_conditions();
         filterbank.set_filter_coefficients(&filter_coeffs);
 
