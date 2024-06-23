@@ -27,12 +27,12 @@ impl<const NUM_BANDS: usize> SpectrogramBuilder for GammatoneSpectrogramBuilder<
         };
 
         // get gammatone coefficients
-        let (mut filter_coeffs, mut center_freqs) = equivalent_rectangular_bandwidth::make_filters(
-            sample_rate as usize,
-            self.filter_bank.num_bands,
-            self.filter_bank.min_freq,
-            max_freq as f64,
-        );
+        let (mut filter_coeffs, mut center_freqs) =
+            equivalent_rectangular_bandwidth::make_filters::<NUM_BANDS>(
+                sample_rate as usize,
+                self.filter_bank.min_freq,
+                max_freq as f64,
+            );
         filter_coeffs.invert_axis(Axis(0));
         self.filter_bank.set_filter_coefficients(&filter_coeffs);
         self.filter_bank.reset_filter_conditions();

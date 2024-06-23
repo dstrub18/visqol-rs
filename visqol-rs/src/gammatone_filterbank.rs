@@ -158,9 +158,8 @@ mod tests {
 
         let ten_samples = vec![0.2, 0.4, 0.6, 0.8, 0.9, 0.1, 0.3, 0.5, 0.7, 0.9];
 
-        let (mut filter_coeffs, _) = equivalent_rectangular_bandwidth::make_filters(
+        let (mut filter_coeffs, _) = equivalent_rectangular_bandwidth::make_filters::<NUM_BANDS>(
             fs,
-            NUM_BANDS,
             min_freq,
             fs as f64 / 2.0,
         );

@@ -11,9 +11,8 @@ const MIN_BW: f64 = 24.7f64;
 const ERB_ORDER: f64 = 1.0;
 
 /// Computes the coefficients for an ERB filterbank.
-pub fn make_filters(
+pub fn make_filters<const NUM_BANDS: usize>(
     sample_rate: usize,
-    num_bands: usize,
     low_freq: f64,
     high_freq: f64,
 ) -> (Array2<f64>, Vec<f64>) {
@@ -24,12 +23,12 @@ pub fn make_filters(
     }
 
     let pi = std::f64::consts::PI;
-    let cf = float_vec_to_real_valued_complex_vec(&calculate_uniform_center_freqs(
-        low_freq, high_freq, num_bands,
-    ));
+    let cf = float_vec_to_real_valued_complex_vec(
+        &calculate_uniform_center_freqs::<{ NUM_BANDS }>(low_freq, high_freq),
+    );
 
-    let mut B = vec![Complex64::zero(); num_bands];
-    let mut B1 = vec![Complex64::zero(); num_bands];
+    let mut B = [Complex64::zero(); NUM_BANDS];
+    let mut B1 = [Complex64::zero(); NUM_BANDS];
 
     for (B_element, cf_element) in B.iter_mut().zip(&cf) {
         let erb =
@@ -38,13 +37,13 @@ pub fn make_filters(
     }
     let t = 1.0 / sample_rate as f64;
 
-    let mut exp_bt = vec![Complex64::zero(); num_bands];
+    let mut exp_bt = [Complex64::zero(); NUM_BANDS];
 
     for (exp, b_element) in exp_bt.iter_mut().zip(&B) {
         *exp = (*b_element * t).exp();
     }
 
-    let mut B1 = vec![Complex64::zero(); num_bands];
+    let mut B1 = [Complex64::zero(); NUM_BANDS];
     for i in 0..B1.len() {
         B1[i] = -2.0 * (2.0 * cf[i] * pi * t).cos() / exp_bt[i];
     }
@@ -186,12 +185,12 @@ pub fn make_filters(
         gain[i] = ((x1[i] * x2[i] * x3[i] * x4[i]) / x5[i].powf(4.0)).norm();
     }
 
-    let A0 = vec![t; num_bands];
-    let A2 = vec![0.0f64; num_bands];
-    let B0 = vec![1.0f64; num_bands];
-    let mut vf_coeffs = ndarray::Array2::<f64>::zeros((num_bands, 10));
+    let A0 = [t; NUM_BANDS];
+    let A2 = [0.0f64; NUM_BANDS];
+    let B0 = [1.0f64; NUM_BANDS];
+    let mut vf_coeffs = ndarray::Array2::<f64>::zeros((NUM_BANDS, 10));
     // Setup matrix
-    for i in 0..num_bands {
+    for i in 0..NUM_BANDS {
         vf_coeffs[(i, 0)] = A0[i];
         vf_coeffs[(i, 1)] = A11[i].re;
         vf_coeffs[(i, 2)] = A12[i].re;
@@ -208,15 +207,18 @@ pub fn make_filters(
 }
 
 /// Given a lower frequency boundary, a higher frequency boundary and the number of bands, this function calculates the center frequencies on an ERB scale.
-fn calculate_uniform_center_freqs(low_freq: f64, high_freq: f64, num_bands: usize) -> Vec<f64> {
+fn calculate_uniform_center_freqs<const NUM_BANDS: usize>(
+    low_freq: f64,
+    high_freq: f64,
+) -> [f64; NUM_BANDS] {
     // Glasberg and Moore Parameters
 
     let a = -(EAR_Q * MIN_BW);
     let b = -((high_freq + EAR_Q * MIN_BW).ln());
     let c = (low_freq + EAR_Q * MIN_BW).ln();
     let d = high_freq + EAR_Q * MIN_BW;
-    let e = (b + c) / num_bands as f64;
-    let mut coefficients = vec![0.0; num_bands];
+    let e = (b + c) / NUM_BANDS as f64;
+    let mut coefficients = [0.0; NUM_BANDS];
     for (i, coefficient) in coefficients.iter_mut().enumerate() {
         let f = ((i as f64 + 1.0) * e).exp() * d;
         *coefficient = a + f;
@@ -233,10 +235,10 @@ mod tests {
     #[test]
     fn erb_coefficients_are_computed_correctly() {
         let fs = 48000;
-        let num_bands = 32;
+        const NUM_BANDS: usize = 32;
         let min_freq = 50.0f64;
 
-        let (mut filter_coeffs, _) = make_filters(fs, num_bands, min_freq, fs as f64 / 2.0);
+        let (mut filter_coeffs, _) = make_filters::<NUM_BANDS>(fs, min_freq, fs as f64 / 2.0);
 
         let expected_filter_coefficients = vec![
             2.08333e-05,
@@ -563,10 +565,10 @@ mod tests {
 
         filter_coeffs.invert_axis(Axis(0));
         assert_eq!(filter_coeffs.shape()[1], 10);
-        assert_eq!(filter_coeffs.shape()[0], num_bands);
+        assert_eq!(filter_coeffs.shape()[0], NUM_BANDS);
 
         let exptected_filter_coeffs_mat =
-            Array2::from_shape_vec((num_bands, 10), expected_filter_coefficients).unwrap();
+            Array2::from_shape_vec((NUM_BANDS, 10), expected_filter_coefficients).unwrap();
 
         let epsilon = 0.0001;
 
