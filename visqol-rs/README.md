@@ -6,10 +6,9 @@
 - Researchers, engineers, academics who work within the field of speech enhancement and perceptual audio evaluation.
 
 # Build instructions
-- You will need the [rust toolchain](https://rustup.rs/).
-- A minimum supported Rust version(MSRV) is underway! Submit an issue in case things don't work for you :)
-- So far, the executable builds successfully on macOS 10.15 and WSL2 Ubuntu.
-- There is a known issue when compiling on Windows using MSVC. A fix is underway!
+- You will need the stable [rust toolchain](https://rustup.rs/).
+- MSRV: 1.83
+- So far, the library builds successfully on macOS 10.15 and WSL2 Ubuntu and Windows.
 
 # Example
 ```rust
