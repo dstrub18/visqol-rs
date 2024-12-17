@@ -1,4 +1,4 @@
-use ffsvm::{self, DenseProblem, DenseSVM, Predict, Solution};
+use ffsvm::{self, DenseFeatures, DenseSVM, Predict, Label};
 use std::convert::TryFrom;
 use std::fs::read_to_string;
 
@@ -19,7 +19,7 @@ impl SupportVectorRegressionModel {
     }
     /// Given a slice of features, this function produces a single score.
     pub fn predict(&self, observation: &[f64]) -> f64 {
-        let mut problem = DenseProblem::from(&self.model);
+        let mut problem = DenseFeatures::from(&self.model);
         let features = problem.features();
 
         for (i, element) in observation.iter().enumerate() {
@@ -28,9 +28,9 @@ impl SupportVectorRegressionModel {
         self.model
             .predict_value(&mut problem)
             .expect("Failed to compute prediction");
-        let solution = problem.solution();
+        let solution = problem.label();
         let mut score = 0.0;
-        if let Solution::Value(s) = solution {
+        if let Label::Value(s) = solution {
             score = s;
         }
         score as f64
