@@ -1523,6 +1523,6 @@ mod tests {
 
         let result = fast_fourier_transform::inverse_1d_conj_sym(&mut manager, &spectrum);
 
-        compare_real_vec(&samples_mat.to_vec(), &result.to_vec(), tolerance);
+        compare_real_vec(samples_mat.as_slice().unwrap(), &result, tolerance);
     }
 }
