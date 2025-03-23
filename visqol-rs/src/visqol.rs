@@ -1,6 +1,3 @@
-use ndarray::Array1;
-use std::error::Error;
-
 use crate::{
     analysis_window::AnalysisWindow, audio_signal::AudioSignal, audio_utils,
     comparison_patches_selector::ComparisonPatchesSelector, patch_creator::PatchCreator,
@@ -8,6 +5,8 @@ use crate::{
     similarity_to_quality_mapper::SimilarityToQualityMapper,
     spectrogram_builder::SpectrogramBuilder,
 };
+use ndarray::Array1;
+use std::error::Error;
 
 /// Perform a comparison on two audio signals. Their similarity is calculated
 /// and converted to a quality score using the given similarity to quality
@@ -65,7 +64,12 @@ pub fn calculate_similarity(
     let fstdnsim = calc_per_patch_mean_freq_band_std_devs(&sim_match_info, frame_duration);
     let fvdegenergy = calc_per_patch_mean_freq_band_degraded_energy(&sim_match_info);
 
-    let mut moslqo = predict_mos(&fvnsim.to_vec(), sim_to_qual_mapper);
+    let mut moslqo = predict_mos(
+        fvnsim
+            .as_slice()
+            .expect("failed to convert fvnsim to slice"),
+        sim_to_qual_mapper,
+    );
 
     let vnsim = fvnsim.mean().expect("Failed to compute nsim mean");
 
@@ -87,7 +91,7 @@ fn predict_mos(fvnsim: &[f64], mapper: &dyn SimilarityToQualityMapper) -> f64 {
 }
 
 /// Calculates the mean across all patch similarity per frequency band
-fn calc_per_patch_mean_freq_band_means(sim_match_info: &Vec<PatchSimilarityResult>) -> Array1<f64> {
+fn calc_per_patch_mean_freq_band_means(sim_match_info: &[PatchSimilarityResult]) -> Array1<f64> {
     let mut fvnsim = Array1::<f64>::zeros(sim_match_info[0].freq_band_means.len());
     for patch in sim_match_info {
         for (index, band) in fvnsim.iter_mut().enumerate() {
@@ -99,7 +103,7 @@ fn calc_per_patch_mean_freq_band_means(sim_match_info: &Vec<PatchSimilarityResul
 
 /// Calculates the energy of the degraded patch across all patch similarity per frequency band
 fn calc_per_patch_mean_freq_band_degraded_energy(
-    sim_match_info: &Vec<PatchSimilarityResult>,
+    sim_match_info: &[PatchSimilarityResult],
 ) -> Array1<f64> {
     let mut total_fvdegenergy = Array1::<f64>::zeros(sim_match_info[0].freq_band_means.len());
     for patch in sim_match_info {
@@ -112,7 +116,7 @@ fn calc_per_patch_mean_freq_band_degraded_energy(
 
 /// Calculates the standard deviation across all patch similarity per frequency band
 fn calc_per_patch_mean_freq_band_std_devs(
-    sim_match_info: &Vec<PatchSimilarityResult>,
+    sim_match_info: &[PatchSimilarityResult],
     frame_duration: f64,
 ) -> Array1<f64> {
     let fvn_sim = calc_per_patch_mean_freq_band_means(sim_match_info);
