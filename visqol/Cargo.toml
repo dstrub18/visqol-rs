@@ -7,7 +7,7 @@ categories = ["multimedia::audio", "science"]
 keywords = ["speech-quality", "audio", "voice"]
 license = "Apache-2.0"
 readme = "README.md"
-description = "The Visqol v3.1 cli tool for speech quality evaluation in Rust"
+description = "The Visqol v3.1 CLI tool for speech quality evaluation in Rust"
 exclude = ["test_data"]
 repository = "https://github.com/dstrub18/visqol-rs/tree/main/visqol"
 
@@ -19,7 +19,7 @@ example = false
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-visqol-rs = "0.1.3"
+visqol-rs = { path = "../visqol-rs" }
 clap = { version = "4.5.7", features = ["derive"] }
 log = "0.4.17"
 simplelog = "0.12.0"
