@@ -1,6 +1,7 @@
 use std::error::Error;
 
 use crate::alignment::align_and_truncate;
+use crate::gammatone_spectrogram_builder::GammatoneSpectrogramBuilder;
 use crate::{
     analysis_window::AnalysisWindow,
     audio_signal::AudioSignal,
@@ -278,7 +279,7 @@ impl ComparisonPatchesSelector {
 
         if start_time < 0.0 {
             let pre_silence_matrix =
-                Array1::<f64>::zeros((-1.0 * start_time * in_signal.sample_rate as f64) as usize);
+                Array1::<f64>::zeros((-start_time * in_signal.sample_rate as f64) as usize);
             sliced_matrix =
                 concatenate(Axis(0), &[pre_silence_matrix.view(), sliced_matrix.view()])
                     .expect("Failed to zero-pad patch!");
@@ -316,12 +317,12 @@ impl ComparisonPatchesSelector {
     }
 
     /// Performs alignment on a per-patch level.
-    pub fn finely_align_and_recreate_patches(
+    pub fn finely_align_and_recreate_patches<const NUM_BANDS: usize>(
         &self,
         sim_results: &mut [PatchSimilarityResult],
         ref_signal: &AudioSignal,
         deg_signal: &AudioSignal,
-        spect_builder: &mut dyn SpectrogramBuilder,
+        spect_builder: &mut GammatoneSpectrogramBuilder<NUM_BANDS, false>,
         analysis_window: &AnalysisWindow,
     ) -> Result<Vec<PatchSimilarityResult>, Box<dyn Error>> {
         // Case: The patches are already matched.  Iterate over each pair.

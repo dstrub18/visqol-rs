@@ -103,7 +103,7 @@ impl VadPatchCreator {
         let mut frame = Vec::<i16>::with_capacity(frame_length);
         for patch_element in patch {
             let mut scaled_val = ((*patch_element * ((1 << 15) as f64)) as i16) as f64;
-            scaled_val = (-1.0 * (1 << 15) as f64)
+            scaled_val = (-(1 << 15) as f64)
                 .max(1.0 * ((1 << 15) - 1) as f64)
                 .min(scaled_val);
             frame.push(scaled_val as i16);

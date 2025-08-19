@@ -38,7 +38,7 @@ pub fn calculate_hilbert(signal: &mut [f64]) -> Option<Array1<Complex64>> {
     }
 
     let n = if is_odd {
-        (freq_domain_signal.len() + 1) / 2
+        freq_domain_signal.len().div_ceil(2)
     } else {
         freq_domain_signal.len() / 2
     };
