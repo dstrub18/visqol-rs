@@ -10,7 +10,7 @@ impl SvrSimilarityToQualityMapper {
     /// Initializes the model's weights with a libSVM formatted file located in `model_path`
     pub fn new(model_path: &str) -> Self {
         Self {
-            model: SupportVectorRegressionModel::init(model_path),
+            model: SupportVectorRegressionModel::new(model_path),
         }
     }
 }

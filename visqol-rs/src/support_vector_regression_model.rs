@@ -1,4 +1,4 @@
-use ffsvm::{self, DenseFeatures, DenseSVM, Predict, Label};
+use ffsvm::{self, DenseFeatures, DenseSVM, Label, Predict};
 use std::convert::TryFrom;
 use std::fs::read_to_string;
 
@@ -9,7 +9,7 @@ pub struct SupportVectorRegressionModel {
 
 impl SupportVectorRegressionModel {
     /// Given a path to a `LibSVM` formatted `.txt` file, the model is initialized with its corresponding weights.
-    pub fn init(model_path: &str) -> Self {
+    pub fn new(model_path: &str) -> Self {
         let model_description = read_to_string(model_path)
             .unwrap_or_else(|_| panic!("failed to read model path from {}!", model_path));
         Self {
@@ -50,7 +50,7 @@ mod tests {
             "/",
             "model/libsvm_nu_svr_model.txt"
         );
-        let svm = SupportVectorRegressionModel::init(model_path);
+        let svm = SupportVectorRegressionModel::new(model_path);
 
         // This is the FVNSIM results for a ViSQOL comparison between
         // contrabassoon48_stereo.wav and contrabassoon48_stereo_24kbps_aac.wav
