@@ -3,7 +3,6 @@ use crate::visqol_error::VisqolError;
 use crate::{analysis_window::AnalysisWindow, audio_signal::AudioSignal, math_utils, rms_vad};
 use itertools::Itertools;
 use ndarray::{s, Array2};
-
 /// Computes patch indices from a spectrogram by analyzing voice acitivity in the time domain and rejecting patches which are considered silent.
 pub struct VadPatchCreator {
     patch_size: usize,
@@ -122,6 +121,7 @@ mod tests {
     use super::*;
     use crate::analysis_window::AnalysisWindow;
     use crate::audio_utils::load_as_mono;
+    use crate::constants::NUM_BANDS_SPEECH;
     use crate::gammatone_filterbank::GammatoneFilterbank;
     use crate::gammatone_spectrogram_builder::GammatoneSpectrogramBuilder;
     use crate::patch_creator::PatchCreator;
@@ -150,13 +150,12 @@ mod tests {
     fn patch_indices() {
         const _K_MINIMUM_FREQ: f64 = 50.0;
         const K_PATCH_SIZE: usize = 20;
-        const _K_NUM_BANDS: usize = 21;
 
         let expected_patches = vec![9, 29, 49, 69, 89];
         let ref_signal = load_as_mono("test_data/clean_speech/CA01_01.wav").unwrap();
 
-        let mut spectrogram_builder =
-            GammatoneSpectrogramBuilder::new(GammatoneFilterbank::<21>::new(50.0), true);
+        let mut spectrogram_builder: GammatoneSpectrogramBuilder<NUM_BANDS_SPEECH, true> =
+            GammatoneSpectrogramBuilder::new(GammatoneFilterbank::<NUM_BANDS_SPEECH>::new(50.0));
         let window = AnalysisWindow::new(ref_signal.sample_rate, 0.25, 0.08);
 
         let spectrogram = spectrogram_builder.build(&ref_signal, &window).unwrap();
