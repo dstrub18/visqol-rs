@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Deserialize, Serialize)]
 /// Bundles 2 `String`s into a single struct.
-/// Useful since ViSQOL is a full-reference metric, i.e. it requires a reference signal and a degraded signal
+/// Useful since VISQOL is a full-reference metric, i.e. it requires a reference signal and a degraded signal
 pub struct PathPair {
     pub reference: String,
     pub degraded: String,
