@@ -18,11 +18,6 @@ pub fn write_results(
 ) {
     let version_number = env!("CARGO_PKG_VERSION");
     println!("ViSQOL conformance version: {version_number:}");
-    if args.use_speech_mode {
-        println!("Speech mode");
-    } else {
-        println!("Audio mode");
-    }
 
     if let Some(json_output_path) = &args.output_debug {
         write_debug_json(json_output_path, results);
