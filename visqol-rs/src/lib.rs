@@ -2,19 +2,28 @@
 //!
 //! # Example
 //!
-//! ```ignore
+//! ```
+//! use visqol_rs::constants::{DEFAULT_WINDOW_SIZE, NUM_BANDS_SPEECH};
+//! use visqol_rs::variant::Variant;
 //! use visqol_rs::*;
-//!     
+//!
 //! let path_to_reference_file = "./test_data/clean_speech/reference_signal.wav";
 //! let path_to_degraded_file = "./test_data/clean_speech/degraded_signal.wav";
 //!
-//! let config = visqol_config::VisqolConfig::get_speech_mode_config();
+//! let variant = Variant::Wideband {
+//!     use_unscaled_mos_mapping: true,
+//! };
+//! let mut visqol =
+//!     visqol_manager::VisqolManager::<NUM_BANDS_SPEECH>::new(variant, DEFAULT_WINDOW_SIZE);
 //!
-//! let mut visqol = visqol_manager::VisqolManager::from_config(&config);
+//! let similarity_result = visqol
+//!     .run(path_to_reference_file, path_to_degraded_file)
+//!     .unwrap();
 //!
-//! let similarity_result = visqol.run(path_to_reference_file, path_to_degraded_file).unwrap();
-//!
-//! println!("Mean objective score for degraded file {}: {}", path_to_degraded_file, similarity_result.moslqo);
+//! println!(
+//!     "Mean objective score for degraded file {}: {}",
+//!     path_to_degraded_file, similarity_result.moslqo
+//! );
 //! ```
 
 mod alignment;
@@ -22,7 +31,7 @@ mod analysis_window;
 mod audio_signal;
 pub mod audio_utils;
 mod comparison_patches_selector;
-mod constants;
+pub mod constants;
 mod convolution_2d;
 mod envelope;
 mod equivalent_rectangular_bandwidth;
@@ -45,6 +54,7 @@ mod speech_similarity_to_quality_mapper;
 mod support_vector_regression_model;
 mod svr_similarity_to_quality_mapper;
 mod vad_patch_creator;
+pub mod variant;
 mod visqol;
 pub mod visqol_config;
 mod visqol_error;
