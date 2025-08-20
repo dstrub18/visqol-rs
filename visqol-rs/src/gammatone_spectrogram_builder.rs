@@ -1,4 +1,5 @@
 use crate::analysis_window::AnalysisWindow;
+use crate::constants::NUM_BANDS_SPEECH;
 use crate::equivalent_rectangular_bandwidth;
 use crate::gammatone_filterbank::GammatoneFilterbank;
 use crate::spectrogram::Spectrogram;
@@ -9,7 +10,6 @@ use ndarray::{Array2, Axis};
 /// Produces a frequency domain representation from a time domain signal using a gammatone filterbank.
 pub struct GammatoneSpectrogramBuilder<const NUM_BANDS: usize> {
     filter_bank: GammatoneFilterbank<NUM_BANDS>,
-    speech_mode: bool,
 }
 
 impl<const NUM_BANDS: usize> SpectrogramBuilder for GammatoneSpectrogramBuilder<NUM_BANDS> {
@@ -18,9 +18,9 @@ impl<const NUM_BANDS: usize> SpectrogramBuilder for GammatoneSpectrogramBuilder<
         signal: &AudioSignal,
         window: &AnalysisWindow,
     ) -> Result<Spectrogram, VisqolError> {
-        let time_domain_signal = &signal.data_matrix.to_vec();
+        let time_domain_signal = &signal.data_matrix;
         let sample_rate = signal.sample_rate;
-        let max_freq = if self.speech_mode {
+        let max_freq = if NUM_BANDS == NUM_BANDS_SPEECH {
             Self::SPEECH_MODE_MAX_FREQ
         } else {
             sample_rate / 2
@@ -47,15 +47,20 @@ impl<const NUM_BANDS: usize> SpectrogramBuilder for GammatoneSpectrogramBuilder<
         }
 
         let num_cols = 1 + ((time_domain_signal.len() - window.size) / hop_size);
-        let mut out_matrix = Array2::<f64>::zeros((self.filter_bank.num_bands, num_cols));
+        let mut out_matrix = Array2::<f64>::zeros((NUM_BANDS, num_cols));
 
         for (index, frame) in time_domain_signal
             .windows(window.size)
+            .into_iter()
             .step_by(hop_size)
             .enumerate()
         {
             self.filter_bank.reset_filter_conditions();
-            let mut filtered_signal = self.filter_bank.apply_filter(frame);
+            let mut filtered_signal = self.filter_bank.apply_filter(
+                frame
+                    .as_slice()
+                    .expect("Failed to convert audio frame to slice"),
+            );
 
             filtered_signal.map_inplace(|e| *e = *e * *e);
 
@@ -85,12 +90,7 @@ impl<const NUM_BANDS: usize> GammatoneSpectrogramBuilder<NUM_BANDS> {
 
     /// Creates a new gammatone spectrogram builder with the given gammatone filterbank.
     /// If `use_speech_mode` is set to `true`, the maximum frequency is determined to be 8000 Hz.
-    pub fn new(filter_bank: GammatoneFilterbank<NUM_BANDS>, use_speech_mode: bool) -> Self {
-        Self {
-            filter_bank,
-            speech_mode: use_speech_mode,
-        }
-    }
+    pub fn new(filter_bank: GammatoneFilterbank<NUM_BANDS>) -> Self { Self { filter_bank } }
 }
 
 #[cfg(test)]
@@ -117,7 +117,8 @@ mod tests {
         let filter_bank = GammatoneFilterbank::<{ NUM_BANDS }>::new(MINIMUM_FREQ);
         let window = AnalysisWindow::new(signal_ref.sample_rate, OVERLAP, 0.08);
 
-        let mut spectro_builder = GammatoneSpectrogramBuilder::new(filter_bank, false);
+        let mut spectro_builder: GammatoneSpectrogramBuilder<NUM_BANDS> =
+            GammatoneSpectrogramBuilder::new(filter_bank);
         let spectrogram_ref = spectro_builder.build(&signal_ref, &window).unwrap();
 
         // Check 1st element
