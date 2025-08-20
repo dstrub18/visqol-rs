@@ -1,6 +1,6 @@
 [package]
 name = "visqol"
-version = "0.1.3"
+version = "0.2.0"
 edition = "2018"
 authors = ["Daniel Strübig"]
 categories = ["multimedia::audio", "science"]
@@ -19,7 +19,7 @@ example = false
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-visqol-rs = { path = "../visqol-rs" }
+visqol-rs = "0.2.0"
 clap = { version = "4.5.7", features = ["derive"] }
 log = "0.4.17"
 simplelog = "0.12.0"
