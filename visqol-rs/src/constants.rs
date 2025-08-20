@@ -2,6 +2,7 @@ pub const DURATION_MISMATCH_TOLERANCE: f64 = 1.0;
 
 pub const NUM_BANDS_SPEECH: usize = 21;
 pub const NUM_BANDS_AUDIO: usize = 32;
+pub const DEFAULT_WINDOW_SIZE: usize = 32;
 
 pub const PATCH_SIZE_AUDIO: usize = 30;
 pub const PATCH_SIZE_SPEECH: usize = 20;
