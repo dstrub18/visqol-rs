@@ -1,6 +1,7 @@
 use crate::{
     analysis_window::AnalysisWindow, audio_signal::AudioSignal, audio_utils,
-    comparison_patches_selector::ComparisonPatchesSelector, patch_creator::PatchCreator,
+    comparison_patches_selector::ComparisonPatchesSelector,
+    gammatone_spectrogram_builder::GammatoneSpectrogramBuilder, patch_creator::PatchCreator,
     patch_similarity_comparator::PatchSimilarityResult, similarity_result::SimilarityResult,
     similarity_to_quality_mapper::SimilarityToQualityMapper,
     spectrogram_builder::SpectrogramBuilder,
@@ -11,10 +12,10 @@ use std::error::Error;
 /// Perform a comparison on two audio signals. Their similarity is calculated
 /// and converted to a quality score using the given similarity to quality
 /// mapper.
-pub fn calculate_similarity(
+pub fn calculate_similarity<const NUM_BANDS: usize>(
     ref_signal: &mut AudioSignal,
     deg_signal: &mut AudioSignal,
-    spect_builder: &mut dyn SpectrogramBuilder,
+    spect_builder: &mut GammatoneSpectrogramBuilder<NUM_BANDS>,
     window: &AnalysisWindow,
     patch_creator: &dyn PatchCreator,
     selector: &ComparisonPatchesSelector,

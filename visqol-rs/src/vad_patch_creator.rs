@@ -154,7 +154,7 @@ mod tests {
         let expected_patches = vec![9, 29, 49, 69, 89];
         let ref_signal = load_as_mono("test_data/clean_speech/CA01_01.wav").unwrap();
 
-        let mut spectrogram_builder: GammatoneSpectrogramBuilder<NUM_BANDS_SPEECH, true> =
+        let mut spectrogram_builder: GammatoneSpectrogramBuilder<NUM_BANDS_SPEECH> =
             GammatoneSpectrogramBuilder::new(GammatoneFilterbank::<NUM_BANDS_SPEECH>::new(50.0));
         let window = AnalysisWindow::new(ref_signal.sample_rate, 0.25, 0.08);
 
