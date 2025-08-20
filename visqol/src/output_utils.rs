@@ -1,6 +1,4 @@
-use crate::{
-    command_line_utils::CommandLineArgs, path_pair::PathPair,
-};
+use crate::{command_line_utils::CommandLineArgs, path_pair::PathPair};
 use visqol_rs::similarity_result::SimilarityResult;
 
 use csv::WriterBuilder;
