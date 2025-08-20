@@ -322,7 +322,7 @@ impl ComparisonPatchesSelector {
         sim_results: &mut [PatchSimilarityResult],
         ref_signal: &AudioSignal,
         deg_signal: &AudioSignal,
-        spect_builder: &mut GammatoneSpectrogramBuilder<NUM_BANDS, false>,
+        spect_builder: &mut GammatoneSpectrogramBuilder<NUM_BANDS>,
         analysis_window: &AnalysisWindow,
     ) -> Result<Vec<PatchSimilarityResult>, Box<dyn Error>> {
         // Case: The patches are already matched.  Iterate over each pair.
