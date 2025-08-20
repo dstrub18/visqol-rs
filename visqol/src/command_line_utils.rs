@@ -1,15 +1,43 @@
 use std::{error::Error, path::PathBuf};
 
 use crate::path_pair::PathPair;
-use clap::Parser;
+use clap::{Parser, Subcommand};
 use csv::{ReaderBuilder, StringRecord};
 
-#[derive(Parser, Debug)]
+#[derive(Subcommand, Clone, Debug)]
+pub enum Subcommands {
+    /// Use a wideband model (sensitive up to 8kHz) with voice activity
+    /// detection
+    /// that normalizes the polynomial NSIM->MOS mapping so that a perfect
+    /// NSIM
+    /// score of 1.0 translates to 5.0.
+    Wideband {
+        /// Perfect NSIM scores will instead result in MOS scores of ~4.x. [default: false]
+        #[clap(long = "use_unscaled_speech_mos_mapping")]
+        use_unscaled_speech_mos_mapping: bool,
+    },
+    /// Evaluate fullband signals at 48 kHz sample rate.
+    /// Predictions are made using a support vector machine.
+    Fullband {
+        /// The libsvm model to use during comparison. Use this only if you
+        /// want to explicitly specify the model file location, otherwise the
+        /// default model will be used.
+        #[clap(
+            long = "similarity_to_quality_model",
+            default_value = "./model/libsvm_nu_svr_model.txt"
+        )]
+        similarity_to_quality_model: String,
+    },
+}
+
+#[derive(Parser, Debug, Clone)]
 #[clap(name = "visqol-rs")]
 #[clap(version)]
 #[clap(about = "Perceptual quality estimator for speech and audio")]
 #[clap(arg_required_else_help = true)]
 pub struct CommandLineArgs {
+    #[command(subcommand)]
+    pub subcommand: Subcommands,
     /// Used to specify a path to a CSV file with the format:{n}
     /// ------------------{n}
     /// reference,degraded{n}
@@ -55,7 +83,7 @@ pub struct CommandLineArgs {
     #[clap(long)]
     pub verbose: bool,
 
-    /// Used to specify a file path where output debug information will be
+    /// Specify a file path where output debug information will be
     /// written
     /// to. This debug info contains the full details of the comparison
     /// between the
@@ -65,35 +93,6 @@ pub struct CommandLineArgs {
     /// Contents will be appended to the file if it already exist or if ViSQOL is run in batch mode.
     #[clap(long = "output_debug")]
     pub output_debug: Option<String>,
-
-    ///The libsvm model to use during comparison. Use this only if you
-    ///want to explicitly specify the model file location, otherwise the
-    ///default model will be used.
-    #[clap(
-        long = "similarity_to_quality_model",
-        default_value = "./model/libsvm_nu_svr_model.txt",
-        conflicts_with = "use_speech_mode"
-    )]
-    pub similarity_to_quality_model: String,
-
-    /// Use a wideband model (sensitive up to 8kHz) with voice activity
-    /// detection
-    /// that normalizes the polynomial NSIM->MOS mapping so that a perfect
-    /// NSIM
-    /// score of 1.0 translates to 5.0. [default: false]
-    #[clap(
-        long = "use_speech_mode",
-        conflicts_with = "similarity_to_quality_model"
-    )]
-    pub use_speech_mode: bool,
-
-    /// When used in conjunction with --use_speech_mode, this flag will
-    /// prevent a
-    /// perfect NSIM score of 1.0 being translated to a MOS score of 5.0.
-    /// Perfect
-    /// NSIM scores will instead result in MOS scores of ~4.x. [default: false]
-    #[clap(long = "use_unscaled_speech_mos_mapping")]
-    pub use_unscaled_speech_mos_mapping: bool,
 
     /// The search_window parameter determines how far the algorithm will
     /// search to discover patch matches. For a given reference frame, it
