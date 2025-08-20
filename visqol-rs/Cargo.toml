@@ -12,17 +12,17 @@ exclude = ["test_data"]
 repository = "https://github.com/dstrub18/visqol-rs"
 
 [dependencies]
-ndarray = "0.15.4"
-ndarray-linalg = "0.16.0"
-ndarray-stats = "0.5.0"
+ndarray = "0.16.1"
+ndarray-linalg = "0.17.0"
+ndarray-stats = "0.6.0"
 hound = "3.4.0"
 num = "0.4.0"
-itertools = "0.10.3"
+itertools = "0.14.0"
 num-traits = "0.2.15"
 rustfft = "6.0.1"
 serde = { version = "1.0", features = ["derive"] }
 ffsvm = "0.12.0"
-thiserror = "1.0.32"
+thiserror = "2.0.16"
 log = "0.4.17"
 
 [dev-dependencies]
