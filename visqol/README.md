@@ -22,5 +22,5 @@ visqol \ # command
 --degraded_file visqol-rs/test_data/clean_speech/degraded_signal.wav \ # degraded file
 wideband \ # mode: wideband|fullband
 --use_unscaled_speech_mos_mapping # flag for wideband mode only
-` # 
+`
 ```
