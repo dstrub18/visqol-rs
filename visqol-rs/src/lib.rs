@@ -56,7 +56,6 @@ mod svr_similarity_to_quality_mapper;
 mod vad_patch_creator;
 pub mod variant;
 mod visqol;
-pub mod visqol_config;
 mod visqol_error;
 pub mod visqol_manager;
 mod wav_reader;
