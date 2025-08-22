@@ -13,6 +13,11 @@
 
 # Example
 ```rust
+use visqol_rs::{
+    constants::{DEFAULT_WINDOW_SIZE, NUM_BANDS_SPEECH},
+    variant::Variant,
+    *,
+};
 let path_to_reference_file = "./test_data/clean_speech/reference_signal.wav";
 let path_to_degraded_file = "./test_data/clean_speech/degraded_signal.wav";
 
