@@ -76,8 +76,8 @@ pub fn calculate_similarity<const NUM_BANDS: usize>(
 
     moslqo = alter_for_similarity_extremes(vnsim, moslqo);
     Ok(SimilarityResult::new(
-        vnsim,
         moslqo,
+        vnsim,
         fvnsim.to_vec(),
         fstdnsim.to_vec(),
         fvdegenergy.to_vec(),
