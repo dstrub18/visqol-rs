@@ -19,7 +19,7 @@ example = false
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-visqol-rs = "0.2.1"
+visqol-rs = "0.3.1"
 clap = { version = "4.5.7", features = ["derive"] }
 log = "0.4.17"
 simplelog = "0.12.0"
