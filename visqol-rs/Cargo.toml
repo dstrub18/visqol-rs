@@ -1,6 +1,6 @@
 [package]
 name = "visqol-rs"
-version = "0.2.1"
+version = "0.3.1"
 edition = "2018"
 authors = ["Daniel Strübig"]
 categories = ["multimedia::audio", "science"]
