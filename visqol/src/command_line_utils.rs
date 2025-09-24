@@ -21,12 +21,9 @@ pub enum Subcommands {
     Fullband {
         /// The libsvm model to use during comparison. Use this only if you
         /// want to explicitly specify the model file location, otherwise the
-        /// default model will be used.
-        #[clap(
-            long = "similarity_to_quality_model",
-            default_value = "./model/libsvm_nu_svr_model.txt"
-        )]
-        similarity_to_quality_model: String,
+        /// default (embedded) model will be used.
+        #[clap(long = "similarity_to_quality_model")]
+        similarity_to_quality_model: Option<String>, /// use Option<String> instead of the file path
     },
 }
 
