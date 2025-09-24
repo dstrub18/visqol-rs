@@ -41,9 +41,11 @@ impl<const NUM_BANDS: usize> VisqolManager<NUM_BANDS> {
                     !use_unscaled_mos_mapping,
                 ));
             }
-            Variant::Fullband { model_path } => {
+            /// Destructure the `variant` to get the 'model` field, instead of the file path `model_path'.
+            Variant::Fullband { model } => {
                 patch_creator = Box::new(ImagePatchCreator::new(PATCH_SIZE_SPEECH));
-                sim_to_quality_mapper = Box::new(SvrSimilarityToQualityMapper::new(&model_path));
+                /// Pass the ready-made `model` object to the constructor `SvrSimilarityToQualityMapper::new`.
+                sim_to_quality_mapper = Box::new(SvrSimilarityToQualityMapper::new(model));
             }
         }
 

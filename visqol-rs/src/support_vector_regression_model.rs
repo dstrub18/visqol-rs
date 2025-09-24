@@ -1,6 +1,9 @@
 use ffsvm::{self, DenseFeatures, DenseSVM, Label, Predict};
 use std::convert::TryFrom;
-use std::fs::read_to_string;
+
+/// The default content of the model, embedded in the binary at compile time.
+/// The path is specified relative to the current file.
+const DEFAULT_MODEL_CONTENT: &str = include_str!("../../model/libsvm_nu_svr_model.txt");
 
 /// Thin wrapper around `ffsvm` to compute a prediction from a support vector machine.
 pub struct SupportVectorRegressionModel {
@@ -8,15 +11,20 @@ pub struct SupportVectorRegressionModel {
 }
 
 impl SupportVectorRegressionModel {
-    /// Given a path to a `LibSVM` formatted `.txt` file, the model is initialized with its corresponding weights.
-    pub fn new(model_path: &str) -> Self {
-        let model_description = read_to_string(model_path)
-            .unwrap_or_else(|_| panic!("failed to read model path from {}!", model_path));
+    /// Creates a model from a string containing a description in LibSVM format.
+    /// That is the main constructor, which is independent of the file system.
+    pub fn from_str(model_description: &str) -> Self {
         Self {
-            model: DenseSVM::try_from(model_description.as_str())
-                .expect("Failed to load SVM model"),
+            model: DenseSVM::try_from(model_description)
+                .expect("Failed to load SVM model from string"),
         }
     }
+
+    /// Creates an instance of the model with standard, built-in weights.
+    pub fn default() -> Self {
+        Self::from_str(DEFAULT_MODEL_CONTENT)
+    }
+
     /// Given a slice of features, this function produces a single score.
     pub fn predict(&self, observation: &[f64]) -> f64 {
         let mut problem = DenseFeatures::from(&self.model);
@@ -43,14 +51,8 @@ mod tests {
     use approx::assert_abs_diff_eq;
     #[test]
     fn svn_predicts_known_mos() {
-        let model_path = concat!(
-            env!("CARGO_MANIFEST_DIR"),
-            "/",
-            "..",
-            "/",
-            "model/libsvm_nu_svr_model.txt"
-        );
-        let svm = SupportVectorRegressionModel::new(model_path);
+        // The test now uses the built-in model, and no longer needs to calculate the relative path.
+        let svm = SupportVectorRegressionModel::default();
 
         // This is the FVNSIM results for a ViSQOL comparison between
         // contrabassoon48_stereo.wav and contrabassoon48_stereo_24kbps_aac.wav
