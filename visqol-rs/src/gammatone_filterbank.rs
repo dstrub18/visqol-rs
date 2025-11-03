@@ -3,21 +3,17 @@ use crate::{constants, signal_filter};
 /// Bank of gammatone filters on each frame of a time domain signal to construct a spectrogram representation.
 /// This implementation is fixed to a 4th order filterbank.
 pub struct GammatoneFilterbank<const NUM_BANDS: usize> {
+    // intermediate states
     filter_conditions_1: [[f32; constants::NUM_FILTER_CONDITIONS]; NUM_BANDS],
     filter_conditions_2: [[f32; constants::NUM_FILTER_CONDITIONS]; NUM_BANDS],
     filter_conditions_3: [[f32; constants::NUM_FILTER_CONDITIONS]; NUM_BANDS],
     filter_conditions_4: [[f32; constants::NUM_FILTER_CONDITIONS]; NUM_BANDS],
-
-    filter_coeff_a0: Vec<f32>,
-    filter_coeff_a11: Vec<f32>,
-    filter_coeff_a12: Vec<f32>,
-    filter_coeff_a13: Vec<f32>,
-    filter_coeff_a14: Vec<f32>,
-    filter_coeff_a2: Vec<f32>,
-    filter_coeff_b0: Vec<f32>,
-    filter_coeff_b1: Vec<f32>,
-    filter_coeff_b2: Vec<f32>,
-    filter_coeff_gain: Vec<f32>,
+    // filter coefficients
+    a1: [[f32; 3]; NUM_BANDS],
+    a2: [[f32; 3]; NUM_BANDS],
+    a3: [[f32; 3]; NUM_BANDS],
+    a4: [[f32; 3]; NUM_BANDS],
+    b: [[f32; 3]; NUM_BANDS],
 }
 
 impl<const NUM_BANDS: usize> GammatoneFilterbank<NUM_BANDS> {
@@ -28,16 +24,11 @@ impl<const NUM_BANDS: usize> GammatoneFilterbank<NUM_BANDS> {
             filter_conditions_2: [[0.0; constants::NUM_FILTER_CONDITIONS]; NUM_BANDS],
             filter_conditions_3: [[0.0; constants::NUM_FILTER_CONDITIONS]; NUM_BANDS],
             filter_conditions_4: [[0.0; constants::NUM_FILTER_CONDITIONS]; NUM_BANDS],
-            filter_coeff_a0: Vec::new(),
-            filter_coeff_a11: Vec::new(),
-            filter_coeff_a12: Vec::new(),
-            filter_coeff_a13: Vec::new(),
-            filter_coeff_a14: Vec::new(),
-            filter_coeff_a2: Vec::new(),
-            filter_coeff_b0: Vec::new(),
-            filter_coeff_b1: Vec::new(),
-            filter_coeff_b2: Vec::new(),
-            filter_coeff_gain: Vec::new(),
+            a1: [[0.0; 3]; NUM_BANDS],
+            a2: [[0.0; 3]; NUM_BANDS],
+            a3: [[0.0; 3]; NUM_BANDS],
+            a4: [[0.0; 3]; NUM_BANDS],
+            b: [[0.0; 3]; NUM_BANDS],
         }
     }
 
@@ -51,53 +42,38 @@ impl<const NUM_BANDS: usize> GammatoneFilterbank<NUM_BANDS> {
 
     /// Populates the filter coefficients with `filter_coeffs`.
     pub fn set_filter_coefficients(&mut self, filter_coeffs: &ndarray::Array2<f32>) {
-        self.filter_coeff_a0 = filter_coeffs.column(0).to_vec();
-        self.filter_coeff_a11 = filter_coeffs.column(1).to_vec();
-        self.filter_coeff_a12 = filter_coeffs.column(2).to_vec();
-        self.filter_coeff_a13 = filter_coeffs.column(3).to_vec();
-        self.filter_coeff_a14 = filter_coeffs.column(4).to_vec();
-        self.filter_coeff_a2 = filter_coeffs.column(5).to_vec();
-        self.filter_coeff_b0 = filter_coeffs.column(6).to_vec();
-        self.filter_coeff_b1 = filter_coeffs.column(7).to_vec();
-        self.filter_coeff_b2 = filter_coeffs.column(8).to_vec();
-        self.filter_coeff_gain = filter_coeffs.column(9).to_vec();
+        for band in 0..NUM_BANDS {
+            self.a1[band][0] = filter_coeffs.column(0)[band] / filter_coeffs.column(9)[band];
+            self.a1[band][1] = filter_coeffs.column(1)[band] / filter_coeffs.column(9)[band];
+            self.a1[band][2] = filter_coeffs.column(5)[band] / filter_coeffs.column(9)[band];
+
+            self.a2[band][0] = filter_coeffs.column(0)[band];
+            self.a2[band][1] = filter_coeffs.column(2)[band];
+            self.a2[band][2] = filter_coeffs.column(5)[band];
+
+            self.a3[band][0] = filter_coeffs.column(0)[band];
+            self.a3[band][1] = filter_coeffs.column(3)[band];
+            self.a3[band][2] = filter_coeffs.column(5)[band];
+
+            self.a4[band][0] = filter_coeffs.column(0)[band];
+            self.a4[band][1] = filter_coeffs.column(4)[band];
+            self.a4[band][2] = filter_coeffs.column(5)[band];
+
+            self.b[band][0] = filter_coeffs.column(6)[band];
+            self.b[band][1] = filter_coeffs.column(7)[band];
+            self.b[band][2] = filter_coeffs.column(8)[band];
+        }
     }
 
     /// Applies the gammatone filterbank on the time-domain signal `signal`, producing a Gammetone spectrogram.
     #[inline(always)]
     pub fn apply_filter(&mut self, input_signal: &[f32]) -> ndarray::Array2<f32> {
-        let mut a1 = [0.0; 3];
-        let mut a2 = [0.0; 3];
-        let mut a3 = [0.0; 3];
-        let mut a4 = [0.0; 3];
-        let mut b = [0.0; 3];
-
         let mut output = ndarray::Array2::<f32>::zeros((NUM_BANDS, input_signal.len()));
         for band in 0..NUM_BANDS {
-            a1[0] = self.filter_coeff_a0[band] / self.filter_coeff_gain[band];
-            a1[1] = self.filter_coeff_a11[band] / self.filter_coeff_gain[band];
-            a1[2] = self.filter_coeff_a2[band] / self.filter_coeff_gain[band];
-
-            a2[0] = self.filter_coeff_a0[band];
-            a2[1] = self.filter_coeff_a12[band];
-            a2[2] = self.filter_coeff_a2[band];
-
-            a3[0] = self.filter_coeff_a0[band];
-            a3[1] = self.filter_coeff_a13[band];
-            a3[2] = self.filter_coeff_a2[band];
-
-            a4[0] = self.filter_coeff_a0[band];
-            a4[1] = self.filter_coeff_a14[band];
-            a4[2] = self.filter_coeff_a2[band];
-
-            b[0] = self.filter_coeff_b0[band];
-            b[1] = self.filter_coeff_b1[band];
-            b[2] = self.filter_coeff_b2[band];
-
             // 1st filter
             let mut filter_result = signal_filter::filter_signal(
-                &a1,
-                &b,
+                &self.a1[band],
+                &self.b[band],
                 input_signal,
                 &mut self.filter_conditions_1[band],
             );
@@ -105,8 +81,8 @@ impl<const NUM_BANDS: usize> GammatoneFilterbank<NUM_BANDS> {
 
             // 2nd filter
             filter_result = signal_filter::filter_signal(
-                &a2,
-                &b,
+                &self.a2[band],
+                &self.b[band],
                 &filter_result.filtered_signal,
                 &mut self.filter_conditions_2[band],
             );
@@ -114,8 +90,8 @@ impl<const NUM_BANDS: usize> GammatoneFilterbank<NUM_BANDS> {
 
             // 3rd filter
             filter_result = signal_filter::filter_signal(
-                &a3,
-                &b,
+                &self.a3[band],
+                &self.b[band],
                 &filter_result.filtered_signal,
                 &mut self.filter_conditions_3[band],
             );
@@ -123,8 +99,8 @@ impl<const NUM_BANDS: usize> GammatoneFilterbank<NUM_BANDS> {
 
             // 4th filter
             filter_result = signal_filter::filter_signal(
-                &a4,
-                &b,
+                &self.a4[band],
+                &self.b[band],
                 &filter_result.filtered_signal,
                 &mut self.filter_conditions_4[band],
             );
