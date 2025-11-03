@@ -1,7 +1,6 @@
 use std::error::Error;
 
 use crate::alignment::align_and_truncate;
-use crate::constants;
 use crate::gammatone_filterbank::GammatoneFilterbank;
 use crate::gammatone_spectrogram_builder::GammatoneSpectrogramBuilder;
 use crate::{
@@ -358,9 +357,8 @@ impl ComparisonPatchesSelector {
             let new_ref_duration = ref_audio_aligned.get_duration();
             let new_deg_duration = deg_audio_aligned.get_duration();
             // 3. Compute a new spectrogram for the degraded audio.
-            let mut spect_builder = GammatoneSpectrogramBuilder::<NUM_BANDS>::new(
-                GammatoneFilterbank::new(constants::MINIMUM_FREQ),
-            );
+            let mut spect_builder =
+                GammatoneSpectrogramBuilder::<NUM_BANDS>::new(GammatoneFilterbank::new());
             let mut ref_spectrogram = spect_builder.build(&ref_audio_aligned, analysis_window)?;
             let mut deg_spectrogram = spect_builder.build(&deg_audio_aligned, analysis_window)?;
             // 4. Recreate an aligned degraded patch from the new spectrogram.

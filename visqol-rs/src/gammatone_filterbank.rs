@@ -3,8 +3,6 @@ use crate::{constants, signal_filter};
 /// Bank of gammatone filters on each frame of a time domain signal to construct a spectrogram representation.
 /// This implementation is fixed to a 4th order filterbank.
 pub struct GammatoneFilterbank<const NUM_BANDS: usize> {
-    pub min_freq: f32,
-
     filter_conditions_1: [[f32; constants::NUM_FILTER_CONDITIONS]; NUM_BANDS],
     filter_conditions_2: [[f32; constants::NUM_FILTER_CONDITIONS]; NUM_BANDS],
     filter_conditions_3: [[f32; constants::NUM_FILTER_CONDITIONS]; NUM_BANDS],
@@ -24,9 +22,8 @@ pub struct GammatoneFilterbank<const NUM_BANDS: usize> {
 
 impl<const NUM_BANDS: usize> GammatoneFilterbank<NUM_BANDS> {
     /// Creates a new gammatone filterbank with the desired number of frequency bands and the minimum frequency.
-    pub fn new(min_freq: f32) -> Self {
+    pub fn new() -> Self {
         Self {
-            min_freq,
             filter_conditions_1: [[0.0; constants::NUM_FILTER_CONDITIONS]; NUM_BANDS],
             filter_conditions_2: [[0.0; constants::NUM_FILTER_CONDITIONS]; NUM_BANDS],
             filter_conditions_3: [[0.0; constants::NUM_FILTER_CONDITIONS]; NUM_BANDS],
@@ -167,7 +164,7 @@ mod tests {
         let epsilon = 0.0001;
 
         // Check if filtering works as intended.
-        let mut filterbank = GammatoneFilterbank::<{ NUM_BANDS }>::new(min_freq);
+        let mut filterbank = GammatoneFilterbank::<{ NUM_BANDS }>::new();
         filterbank.reset_filter_conditions();
         filterbank.set_filter_coefficients(&filter_coeffs);
 

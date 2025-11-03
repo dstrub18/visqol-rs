@@ -24,9 +24,8 @@ pub fn calculate_similarity<const NUM_BANDS: usize>(
     /////////////////// Stage 1: Preprocessing ///////////////////
     let deg_signal_scaled =
         audio_utils::scale_to_match_sound_pressure_level(ref_signal, deg_signal);
-    let mut spect_builder = GammatoneSpectrogramBuilder::<NUM_BANDS>::new(
-        GammatoneFilterbank::new(constants::MINIMUM_FREQ),
-    );
+    let mut spect_builder =
+        GammatoneSpectrogramBuilder::<NUM_BANDS>::new(GammatoneFilterbank::new());
 
     let window = AnalysisWindow::new(
         ref_signal.sample_rate,

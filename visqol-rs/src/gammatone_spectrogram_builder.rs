@@ -1,5 +1,5 @@
 use crate::analysis_window::AnalysisWindow;
-use crate::constants::NUM_BANDS_SPEECH;
+use crate::constants::{self, NUM_BANDS_SPEECH};
 use crate::equivalent_rectangular_bandwidth;
 use crate::gammatone_filterbank::GammatoneFilterbank;
 use crate::spectrogram::Spectrogram;
@@ -30,7 +30,7 @@ impl<const NUM_BANDS: usize> SpectrogramBuilder for GammatoneSpectrogramBuilder<
         let (mut filter_coeffs, mut center_freqs) =
             equivalent_rectangular_bandwidth::make_filters::<NUM_BANDS>(
                 sample_rate as usize,
-                self.filter_bank.min_freq,
+                constants::MINIMUM_FREQ,
                 max_freq as f32,
             );
         filter_coeffs.invert_axis(Axis(0));
@@ -104,7 +104,6 @@ mod tests {
     #[test]
     fn test_spec_builder() {
         // Fixed parameters
-        const MINIMUM_FREQ: f32 = 50.0;
         const NUM_BANDS: usize = 32;
         const OVERLAP: f32 = 0.25;
 
@@ -114,7 +113,7 @@ mod tests {
             "test_data/conformance_testdata_subset/contrabassoon48_stereo.wav",
         )
         .unwrap();
-        let filter_bank = GammatoneFilterbank::<{ NUM_BANDS }>::new(MINIMUM_FREQ);
+        let filter_bank = GammatoneFilterbank::<{ NUM_BANDS }>::new();
         let window = AnalysisWindow::new(signal_ref.sample_rate, OVERLAP, 0.08);
 
         let mut spectro_builder: GammatoneSpectrogramBuilder<NUM_BANDS> =
