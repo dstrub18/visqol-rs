@@ -9,7 +9,7 @@ use ndarray::{concatenate, s, Axis};
 pub fn align_and_truncate(
     ref_signal: &AudioSignal,
     deg_signal: &AudioSignal,
-) -> Option<(AudioSignal, AudioSignal, f64)> {
+) -> Option<(AudioSignal, AudioSignal, f32)> {
     let (aligned_deg_signal, lag) = globally_align(ref_signal, deg_signal)?;
 
     let mut new_ref_matrix = ref_signal.data_matrix.clone();
@@ -21,12 +21,12 @@ pub fn align_and_truncate(
             // that amount should be truncated.
             new_ref_matrix = new_ref_matrix
                 .slice(s![
-                    (lag * ref_signal.sample_rate as f64) as usize..ref_signal.len()
+                    (lag * ref_signal.sample_rate as f32) as usize..ref_signal.len()
                 ])
                 .to_owned();
             new_deg_matrix = new_deg_matrix
                 .slice(s![
-                    (lag * deg_signal.sample_rate as f64) as usize..ref_signal.len()
+                    (lag * deg_signal.sample_rate as f32) as usize..ref_signal.len()
                 ])
                 .to_owned();
         }
@@ -47,7 +47,7 @@ pub fn align_and_truncate(
 pub fn globally_align(
     ref_signal: &AudioSignal,
     deg_signal: &AudioSignal,
-) -> Option<(AudioSignal, f64)> {
+) -> Option<(AudioSignal, f32)> {
     let ref_upper_env = envelope::calculate_upper_env(&ref_signal.data_matrix)?;
     let deg_upper_env = envelope::calculate_upper_env(&deg_signal.data_matrix)?;
 
@@ -58,7 +58,7 @@ pub fn globally_align(
         let new_deg_signal =
             AudioSignal::new(deg_signal.data_matrix.as_slice()?, deg_signal.sample_rate);
 
-        Some((new_deg_signal, 0.0f64))
+        Some((new_deg_signal, 0.0f32))
     } else {
         let mut new_deg_matrix = deg_signal.data_matrix.clone();
         // align degraded matrix
@@ -69,7 +69,7 @@ pub fn globally_align(
                 ])
                 .to_owned();
         } else {
-            let zeros = Array1::<f64>::zeros(best_lag as usize);
+            let zeros = Array1::<f32>::zeros(best_lag as usize);
             new_deg_matrix = concatenate(Axis(0), &[zeros.view(), new_deg_matrix.view()])
                 .expect("Failed to zero pad degraded matrix!");
         }
@@ -82,7 +82,7 @@ pub fn globally_align(
         );
         Some((
             new_deg_signal,
-            (best_lag as f64 / deg_signal.sample_rate as f64),
+            (best_lag as f32 / deg_signal.sample_rate as f32),
         ))
     }
 }

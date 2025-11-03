@@ -8,12 +8,12 @@ use ndarray::{arr2, Array1, Axis};
 /// used to compare two patches taken from the reference and degraded
 /// spectrograms.
 pub struct NeurogramSimiliarityIndexMeasure {
-    intensity_range: f64,
+    intensity_range: f32,
 }
 
 #[allow(unused)]
 impl NeurogramSimiliarityIndexMeasure {
-    pub fn new(intensity_range: f64) -> Self { Self { intensity_range } }
+    pub fn new(intensity_range: f32) -> Self { Self { intensity_range } }
 }
 
 impl Default for NeurogramSimiliarityIndexMeasure {
@@ -28,8 +28,8 @@ impl PatchSimilarityComparator for NeurogramSimiliarityIndexMeasure {
     /// Computes the NSIM between `ref_patch` and `deg_patch` and returns the mean and standard deviation of each frequency band, the energy of the degraded patch and the similarity score.
     fn measure_patch_similarity(
         &self,
-        ref_patch: &mut ndarray::Array2<f64>,
-        deg_patch: &mut ndarray::Array2<f64>,
+        ref_patch: &mut ndarray::Array2<f32>,
+        deg_patch: &mut ndarray::Array2<f32>,
     ) -> PatchSimilarityResult {
         let window = arr2(&[
             [0.0113033910173052, 0.0838251475442633, 0.0113033910173052],
@@ -88,13 +88,13 @@ impl PatchSimilarityComparator for NeurogramSimiliarityIndexMeasure {
         let structure = &structure_numerator / &structure_denominator;
         let sim_map = &intensity * &structure;
 
-        let freq_band_deg_energy: Array1<f64> = deg_patch
+        let freq_band_deg_energy: Array1<f32> = deg_patch
             .mean_axis(Axis(1))
             .expect("Failed to compute mean for degraded signal!");
-        let freq_band_means: Array1<f64> = sim_map
+        let freq_band_means: Array1<f32> = sim_map
             .mean_axis(Axis(1))
             .expect("Failed to compute mean for similarity map!");
-        let freq_band_std: Array1<f64> = sim_map.std_axis(Axis(1), 1.0);
+        let freq_band_std: Array1<f32> = sim_map.std_axis(Axis(1), 1.0);
         let mean_freq_band_means = freq_band_means
             .mean()
             .expect("Failed to compute mean of means for degraded signal!");

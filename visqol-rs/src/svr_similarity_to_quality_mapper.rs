@@ -16,7 +16,7 @@ impl SvrSimilarityToQualityMapper {
 }
 
 impl SimilarityToQualityMapper for SvrSimilarityToQualityMapper {
-    fn predict_quality(&self, similarity_vector: &[f64]) -> f64 {
+    fn predict_quality(&self, similarity_vector: &[f32]) -> f32 {
         let solution = self.model.predict(similarity_vector);
         solution.clamp(1.0, 5.0)
     }

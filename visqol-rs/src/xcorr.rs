@@ -1,9 +1,9 @@
 use crate::fast_fourier_transform;
 use crate::fft_manager::FftManager;
-use num::complex::Complex64;
+use num::complex::Complex32;
 
 /// Calculate the maximum delay between to signals.
-pub fn calculate_best_lag(signal_1: &[f64], signal_2: &[f64]) -> Option<i64> {
+pub fn calculate_best_lag(signal_1: &[f32], signal_2: &[f32]) -> Option<i64> {
     let max_lag = ((signal_1.len().max(signal_2.len())) - 1) as i64;
 
     let point_wise_fft_vec =
@@ -29,9 +29,9 @@ pub fn calculate_best_lag(signal_1: &[f64], signal_2: &[f64]) -> Option<i64> {
 
 /// Calculates the pointwise inverse fft product of 2 signals
 pub fn calculate_inverse_fft_pointwise_product(
-    signal_1: &mut Vec<f64>,
-    signal_2: &mut Vec<f64>,
-) -> Vec<f64> {
+    signal_1: &mut Vec<f32>,
+    signal_2: &mut Vec<f32>,
+) -> Vec<f32> {
     let biggest_length = signal_1.len().max(signal_2.len());
 
     match &signal_1.len().cmp(&signal_2.len()) {
@@ -43,7 +43,7 @@ pub fn calculate_inverse_fft_pointwise_product(
         }
         _ => {}
     }
-    let (_, exp) = frexp((signal_1.len() * 2 - 1) as f64);
+    let (_, exp) = frexp((signal_1.len() * 2 - 1) as f32);
     let fft_points = 2usize.pow(exp as u32);
     let mut manager = FftManager::new(fft_points);
     let point_wise_product =
@@ -54,11 +54,11 @@ pub fn calculate_inverse_fft_pointwise_product(
 
 /// Calculates the pointwise fft product of 2 signals
 pub fn calculate_fft_pointwise_product(
-    signal_1: &[f64],
-    signal_2: &[f64],
+    signal_1: &[f32],
+    signal_2: &[f32],
     manager: &mut FftManager,
     fft_points: usize,
-) -> Vec<Complex64> {
+) -> Vec<Complex32> {
     let mut fft_signal_2 =
         fast_fourier_transform::forward_1d_from_points(manager, signal_2, fft_points);
     fft_signal_2
@@ -76,7 +76,7 @@ pub fn calculate_fft_pointwise_product(
 
 ///
 /// Returns the mantissa and the exponent of a given floating point value.
-pub fn frexp(s: f64) -> (f64, i32) {
+pub fn frexp(s: f32) -> (f32, i32) {
     if 0.0 == s {
         (s, 0)
     } else {
@@ -181,7 +181,7 @@ mod tests {
 
     #[test]
     fn test_frexp() {
-        let (_, result) = frexp(27.0f64);
+        let (_, result) = frexp(27.0f32);
         let expected_result = 5;
 
         assert_eq!(result, expected_result);

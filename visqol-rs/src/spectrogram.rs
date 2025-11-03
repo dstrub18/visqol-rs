@@ -4,14 +4,14 @@ use ndarray_stats::QuantileExt;
 /// Contains the spectral representation of audio data
 pub struct Spectrogram {
     /// Spectrogram data, rows signify center frequencies, columns signify time
-    pub data: Array2<f64>,
+    pub data: Array2<f32>,
     /// Center frequencies in Hz
-    pub center_freq_bands: Vec<f64>,
+    pub center_freq_bands: Vec<f32>,
 }
 
 impl Spectrogram {
     /// Creates a new spectrogram. Note that `data` and `center_freq_bands` are moved
-    pub fn new(data: Array2<f64>, center_freq_bands: Vec<f64>) -> Self {
+    pub fn new(data: Array2<f32>, center_freq_bands: Vec<f32>) -> Self {
         Self {
             data,
             center_freq_bands,
@@ -20,9 +20,9 @@ impl Spectrogram {
 
     /// Converts the spectrogram from linear scale to dB scale
     pub fn convert_to_db(&mut self) {
-        let sample_to_db = |element: f64| {
-            let sample: f64 = if element == 0.0 {
-                f64::EPSILON
+        let sample_to_db = |element: f32| {
+            let sample: f32 = if element == 0.0 {
+                f32::EPSILON
             } else {
                 element.abs()
             };
@@ -32,7 +32,7 @@ impl Spectrogram {
     }
 
     /// Returns the minimum value of the spectrogram
-    pub fn get_minimum(&self) -> f64 {
+    pub fn get_minimum(&self) -> f32 {
         *self
             .data
             .min()
@@ -40,15 +40,15 @@ impl Spectrogram {
     }
 
     /// Elementwise subtraction of the spectrogram
-    pub fn subtract_floor(&mut self, floor: f64) { self.data -= floor; }
+    pub fn subtract_floor(&mut self, floor: f32) { self.data -= floor; }
 
     /// Clamps each value in the spectrogram to `new_floor`
-    pub fn raise_floor(&mut self, new_floor: f64) {
+    pub fn raise_floor(&mut self, new_floor: f32) {
         self.data.mapv_inplace(|element| new_floor.max(element));
     }
 
     /// Given a noise threshold and a second spectrogram, both spectrograms are raised to share the same noise floor specified by `noise_threshold`
-    pub fn raise_floor_per_frame(&mut self, noise_threshold: f64, other: &mut Self) {
+    pub fn raise_floor_per_frame(&mut self, noise_threshold: f32, other: &mut Self) {
         let min_columns = self.data.ncols().min(other.data.ncols());
 
         for index in 0..min_columns {
@@ -69,7 +69,7 @@ impl Spectrogram {
 }
 
 impl std::ops::Index<(usize, usize)> for Spectrogram {
-    type Output = f64;
+    type Output = f32;
 
     fn index(&self, index: (usize, usize)) -> &Self::Output { &self.data[index] }
 }
@@ -86,13 +86,13 @@ mod tests {
 
     use super::*;
 
-    const TOLERANCE: f64 = 0.0001;
-    const MIN_ELEM: f64 = -53.2;
-    const FLOOR: f64 = 0.1;
+    const TOLERANCE: f32 = 0.0001;
+    const MIN_ELEM: f32 = -53.2;
+    const FLOOR: f32 = 0.1;
 
     #[test]
     fn convert_to_db_test() {
-        let elements = Array2::<f64>::from_shape_vec(
+        let elements = Array2::<f32>::from_shape_vec(
             (10, 1),
             vec![
                 10.21, -4.63, 0.54, 87.98, 0.065, 0.0, MIN_ELEM, 8.7, 0.0, -2.76,
@@ -100,10 +100,10 @@ mod tests {
         )
         .unwrap();
 
-        let elements_db_scaled = Array2::<f64>::from_shape_vec(
+        let elements_db_scaled = Array2::<f32>::from_shape_vec(
             (10, 1),
             vec![
-                10.0903, 6.6558, -2.6761, 19.4438, -11.8709, -156.5356, 17.2591, 9.3952, -156.5356,
+                10.0903, 6.6558, -2.6761, 19.4438, -11.8709, -69.2369, 17.2591, 9.3952, -69.2369,
                 4.4091,
             ],
         )
@@ -117,7 +117,7 @@ mod tests {
 
     #[test]
     fn minimum_test() {
-        let elements = Array2::<f64>::from_shape_vec(
+        let elements = Array2::<f32>::from_shape_vec(
             (10, 1),
             vec![
                 10.21, -4.63, 0.54, 87.98, 0.065, 0.0, MIN_ELEM, 8.7, 0.0, -2.76,
@@ -132,7 +132,7 @@ mod tests {
 
     #[test]
     fn subtract_floor_test() {
-        let elements = Array2::<f64>::from_shape_vec(
+        let elements = Array2::<f32>::from_shape_vec(
             (10, 1),
             vec![
                 10.21, -4.63, 0.54, 87.98, 0.065, 0.0, MIN_ELEM, 8.7, 0.0, -2.76,
@@ -140,7 +140,7 @@ mod tests {
         )
         .unwrap();
 
-        let elements_floor_subtracted = Array2::<f64>::from_shape_vec(
+        let elements_floor_subtracted = Array2::<f32>::from_shape_vec(
             (10, 1),
             vec![
                 10.21 - FLOOR,

@@ -10,7 +10,7 @@ pub trait PatchCreator {
     /// Given a spectrogram, this function returns 0-indexed indices of each patch.
     fn create_ref_patch_indices(
         &self,
-        spectrogram: &Array2<f64>,
+        spectrogram: &Array2<f32>,
         ref_signal: &AudioSignal,
         window: &AnalysisWindow,
     ) -> Result<Vec<usize>, VisqolError>;
@@ -18,7 +18,7 @@ pub trait PatchCreator {
     /// Given a spectrogram and the corresponding indices, this function performs the segmentation and returns each patch in a vector of 2-dimensional arrays.
     fn create_patches_from_indices(
         &self,
-        spectrogram: &Array2<f64>,
+        spectrogram: &Array2<f32>,
         patch_indices: &[usize],
-    ) -> Vec<Array2<f64>>;
+    ) -> Vec<Array2<f32>>;
 }

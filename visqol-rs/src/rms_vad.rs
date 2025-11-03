@@ -3,15 +3,15 @@
 /// When returning the VAD results, previous chunks are analyzed to make the VAD less erratic
 pub struct RmsVad {
     /// Indicates that voice acitivity is detected
-    voice_activity_present: f64,
+    voice_activity_present: f32,
     /// Indicates that no voice acitivity is detected
-    voice_activity_absent: f64,
+    voice_activity_absent: f32,
     /// Criterion to replace the presence of voice chunks with absence
     silent_chunk_count: usize,
     /// Threshold which determines when activity is detected
-    rms_threshold: f64,
+    rms_threshold: f32,
     /// Vector containing the VAD results per chunk
-    results_per_chunk: Vec<f64>,
+    results_per_chunk: Vec<f32>,
 }
 
 impl Default for RmsVad {
@@ -28,7 +28,7 @@ impl Default for RmsVad {
 }
 impl RmsVad {
     /// Given a chunk of data this function determines whether or not voice acitivity is present, storing its result in `each_chunk_result`
-    pub fn process_chunk(&mut self, chunk: &[i16]) -> f64 {
+    pub fn process_chunk(&mut self, chunk: &[i16]) -> f32 {
         let rms = self.calc_root_mean_square(chunk);
         if rms < self.rms_threshold {
             self.results_per_chunk.push(self.voice_activity_absent);
@@ -39,7 +39,7 @@ impl RmsVad {
     }
 
     /// Replaces seemingly present flags with silent flags if the previous chunks were considered silent and returns vad results.
-    pub fn get_vad_results(&mut self) -> Vec<f64> {
+    pub fn get_vad_results(&mut self) -> Vec<f32> {
         let mut vad_results = vec![1.0; self.silent_chunk_count - 1];
 
         for i in self.silent_chunk_count - 1..self.results_per_chunk.len() {
@@ -53,12 +53,12 @@ impl RmsVad {
     }
 
     /// Calculates and returns the root mean square value of a given slice.
-    fn calc_root_mean_square(&self, chunk: &[i16]) -> f64 {
+    fn calc_root_mean_square(&self, chunk: &[i16]) -> f32 {
         let mut square: i64 = 0;
         for elem in chunk {
             square += (*elem as i64).pow(2);
         }
-        (square as f64 / chunk.len() as f64).sqrt()
+        (square as f32 / chunk.len() as f32).sqrt()
     }
 
     /// Given an index, this function checks if acitivity was not detected in the previous chunk. Returns `true`, if activity was NOT detected.

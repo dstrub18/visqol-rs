@@ -44,7 +44,7 @@ pub fn calculate_similarity<const NUM_BANDS: usize>(
         patch_creator.create_ref_patch_indices(&ref_spectrogram.data, ref_signal, &window)?;
 
     let frame_duration = calculate_frame_duration(
-        window.size as f64 * window.overlap,
+        window.size as f32 * window.overlap,
         ref_signal.sample_rate as usize,
     );
 
@@ -95,42 +95,42 @@ pub fn calculate_similarity<const NUM_BANDS: usize>(
 }
 
 /// Computes prediction with the given `SimilarityToQualityMapper`
-fn predict_mos(fvnsim: &[f64], mapper: &dyn SimilarityToQualityMapper) -> f64 {
+fn predict_mos(fvnsim: &[f32], mapper: &dyn SimilarityToQualityMapper) -> f32 {
     mapper.predict_quality(fvnsim)
 }
 
 /// Calculates the mean across all patch similarity per frequency band
-fn calc_per_patch_mean_freq_band_means(sim_match_info: &[PatchSimilarityResult]) -> Array1<f64> {
-    let mut fvnsim = Array1::<f64>::zeros(sim_match_info[0].freq_band_means.len());
+fn calc_per_patch_mean_freq_band_means(sim_match_info: &[PatchSimilarityResult]) -> Array1<f32> {
+    let mut fvnsim = Array1::<f32>::zeros(sim_match_info[0].freq_band_means.len());
     for patch in sim_match_info {
         for (index, band) in fvnsim.iter_mut().enumerate() {
             *band += patch.freq_band_means[index];
         }
     }
-    fvnsim / sim_match_info.len() as f64
+    fvnsim / sim_match_info.len() as f32
 }
 
 /// Calculates the energy of the degraded patch across all patch similarity per frequency band
 fn calc_per_patch_mean_freq_band_degraded_energy(
     sim_match_info: &[PatchSimilarityResult],
-) -> Array1<f64> {
-    let mut total_fvdegenergy = Array1::<f64>::zeros(sim_match_info[0].freq_band_means.len());
+) -> Array1<f32> {
+    let mut total_fvdegenergy = Array1::<f32>::zeros(sim_match_info[0].freq_band_means.len());
     for patch in sim_match_info {
         for (index, band) in total_fvdegenergy.iter_mut().enumerate() {
             *band += patch.freq_band_deg_energy[index];
         }
     }
-    total_fvdegenergy / sim_match_info.len() as f64
+    total_fvdegenergy / sim_match_info.len() as f32
 }
 
 /// Calculates the standard deviation across all patch similarity per frequency band
 fn calc_per_patch_mean_freq_band_std_devs(
     sim_match_info: &[PatchSimilarityResult],
-    frame_duration: f64,
-) -> Array1<f64> {
+    frame_duration: f32,
+) -> Array1<f32> {
     let fvn_sim = calc_per_patch_mean_freq_band_means(sim_match_info);
 
-    let mut contribution = Array1::<f64>::zeros(sim_match_info[0].freq_band_means.len());
+    let mut contribution = Array1::<f32>::zeros(sim_match_info[0].freq_band_means.len());
     // Now that we have the global mean, we can compute the combined
     // variance/stddev.
     let mut total_frame_count = 0;
@@ -145,13 +145,13 @@ fn calc_per_patch_mean_freq_band_std_devs(
             let dev = patch.freq_band_stddevs[index];
             let mean = patch.freq_band_means[index];
 
-            *contributing_element += (frame_count - 1) as f64 * dev * dev;
-            *contributing_element += frame_count as f64 * mean * mean;
+            *contributing_element += (frame_count - 1) as f32 * dev * dev;
+            *contributing_element += frame_count as f32 * mean * mean;
         }
     }
 
-    let mut result = (&contribution - (&fvn_sim * &fvn_sim * total_frame_count as f64))
-        / (total_frame_count as f64 - 1.0);
+    let mut result = (&contribution - (&fvn_sim * &fvn_sim * total_frame_count as f32))
+        / (total_frame_count as f32 - 1.0);
 
     result.map_inplace(|element| {
         *element = if *element < 0.0 { 0.0 } else { element.sqrt() };
@@ -160,7 +160,7 @@ fn calc_per_patch_mean_freq_band_std_devs(
 }
 
 /// Clamps the MOS to 1.0 in case the files are too dissimilar
-fn alter_for_similarity_extremes(vnsim: f64, moslqo: f64) -> f64 {
+fn alter_for_similarity_extremes(vnsim: f32, moslqo: f32) -> f32 {
     if vnsim < 0.15 {
         1.0
     } else {
@@ -169,6 +169,6 @@ fn alter_for_similarity_extremes(vnsim: f64, moslqo: f64) -> f64 {
 }
 
 /// Calculates fraeme duration in seonds
-fn calculate_frame_duration(frame_size: f64, sample_rate: usize) -> f64 {
-    frame_size / sample_rate as f64
+fn calculate_frame_duration(frame_size: f32, sample_rate: usize) -> f32 {
+    frame_size / sample_rate as f32
 }

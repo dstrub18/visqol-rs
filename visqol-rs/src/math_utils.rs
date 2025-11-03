@@ -1,6 +1,6 @@
 use ndarray::Array1;
 use ndarray_stats::QuantileExt;
-pub fn normalize_signal(signal: &Array1<f64>) -> Array1<f64> {
+pub fn normalize_signal(signal: &Array1<f32>) -> Array1<f32> {
     let normalized_mat = signal.clone();
     let max = get_max(signal);
     normalized_mat / max
@@ -18,18 +18,18 @@ pub fn next_pow_two(input: usize) -> usize {
 }
 
 /// Returns the exponential fit between 2 points
-pub fn exponential_from_fit(x: f64, a: f64, b: f64, x_0: f64) -> f64 { a + (b * (x - x_0)).exp() }
+pub fn exponential_from_fit(x: f32, a: f32, b: f32, x_0: f32) -> f32 { a + (b * (x - x_0)).exp() }
 
-/// Normalizes a slice of `i16` to a vector of `f64` values
-pub fn normalize_int16_to_double(input: &[i16]) -> Vec<f64> {
+/// Normalizes a slice of `i16` to a vector of `f32` values
+pub fn normalize_int16_to_double(input: &[i16]) -> Vec<f32> {
     input
         .iter()
-        .map(|x| *x as f64 / 32767.0f64)
-        .collect::<Vec<f64>>()
+        .map(|x| *x as f32 / 32767.0f32)
+        .collect::<Vec<f32>>()
 }
 
-/// Returns the maximum of an `ndarray::Array1<f64>`
-fn get_max(mat: &Array1<f64>) -> f64 { *mat.max().expect("Failed to compute maximum of matrix!") }
+/// Returns the maximum of an `ndarray::Array1<f32>`
+fn get_max(mat: &Array1<f32>) -> f32 { *mat.max().expect("Failed to compute maximum of matrix!") }
 
 #[cfg(test)]
 mod tests {

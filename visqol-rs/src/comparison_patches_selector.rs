@@ -24,15 +24,15 @@ impl ComparisonPatchesSelector {
     /// This function composes the most suitable patches in a degraded signal given a reference signal.
     pub fn find_most_optimal_deg_patches(
         &self,
-        ref_patches: &mut [Array2<f64>],
+        ref_patches: &mut [Array2<f32>],
         ref_patch_indices: &mut [usize],
-        spectrogram_data: &Array2<f64>,
-        frame_duration: f64,
+        spectrogram_data: &Array2<f32>,
+        frame_duration: f32,
         search_window_radius: i32,
     ) -> Result<Vec<PatchSimilarityResult>, VisqolError> {
         let num_frames_per_patch = ref_patches[0].ncols();
         let num_frames_in_deg_spectro = spectrogram_data.ncols();
-        let patch_duration = frame_duration * num_frames_per_patch as f64;
+        let patch_duration = frame_duration * num_frames_per_patch as f32;
         let search_window = search_window_radius * num_frames_per_patch as i32;
         let num_patches = Self::calc_max_num_patches(
             ref_patch_indices,
@@ -57,10 +57,10 @@ impl ComparisonPatchesSelector {
         best_deg_patches.resize(num_patches, PatchSimilarityResult::default());
 
         let mut cumulative_similarity_dp =
-            vec![vec![0.0f64; spectrogram_data.ncols()]; ref_patch_indices.len()];
+            vec![vec![0.0f32; spectrogram_data.ncols()]; ref_patch_indices.len()];
         let mut backtrace = vec![vec![0usize; spectrogram_data.ncols()]; ref_patch_indices.len()];
 
-        let mut deg_patches = Vec::<Array2<f64>>::with_capacity(spectrogram_data.ncols());
+        let mut deg_patches = Vec::<Array2<f32>>::with_capacity(spectrogram_data.ncols());
 
         for slide_offset in 0..spectrogram_data.ncols() {
             deg_patches.push(Self::build_degraded_patch(
@@ -83,7 +83,7 @@ impl ComparisonPatchesSelector {
                 search_window,
             );
         }
-        let mut max_similarity_score = f64::MIN;
+        let mut max_similarity_score = f32::MIN;
         // The patch index for the last reference patch.
         let last_index = num_patches - 1;
 
@@ -138,13 +138,13 @@ impl ComparisonPatchesSelector {
                 best_deg_patches[patch_index as usize].freq_band_means = vec![0.0; num_rows];
             } else {
                 best_deg_patches[patch_index as usize].deg_patch_start_time =
-                    last_offset as f64 * frame_duration;
+                    last_offset as f32 * frame_duration;
                 best_deg_patches[patch_index as usize].deg_patch_end_time =
                     best_deg_patches[patch_index as usize].deg_patch_start_time + patch_duration;
             }
 
             best_deg_patches[patch_index as usize].ref_patch_start_time =
-                ref_patch_indices[patch_index as usize] as f64 * frame_duration;
+                ref_patch_indices[patch_index as usize] as f32 * frame_duration;
             best_deg_patches[patch_index as usize].ref_patch_end_time =
                 best_deg_patches[patch_index as usize].ref_patch_start_time + patch_duration;
             last_offset = backtrace[patch_index as usize][last_offset];
@@ -157,10 +157,10 @@ impl ComparisonPatchesSelector {
     /// This function finds the most suitable patch in a degraded signal given a reference patch.
     pub fn find_most_optimal_deg_patch(
         &self,
-        spectrogram_data: &Array2<f64>,
-        ref_patch: &mut Array2<f64>,
-        deg_patches: &mut [Array2<f64>],
-        cumulative_similarity_dp: &mut [Vec<f64>],
+        spectrogram_data: &Array2<f32>,
+        ref_patch: &mut Array2<f32>,
+        deg_patches: &mut [Array2<f32>],
+        cumulative_similarity_dp: &mut [Vec<f32>],
         backtrace: &mut [Vec<usize>],
         ref_patch_indices: &[usize],
         patch_index: usize,
@@ -189,7 +189,7 @@ impl ComparisonPatchesSelector {
                 .sim_comparator
                 .measure_patch_similarity(ref_patch, deg_patch);
             let mut past_slide_offset = -1;
-            let mut highest_sim = f64::MIN;
+            let mut highest_sim = f32::MIN;
 
             if patch_index > 0 {
                 // The lower_limit parameter tells us how far we should go
@@ -260,20 +260,20 @@ impl ComparisonPatchesSelector {
     }
 
     /// Given an `AudioSignal` and the desired start and end times in seconds, this function returns a copy of the segment in the audio signal ranging from `start_time` to `end_time`
-    pub fn slice(in_signal: &AudioSignal, start_time: f64, end_time: f64) -> AudioSignal {
-        let start_index = ((start_time * in_signal.sample_rate as f64) as usize).max(0);
+    pub fn slice(in_signal: &AudioSignal, start_time: f32, end_time: f32) -> AudioSignal {
+        let start_index = ((start_time * in_signal.sample_rate as f32) as usize).max(0);
         let end_index =
-            ((end_time * in_signal.sample_rate as f64) as usize).min(in_signal.data_matrix.len());
+            ((end_time * in_signal.sample_rate as f32) as usize).min(in_signal.data_matrix.len());
 
         let mut sliced_matrix = in_signal
             .data_matrix
             .slice(s![start_index..end_index])
             .to_owned();
         let end_time_diff =
-            (end_time * in_signal.sample_rate as f64 - in_signal.data_matrix.len() as f64) as usize;
+            (end_time * in_signal.sample_rate as f32 - in_signal.data_matrix.len() as f32) as usize;
 
         if end_time_diff > 0 {
-            let post_silence_matrix = Array1::<f64>::zeros(end_time_diff);
+            let post_silence_matrix = Array1::<f32>::zeros(end_time_diff);
             sliced_matrix =
                 concatenate(Axis(0), &[sliced_matrix.view(), post_silence_matrix.view()])
                     .expect("Failed to zero-pad patch!");
@@ -281,7 +281,7 @@ impl ComparisonPatchesSelector {
 
         if start_time < 0.0 {
             let pre_silence_matrix =
-                Array1::<f64>::zeros((-start_time * in_signal.sample_rate as f64) as usize);
+                Array1::<f32>::zeros((-start_time * in_signal.sample_rate as f32) as usize);
             sliced_matrix =
                 concatenate(Axis(0), &[pre_silence_matrix.view(), sliced_matrix.view()])
                     .expect("Failed to zero-pad patch!");
@@ -295,10 +295,10 @@ impl ComparisonPatchesSelector {
     }
 
     pub fn build_degraded_patch(
-        spectrogram_data: &Array2<f64>,
+        spectrogram_data: &Array2<f32>,
         window_beginning: usize,
         window_end: usize,
-    ) -> Array2<f64> {
+    ) -> Array2<f32> {
         let first_real_frame = 0.max(window_beginning);
         let last_real_frame = window_end.min(spectrogram_data.ncols());
 
@@ -307,7 +307,7 @@ impl ComparisonPatchesSelector {
             .to_owned();
 
         if window_end > spectrogram_data.ncols() {
-            let append_matrix = Array2::<f64>::zeros((
+            let append_matrix = Array2::<f32>::zeros((
                 spectrogram_data.nrows(),
                 window_end - spectrogram_data.ncols(),
             ));
@@ -458,7 +458,7 @@ mod tests {
             patch_creator.create_patches_from_indices(&ref_matrix, &patch_indices);
 
         // Defining the degraded audio matrix
-        let rows_concatenated: Vec<f64> = vec![
+        let rows_concatenated: Vec<f32> = vec![
             0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 2.0, 1.0, 0.0, 0.0, 0.0, 0.0, 2.0, 2.0, 3.0, 2.0,
             0.0, 0.0, 0.0, 0.0, 3.0, 3.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
             0.0, 1.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 2.0, 1.0, 2.0, 3.0, 0.0, 0.0, 0.0, 0.0,

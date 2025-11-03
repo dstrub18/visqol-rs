@@ -31,13 +31,13 @@ impl<const NUM_BANDS: usize> SpectrogramBuilder for GammatoneSpectrogramBuilder<
             equivalent_rectangular_bandwidth::make_filters::<NUM_BANDS>(
                 sample_rate as usize,
                 self.filter_bank.min_freq,
-                max_freq as f64,
+                max_freq as f32,
             );
         filter_coeffs.invert_axis(Axis(0));
         self.filter_bank.set_filter_coefficients(&filter_coeffs);
         self.filter_bank.reset_filter_conditions();
 
-        let hop_size = (window.size as f64 * window.overlap) as usize;
+        let hop_size = (window.size as f32 * window.overlap) as usize;
 
         if time_domain_signal.len() < window.size {
             return Err(VisqolError::TooFewSamples {
@@ -47,7 +47,7 @@ impl<const NUM_BANDS: usize> SpectrogramBuilder for GammatoneSpectrogramBuilder<
         }
 
         let num_cols = 1 + ((time_domain_signal.len() - window.size) / hop_size);
-        let mut out_matrix = Array2::<f64>::zeros((NUM_BANDS, num_cols));
+        let mut out_matrix = Array2::<f32>::zeros((NUM_BANDS, num_cols));
 
         for (index, frame) in time_domain_signal
             .windows(window.size)
@@ -104,9 +104,9 @@ mod tests {
     #[test]
     fn test_spec_builder() {
         // Fixed parameters
-        const MINIMUM_FREQ: f64 = 50.0;
+        const MINIMUM_FREQ: f32 = 50.0;
         const NUM_BANDS: usize = 32;
-        const OVERLAP: f64 = 0.25;
+        const OVERLAP: f32 = 0.25;
 
         const REF_SPECTRO_NUM_COLS: usize = 802;
 

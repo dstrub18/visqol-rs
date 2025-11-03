@@ -12,7 +12,7 @@ pub struct ImagePatchCreator {
 impl PatchCreator for ImagePatchCreator {
     fn create_ref_patch_indices(
         &self,
-        spectrogram: &Array2<f64>,
+        spectrogram: &Array2<f32>,
         _ref_signal: &AudioSignal,
         _window: &AnalysisWindow,
     ) -> Result<Vec<usize>, VisqolError> {
@@ -21,14 +21,14 @@ impl PatchCreator for ImagePatchCreator {
 
     fn create_patches_from_indices(
         &self,
-        spectrogram: &Array2<f64>,
+        spectrogram: &Array2<f32>,
         patch_indices: &[usize],
-    ) -> Vec<Array2<f64>> {
+    ) -> Vec<Array2<f32>> {
         let mut end_col: usize;
 
-        let mut patches = Vec::<Array2<f64>>::new();
+        let mut patches = Vec::<Array2<f32>>::new();
 
-        let mut patch: Array2<f64>;
+        let mut patch: Array2<f32>;
 
         for start_col in patch_indices {
             end_col = start_col + self.patch_size;
@@ -46,7 +46,7 @@ impl ImagePatchCreator {
     /// Computes the start indices of each patch by segmenting the entire spectrogram into equally-sized patches.
     fn create_ref_patch_indices_from_spectrogram(
         &self,
-        spectrogram: &Array2<f64>,
+        spectrogram: &Array2<f32>,
     ) -> Result<Vec<usize>, VisqolError> {
         let spectrum_length = spectrogram.ncols();
         let init_patch_index = self.patch_size / 2;

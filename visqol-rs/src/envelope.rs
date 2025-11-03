@@ -1,15 +1,15 @@
 use crate::fast_fourier_transform;
 use crate::fft_manager::FftManager;
 use ndarray::Array1;
-use num::complex::Complex64;
+use num::complex::Complex32;
 
 /// Calculates the upper envelope for a given time domain signal.
-pub fn calculate_upper_env(signal: &Array1<f64>) -> Option<ndarray::Array1<f64>> {
+pub fn calculate_upper_env(signal: &Array1<f32>) -> Option<ndarray::Array1<f32>> {
     let mean = signal.mean()?;
     let mut signal_centered = signal - mean;
     let hilbert = calculate_hilbert(signal_centered.as_slice_mut()?)?;
 
-    let mut hilbert_amplitude = Array1::<f64>::zeros(hilbert.len());
+    let mut hilbert_amplitude = Array1::<f32>::zeros(hilbert.len());
 
     for (amplitude, h) in hilbert_amplitude.iter_mut().zip(&hilbert) {
         *amplitude = h.norm();
@@ -19,7 +19,7 @@ pub fn calculate_upper_env(signal: &Array1<f64>) -> Option<ndarray::Array1<f64>>
 }
 
 /// Calculates the hilbert transform for a given time domain signal.
-pub fn calculate_hilbert(signal: &mut [f64]) -> Option<Array1<Complex64>> {
+pub fn calculate_hilbert(signal: &mut [f32]) -> Option<Array1<Complex32>> {
     let mut fft_manager = FftManager::new(signal.len());
     let freq_domain_signal =
         fast_fourier_transform::forward_1d_from_matrix(&mut fft_manager, signal);
@@ -28,7 +28,7 @@ pub fn calculate_hilbert(signal: &mut [f64]) -> Option<Array1<Complex64>> {
     let is_non_empty = !signal.is_empty();
 
     // Set up scaling vector
-    let mut hilbert_scaling = vec![0.0f64; freq_domain_signal.len()];
+    let mut hilbert_scaling = vec![0.0f32; freq_domain_signal.len()];
     hilbert_scaling[0] = 1.0;
 
     if !is_odd && is_non_empty {
@@ -45,7 +45,7 @@ pub fn calculate_hilbert(signal: &mut [f64]) -> Option<Array1<Complex64>> {
 
     hilbert_scaling[1..n].fill(2.0);
 
-    let mut element_wise_product = Array1::<Complex64>::zeros(freq_domain_signal.len());
+    let mut element_wise_product = Array1::<Complex32>::zeros(freq_domain_signal.len());
 
     for i in 0..freq_domain_signal.len() {
         element_wise_product[i] = freq_domain_signal[i] * hilbert_scaling[i];
@@ -56,7 +56,7 @@ pub fn calculate_hilbert(signal: &mut [f64]) -> Option<Array1<Complex64>> {
     hilbert
         .iter_mut()
         .for_each(|element| *element = *element * 2.0 - 0.000001);
-    Some(Array1::<Complex64>::from_vec(hilbert))
+    Some(Array1::<Complex32>::from_vec(hilbert))
 }
 
 #[cfg(test)]
@@ -94,7 +94,7 @@ mod tests {
         let (ref_signal, deg_signal) = load_audio_files();
         let ref_signal_vec = ref_signal.data_matrix.to_vec();
 
-        let (_, exponent) = frexp((ref_signal_vec.len() * 2 - 1) as f64);
+        let (_, exponent) = frexp((ref_signal_vec.len() * 2 - 1) as f32);
         let fft_points = 2i32.pow(exponent as u32) as usize;
         let mut manager = fft_manager::FftManager::new(fft_points);
 

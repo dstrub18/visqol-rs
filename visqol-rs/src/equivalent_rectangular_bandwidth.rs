@@ -3,47 +3,47 @@ use crate::audio_utils::{
     float_vec_to_real_valued_complex_vec, real_valued_complex_vec_to_float_vec,
 };
 use ndarray::Array2;
-use num::{complex::Complex64, Zero};
+use num::{complex::Complex32, Zero};
 
 // Glasberg and Moore Parameters
-const EAR_Q: f64 = 9.26449f64;
-const MIN_BW: f64 = 24.7f64;
-const ERB_ORDER: f64 = 1.0;
+const EAR_Q: f32 = 9.26449f32;
+const MIN_BW: f32 = 24.7f32;
+const ERB_ORDER: f32 = 1.0;
 
 /// Computes the coefficients for an ERB filterbank.
 pub fn make_filters<const NUM_BANDS: usize>(
     sample_rate: usize,
-    low_freq: f64,
-    high_freq: f64,
-) -> (Array2<f64>, Vec<f64>) {
+    low_freq: f32,
+    high_freq: f32,
+) -> (Array2<f32>, Vec<f32>) {
     let mut high_freq = high_freq;
-    if (high_freq > sample_rate as f64 / 2.0) {
+    if (high_freq > sample_rate as f32 / 2.0) {
         log::warn!("EquivalentRectangularBandwidth::MakeFilters: high_freq >= (sample_rate / 2), for sample_rate={}, high_freq={}. Falling back to (sample_rate / 2)", sample_rate, high_freq);
-        high_freq = sample_rate as f64 / 2.0;
+        high_freq = sample_rate as f32 / 2.0;
     }
 
-    let pi = std::f64::consts::PI;
+    let pi = std::f32::consts::PI;
     let cf = float_vec_to_real_valued_complex_vec(
         &calculate_uniform_center_freqs::<{ NUM_BANDS }>(low_freq, high_freq),
     );
 
-    let mut B = [Complex64::zero(); NUM_BANDS];
-    let mut B1 = [Complex64::zero(); NUM_BANDS];
+    let mut B = [Complex32::zero(); NUM_BANDS];
+    let mut B1 = [Complex32::zero(); NUM_BANDS];
 
     for (B_element, cf_element) in B.iter_mut().zip(&cf) {
         let erb =
             ((cf_element / EAR_Q).powf(ERB_ORDER) + MIN_BW.powf(ERB_ORDER)).powf(1.0 / ERB_ORDER);
         *B_element = 1.019 * 2.0 * pi * erb;
     }
-    let t = 1.0 / sample_rate as f64;
+    let t = 1.0 / sample_rate as f32;
 
-    let mut exp_bt = [Complex64::zero(); NUM_BANDS];
+    let mut exp_bt = [Complex32::zero(); NUM_BANDS];
 
     for (exp, b_element) in exp_bt.iter_mut().zip(&B) {
         *exp = (*b_element * t).exp();
     }
 
-    let mut B1 = [Complex64::zero(); NUM_BANDS];
+    let mut B1 = [Complex32::zero(); NUM_BANDS];
     for i in 0..B1.len() {
         B1[i] = -2.0 * (2.0 * cf[i] * pi * t).cos() / exp_bt[i];
     }
@@ -60,39 +60,39 @@ pub fn make_filters<const NUM_BANDS: usize>(
 
     let mut bPos = b1.clone();
     bPos.iter_mut()
-        .for_each(|element| *element = *element * 2.0 * (3.0 + 2.0f64.powf(1.5)).sqrt());
+        .for_each(|element| *element = *element * 2.0 * (3.0 + 2.0f32.powf(1.5)).sqrt());
 
     let mut bNeg = b1.clone();
     bNeg.iter_mut()
-        .for_each(|element| *element = *element * 2.0 * (3.0 + -(2.0f64.powf(1.5))).sqrt());
+        .for_each(|element| *element = *element * 2.0 * (3.0 + -(2.0f32.powf(1.5))).sqrt());
 
     let mut a = cf.clone();
     a.iter_mut()
         .for_each(|element| *element = (*element * 2.0 * pi * t).cos() * 2.0 * t);
 
-    let mut A11 = vec![Complex64::zero(); a.len()];
+    let mut A11 = vec![Complex32::zero(); a.len()];
     A11.iter_mut()
         .enumerate()
-        .for_each(|(i, element)| *element = -(a[i] / exp_bt[i] + bPos[i] / exp_bt[i]) / 2.0f64);
+        .for_each(|(i, element)| *element = -(a[i] / exp_bt[i] + bPos[i] / exp_bt[i]) / 2.0f32);
 
-    let mut A12 = vec![Complex64::zero(); a.len()];
+    let mut A12 = vec![Complex32::zero(); a.len()];
     A12.iter_mut()
         .enumerate()
-        .for_each(|(i, element)| *element = -(a[i] / exp_bt[i] - bPos[i] / exp_bt[i]) / 2.0f64);
+        .for_each(|(i, element)| *element = -(a[i] / exp_bt[i] - bPos[i] / exp_bt[i]) / 2.0f32);
 
-    let mut A13 = vec![Complex64::zero(); a.len()];
+    let mut A13 = vec![Complex32::zero(); a.len()];
     A13.iter_mut()
         .enumerate()
-        .for_each(|(i, element)| *element = -(a[i] / exp_bt[i] + bNeg[i] / exp_bt[i]) / 2.0f64);
+        .for_each(|(i, element)| *element = -(a[i] / exp_bt[i] + bNeg[i] / exp_bt[i]) / 2.0f32);
 
-    let mut A14 = vec![Complex64::zero(); a.len()];
+    let mut A14 = vec![Complex32::zero(); a.len()];
     A14.iter_mut()
         .enumerate()
-        .for_each(|(i, element)| *element = -(a[i] / exp_bt[i] - bNeg[i] / exp_bt[i]) / 2.0f64);
+        .for_each(|(i, element)| *element = -(a[i] / exp_bt[i] - bNeg[i] / exp_bt[i]) / 2.0f32);
 
     // setup gain variables
-    let i = Complex64::new(0.0, 1.0);
-    let p1 = 2.0f64.powf(3.0 / 2.0);
+    let i = Complex32::new(0.0, 1.0);
+    let p1 = 2.0f32.powf(3.0 / 2.0);
     let s1 = (3.0 - p1).sqrt();
     let s2 = (3.0 + p1).sqrt();
     let mut xExp = cf.clone();
@@ -180,15 +180,15 @@ pub fn make_filters<const NUM_BANDS: usize>(
     y.iter_mut()
         .for_each(|element| *element = element.powf(4.0));
 
-    let mut gain = vec![0.0f64; x01.len()];
+    let mut gain = vec![0.0f32; x01.len()];
     for i in 0..gain.len() {
         gain[i] = ((x1[i] * x2[i] * x3[i] * x4[i]) / x5[i].powf(4.0)).norm();
     }
 
     let A0 = [t; NUM_BANDS];
-    let A2 = [0.0f64; NUM_BANDS];
-    let B0 = [1.0f64; NUM_BANDS];
-    let mut vf_coeffs = ndarray::Array2::<f64>::zeros((NUM_BANDS, 10));
+    let A2 = [0.0f32; NUM_BANDS];
+    let B0 = [1.0f32; NUM_BANDS];
+    let mut vf_coeffs = ndarray::Array2::<f32>::zeros((NUM_BANDS, 10));
     // Setup matrix
     for i in 0..NUM_BANDS {
         vf_coeffs[(i, 0)] = A0[i];
@@ -208,19 +208,19 @@ pub fn make_filters<const NUM_BANDS: usize>(
 
 /// Given a lower frequency boundary, a higher frequency boundary and the number of bands, this function calculates the center frequencies on an ERB scale.
 fn calculate_uniform_center_freqs<const NUM_BANDS: usize>(
-    low_freq: f64,
-    high_freq: f64,
-) -> [f64; NUM_BANDS] {
+    low_freq: f32,
+    high_freq: f32,
+) -> [f32; NUM_BANDS] {
     // Glasberg and Moore Parameters
 
     let a = -(EAR_Q * MIN_BW);
     let b = -((high_freq + EAR_Q * MIN_BW).ln());
     let c = (low_freq + EAR_Q * MIN_BW).ln();
     let d = high_freq + EAR_Q * MIN_BW;
-    let e = (b + c) / NUM_BANDS as f64;
+    let e = (b + c) / NUM_BANDS as f32;
     let mut coefficients = [0.0; NUM_BANDS];
     for (i, coefficient) in coefficients.iter_mut().enumerate() {
-        let f = ((i as f64 + 1.0) * e).exp() * d;
+        let f = ((i as f32 + 1.0) * e).exp() * d;
         *coefficient = a + f;
     }
     coefficients
@@ -236,9 +236,9 @@ mod tests {
     fn erb_coefficients_are_computed_correctly() {
         let fs = 48000;
         const NUM_BANDS: usize = 32;
-        let min_freq = 50.0f64;
+        let min_freq = 50.0f32;
 
-        let (mut filter_coeffs, _) = make_filters::<NUM_BANDS>(fs, min_freq, fs as f64 / 2.0);
+        let (mut filter_coeffs, _) = make_filters::<NUM_BANDS>(fs, min_freq, fs as f32 / 2.0);
 
         let expected_filter_coefficients = vec![
             2.08333e-05,

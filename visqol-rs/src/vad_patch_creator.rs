@@ -6,13 +6,13 @@ use ndarray::{s, Array2};
 /// Computes patch indices from a spectrogram by analyzing voice acitivity in the time domain and rejecting patches which are considered silent.
 pub struct VadPatchCreator {
     patch_size: usize,
-    frames_with_va_threshold: f64,
+    frames_with_va_threshold: f32,
 }
 
 impl PatchCreator for VadPatchCreator {
     fn create_ref_patch_indices(
         &self,
-        spectrogram: &Array2<f64>,
+        spectrogram: &Array2<f32>,
         ref_signal: &AudioSignal,
         window: &AnalysisWindow,
     ) -> Result<std::vec::Vec<usize>, VisqolError> {
@@ -24,7 +24,7 @@ impl PatchCreator for VadPatchCreator {
             ref_signal.sample_rate,
         );
 
-        let frame_size = (window.size as f64 * window.overlap) as usize;
+        let frame_size = (window.size as f32 * window.overlap) as usize;
         let patch_sample_length = self.patch_size * frame_size;
         let spectrum_length = spectrogram.ncols();
         let first_patch_idx = self.patch_size / 2 - 1;
@@ -48,7 +48,7 @@ impl PatchCreator for VadPatchCreator {
         let mut patch_idx = first_patch_idx;
 
         for patch in &vad_result.iter().chunks(self.patch_size) {
-            let frames_with_va = patch.sum::<f64>();
+            let frames_with_va = patch.sum::<f32>();
 
             if frames_with_va >= self.frames_with_va_threshold {
                 ref_patch_indices.push(patch_idx);
@@ -61,12 +61,12 @@ impl PatchCreator for VadPatchCreator {
 
     fn create_patches_from_indices(
         &self,
-        spectrogram: &Array2<f64>,
+        spectrogram: &Array2<f32>,
         patch_indices: &[usize],
-    ) -> Vec<Array2<f64>> {
-        let mut patches = Vec::<Array2<f64>>::with_capacity(patch_indices.len());
+    ) -> Vec<Array2<f32>> {
+        let mut patches = Vec::<Array2<f32>>::with_capacity(patch_indices.len());
 
-        let mut patch: Array2<f64>;
+        let mut patch: Array2<f32>;
 
         let mut end_col: usize;
         for start_col in patch_indices {
@@ -90,20 +90,20 @@ impl VadPatchCreator {
     /// Given a time domain signal, this function returns a vector with 1s indicating voice acitivity and 0s indicating the absence of acitivity.
     pub fn get_voice_activity(
         &self,
-        signal: &[f64],
+        signal: &[f32],
         start_sample: usize,
         total_samples: usize,
         frame_length: usize,
-    ) -> Vec<f64> {
+    ) -> Vec<f32> {
         let mut vad = rms_vad::RmsVad::default();
 
         let patch = &signal[start_sample..start_sample + total_samples];
 
         let mut frame = Vec::<i16>::with_capacity(frame_length);
         for patch_element in patch {
-            let mut scaled_val = ((*patch_element * ((1 << 15) as f64)) as i16) as f64;
-            scaled_val = (-(1 << 15) as f64)
-                .max(1.0 * ((1 << 15) - 1) as f64)
+            let mut scaled_val = ((*patch_element * ((1 << 15) as f32)) as i16) as f32;
+            scaled_val = (-(1 << 15) as f32)
+                .max(1.0 * ((1 << 15) - 1) as f32)
                 .min(scaled_val);
             frame.push(scaled_val as i16);
 
@@ -148,7 +148,7 @@ mod tests {
 
     #[test]
     fn patch_indices() {
-        const _K_MINIMUM_FREQ: f64 = 50.0;
+        const _K_MINIMUM_FREQ: f32 = 50.0;
         const K_PATCH_SIZE: usize = 20;
 
         let expected_patches = vec![9, 29, 49, 69, 89];

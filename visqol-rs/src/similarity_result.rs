@@ -6,29 +6,29 @@ use crate::patch_similarity_comparator::PatchSimilarityResult;
 /// Contains information for the similarity of 2 signals
 pub struct SimilarityResult {
     /// Predicted MOS: 1 = bad, 5 = excellent
-    pub moslqo: f64,
+    pub moslqo: f32,
     /// Mean of fvnsim scores
-    pub vnsim: f64,
+    pub vnsim: f32,
     /// Similarity score of reference and degraded file per frequency band, ordered from lowest to highest frequency
-    pub fvnsim: Vec<f64>,
+    pub fvnsim: Vec<f32>,
     /// Standard deviation of similarity per frequency band
-    pub fstdnsim: Vec<f64>,
+    pub fstdnsim: Vec<f32>,
     /// Degraded energy for each frequency
-    pub fvdegenergy: Vec<f64>,
+    pub fvdegenergy: Vec<f32>,
     /// Frequencies for which a similarity sore was computed
-    pub center_freq_bands: Vec<f64>,
+    pub center_freq_bands: Vec<f32>,
     /// Similarity data for each patch in the signal
     pub patch_sims: Vec<PatchSimilarityResult>,
 }
 
 impl SimilarityResult {
     pub fn new(
-        moslqo: f64,
-        vnsim: f64,
-        fnsim: Vec<f64>,
-        fstdnsim: Vec<f64>,
-        fvdegenergy: Vec<f64>,
-        center_freq_bands: Vec<f64>,
+        moslqo: f32,
+        vnsim: f32,
+        fnsim: Vec<f32>,
+        fstdnsim: Vec<f32>,
+        fvdegenergy: Vec<f32>,
+        center_freq_bands: Vec<f32>,
         patch_sims: Vec<PatchSimilarityResult>,
     ) -> Self {
         Self {

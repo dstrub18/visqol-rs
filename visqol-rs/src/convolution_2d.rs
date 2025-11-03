@@ -2,9 +2,9 @@ use ndarray::{Array2, ShapeBuilder};
 
 /// Computes the convolution of `input_matrix` with `fir_filter`
 pub fn perform_valid_2d_conv_with_boundary(
-    fir_filter: &Array2<f64>,
-    input_matrix: &mut Array2<f64>,
-) -> Array2<f64> {
+    fir_filter: &Array2<f32>,
+    input_matrix: &mut Array2<f32>,
+) -> Array2<f32> {
     let padded_matrix = add_matrix_boundary(input_matrix);
     let padded_flattened_matrix = flatten_matrix(&padded_matrix);
 
@@ -18,11 +18,11 @@ pub fn perform_valid_2d_conv_with_boundary(
 
     let flattened_filter = flatten_matrix(fir_filter);
 
-    let mut out_matrix = Array2::<f64>::zeros((o_r_c, o_c_c).f());
+    let mut out_matrix = Array2::<f32>::zeros((o_r_c, o_c_c).f());
 
     for o_row in 0..o_r_c {
         for o_col in 0..o_c_c {
-            let mut sum = 0.0f64;
+            let mut sum = 0.0f32;
             let mut filter_index = filter_size - 1;
 
             for f_col in 0..f_c_c {
@@ -38,8 +38,8 @@ pub fn perform_valid_2d_conv_with_boundary(
     out_matrix
 }
 
-fn flatten_matrix(input_matrix: &Array2<f64>) -> Vec<f64> {
-    let mut res = Vec::<f64>::new();
+fn flatten_matrix(input_matrix: &Array2<f32>) -> Vec<f32> {
+    let mut res = Vec::<f32>::new();
     for i in 0..input_matrix.nrows() {
         for j in 0..input_matrix.ncols() {
             res.push(input_matrix[(i, j)]);
@@ -49,7 +49,7 @@ fn flatten_matrix(input_matrix: &Array2<f64>) -> Vec<f64> {
 }
 
 /// Compute zero-padded matrix and fill zero-padded boundaries with the adjacent non-zero rows and columns
-pub fn add_matrix_boundary(input_matrix: &mut Array2<f64>) -> Array2<f64> {
+pub fn add_matrix_boundary(input_matrix: &mut Array2<f32>) -> Array2<f32> {
     let mut output_matrix = copy_matrix_within_padding(input_matrix, 1, 1, 1, 1);
 
     for i in 0..output_matrix.ncols() {
@@ -68,13 +68,13 @@ pub fn add_matrix_boundary(input_matrix: &mut Array2<f64>) -> Array2<f64> {
 
 /// Returns a copy of `input matrix` which is zero-padded by the specified amounts.
 pub fn copy_matrix_within_padding(
-    input_matrix: &Array2<f64>,
+    input_matrix: &Array2<f32>,
     row_prepad_amount: usize,
     row_postpad_amount: usize,
     col_prepad_amount: usize,
     col_postpad_amount: usize,
-) -> Array2<f64> {
-    let mut output_matrix = Array2::<f64>::zeros((
+) -> Array2<f32> {
+    let mut output_matrix = Array2::<f32>::zeros((
         row_prepad_amount + input_matrix.nrows() + row_postpad_amount,
         col_prepad_amount + input_matrix.ncols() + col_postpad_amount,
     ));
@@ -123,7 +123,7 @@ mod tests {
             42.9752, 41.3784, 41.2656, 42.1388, 43.0366, 42.8042, 42.7613, 42.1817, 42.4590,
             43.2709, 42.9377,
         ];
-        let expected_result = Array2::<f64>::from_shape_vec((5, 4).f(), r).unwrap();
+        let expected_result = Array2::<f32>::from_shape_vec((5, 4).f(), r).unwrap();
 
         use approx::assert_abs_diff_eq;
         for i in 0..result.nrows() {

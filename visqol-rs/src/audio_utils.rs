@@ -5,13 +5,13 @@ use crate::math_utils;
 use crate::spectrogram::Spectrogram;
 use crate::wav_reader::WavFile;
 use ndarray::{Array1, Array2, Axis, ShapeBuilder};
-use num::complex::Complex64;
+use num::complex::Complex32;
 use num_traits::Zero;
 
 // Constants
-const SPL_REFERENCE_POINT: f64 = 0.00002;
-const NOISE_FLOOR_RELATIVE_TO_PEAK_DB: f64 = 45.0;
-const NOISE_FLOOR_ABSOLUTE_DB: f64 = -45.0;
+const SPL_REFERENCE_POINT: f32 = 0.00002;
+const NOISE_FLOOR_RELATIVE_TO_PEAK_DB: f32 = 45.0;
+const NOISE_FLOOR_ABSOLUTE_DB: f32 = -45.0;
 
 /// Returns a copy of `degraded` which has the same SPL as `reference`.
 pub fn scale_to_match_sound_pressure_level(
@@ -21,7 +21,7 @@ pub fn scale_to_match_sound_pressure_level(
     let ref_spl = calculate_sound_pressure_level(reference);
     let deg_spl = calculate_sound_pressure_level(degraded);
 
-    let scale_factor = 10.0f64.powf((ref_spl - deg_spl) / 20.0);
+    let scale_factor = 10.0f32.powf((ref_spl - deg_spl) / 20.0);
     let scaled_mat = degraded.data_matrix.clone() * scale_factor;
     AudioSignal::new(
         scaled_mat
@@ -32,18 +32,18 @@ pub fn scale_to_match_sound_pressure_level(
 }
 
 /// Computes the sound pressure level of an audio signal in dB
-fn calculate_sound_pressure_level(signal: &AudioSignal) -> f64 {
-    let energy: f64 = signal
+fn calculate_sound_pressure_level(signal: &AudioSignal) -> f32 {
+    let energy: f32 = signal
         .data_matrix
         .iter()
         .map(|element| element.powi(2))
         .sum();
-    let sound_pressure = (energy / (signal.data_matrix.len()) as f64).sqrt();
+    let sound_pressure = (energy / (signal.data_matrix.len()) as f32).sqrt();
     20.0 * ((sound_pressure / SPL_REFERENCE_POINT).log10())
 }
 
 /// Calculates the per-column sum of a 2d array and returns them as a 1d array
-fn to_mono_matrix(sample_matrix: &Array2<f64>) -> Array1<f64> { sample_matrix.sum_axis(Axis(1)) }
+fn to_mono_matrix(sample_matrix: &Array2<f32>) -> Array1<f32> { sample_matrix.sum_axis(Axis(1)) }
 
 /// Given a `file_path` to a wav file on disk, this file is loaded. If there are multiple channels, these are summed and normalized to 1 mono channel.
 pub fn load_as_mono(file_path: &str) -> Result<AudioSignal, Box<dyn Error>> {
@@ -55,13 +55,13 @@ pub fn load_as_mono(file_path: &str) -> Result<AudioSignal, Box<dyn Error>> {
     let final_signal = to_mono_matrix(&final_signal);
 
     Ok(AudioSignal {
-        data_matrix: final_signal / wav_reader.num_channels as f64,
+        data_matrix: final_signal / wav_reader.num_channels as f32,
         sample_rate: wav_reader.sample_rate,
     })
 }
 
 /// De-interleave an interleaved signal and returns them in a matrix. 1 row represents 1 channel.
-fn extract_multichannel(num_channels: usize, interleaved_vector: &[f64]) -> Array2<f64> {
+fn extract_multichannel(num_channels: usize, interleaved_vector: &[f32]) -> Array2<f32> {
     assert!(interleaved_vector.len().is_multiple_of(num_channels));
     let sub_vector_size = interleaved_vector.len() / num_channels;
     Array2::from_shape_vec(
@@ -93,8 +93,8 @@ pub fn prepare_spectrograms_for_comparison(
 }
 
 /// Clones all elements of `float_vector` into the real elements of a complex vector and sets all imaginary parts to 0.0.
-pub fn float_vec_to_real_valued_complex_vec(float_vector: &[f64]) -> Vec<Complex64> {
-    let mut complex_vec = vec![Complex64::zero(); float_vector.len()];
+pub fn float_vec_to_real_valued_complex_vec(float_vector: &[f32]) -> Vec<Complex32> {
+    let mut complex_vec = vec![Complex32::zero(); float_vector.len()];
 
     complex_vec
         .iter_mut()
@@ -105,9 +105,9 @@ pub fn float_vec_to_real_valued_complex_vec(float_vector: &[f64]) -> Vec<Complex
 
     complex_vec
 }
-/// Clones all elements of `complex_vector` into a vector of `f64` values, ommitting the imaginary parts.
-pub fn real_valued_complex_vec_to_float_vec(complex_vector: &[Complex64]) -> Vec<f64> {
-    let mut real_vec = vec![f64::zero(); complex_vector.len()];
+/// Clones all elements of `complex_vector` into a vector of `f32` values, ommitting the imaginary parts.
+pub fn real_valued_complex_vec_to_float_vec(complex_vector: &[Complex32]) -> Vec<f32> {
+    let mut real_vec = vec![f32::zero(); complex_vector.len()];
 
     real_vec
         .iter_mut()
