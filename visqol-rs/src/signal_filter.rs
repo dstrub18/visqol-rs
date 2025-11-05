@@ -1,13 +1,3 @@
-/// Stores a filtered signal and the final conditions after applying a filter.
-pub struct FilterResults {
-    pub filtered_signal: Vec<f32>,
-    pub final_conditions: [f32; Self::NUM_FILTER_CONDITIONS],
-}
-
-impl FilterResults {
-    pub const NUM_FILTER_CONDITIONS: usize = 2;
-}
-
 /// Applies a filter described by its numerator `numerator_coeffs` and its denominator `denominator_coeffs` on `signal` and returns a filtered copy of the signal.
 #[inline(always)]
 pub fn filter_signal(
@@ -15,7 +5,7 @@ pub fn filter_signal(
     denom_coeffs: &[f32],
     signal: &[f32],
     init_conditions: &mut [f32],
-) -> FilterResults {
+) -> Vec<f32> {
     let mut filtered_signal = vec![0.0f32; signal.len()];
 
     filtered_signal
@@ -30,8 +20,5 @@ pub fn filter_signal(
                 numerator_coeffs[2] * signal_element - denom_coeffs[2] * *filtered_element;
         });
 
-    FilterResults {
-        filtered_signal,
-        final_conditions: [init_conditions[0], init_conditions[1]],
-    }
+    filtered_signal
 }

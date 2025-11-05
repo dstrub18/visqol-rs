@@ -82,7 +82,7 @@ impl<const NUM_BANDS: usize> GammatoneFilterbank<NUM_BANDS> {
             filter_result = signal_filter::filter_signal(
                 &self.a2[band],
                 &self.b[band],
-                &filter_result.filtered_signal,
+                &filter_result,
                 &mut self.filter_conditions_2[band],
             );
 
@@ -90,7 +90,7 @@ impl<const NUM_BANDS: usize> GammatoneFilterbank<NUM_BANDS> {
             filter_result = signal_filter::filter_signal(
                 &self.a3[band],
                 &self.b[band],
-                &filter_result.filtered_signal,
+                &filter_result,
                 &mut self.filter_conditions_3[band],
             );
 
@@ -98,13 +98,13 @@ impl<const NUM_BANDS: usize> GammatoneFilterbank<NUM_BANDS> {
             filter_result = signal_filter::filter_signal(
                 &self.a4[band],
                 &self.b[band],
-                &filter_result.filtered_signal,
+                &filter_result,
                 &mut self.filter_conditions_4[band],
             );
 
             // This is all unnecessary allocations right?
-            for i in 0..filter_result.filtered_signal.len() {
-                output.row_mut(band)[i] = filter_result.filtered_signal[i];
+            for i in 0..filter_result.len() {
+                output.row_mut(band)[i] = filter_result[i];
             }
         }
         output
