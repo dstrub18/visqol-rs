@@ -77,7 +77,6 @@ impl<const NUM_BANDS: usize> GammatoneFilterbank<NUM_BANDS> {
                 input_signal,
                 &mut self.filter_conditions_1[band],
             );
-            self.filter_conditions_1[band] = filter_result.final_conditions;
 
             // 2nd filter
             filter_result = signal_filter::filter_signal(
@@ -86,7 +85,6 @@ impl<const NUM_BANDS: usize> GammatoneFilterbank<NUM_BANDS> {
                 &filter_result.filtered_signal,
                 &mut self.filter_conditions_2[band],
             );
-            self.filter_conditions_2[band] = filter_result.final_conditions;
 
             // 3rd filter
             filter_result = signal_filter::filter_signal(
@@ -95,7 +93,6 @@ impl<const NUM_BANDS: usize> GammatoneFilterbank<NUM_BANDS> {
                 &filter_result.filtered_signal,
                 &mut self.filter_conditions_3[band],
             );
-            self.filter_conditions_3[band] = filter_result.final_conditions;
 
             // 4th filter
             filter_result = signal_filter::filter_signal(
@@ -104,8 +101,8 @@ impl<const NUM_BANDS: usize> GammatoneFilterbank<NUM_BANDS> {
                 &filter_result.filtered_signal,
                 &mut self.filter_conditions_4[band],
             );
-            self.filter_conditions_4[band] = filter_result.final_conditions;
 
+            // This is all unnecessary allocations right?
             for i in 0..filter_result.filtered_signal.len() {
                 output.row_mut(band)[i] = filter_result.filtered_signal[i];
             }
@@ -142,7 +139,7 @@ mod tests {
         // Check if filtering works as intended.
         let mut filterbank = GammatoneFilterbank::<{ NUM_BANDS }>::new();
         filterbank.reset_filter_conditions();
-        filterbank.set_filter_coefficients(&filter_coeffs);
+        filterbank.set_filter_coefficients(&filter_coeffs.view());
 
         let filtered_signal = filterbank.apply_filter(&ten_samples);
 
