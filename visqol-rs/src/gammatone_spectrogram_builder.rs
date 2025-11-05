@@ -36,7 +36,6 @@ impl<const NUM_BANDS: usize> SpectrogramBuilder for GammatoneSpectrogramBuilder<
         filter_coeffs.invert_axis(Axis(0));
         self.filter_bank
             .set_filter_coefficients(&filter_coeffs.view());
-        self.filter_bank.reset_filter_conditions();
 
         let hop_size = (window.size as f32 * window.overlap) as usize;
 
