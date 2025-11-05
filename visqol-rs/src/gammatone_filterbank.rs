@@ -41,7 +41,7 @@ impl<const NUM_BANDS: usize> GammatoneFilterbank<NUM_BANDS> {
     }
 
     /// Populates the filter coefficients with `filter_coeffs`.
-    pub fn set_filter_coefficients(&mut self, filter_coeffs: &ndarray::Array2<f32>) {
+    pub fn set_filter_coefficients<'a>(&mut self, filter_coeffs: &ndarray::ArrayView2<'a, f32>) {
         for band in 0..NUM_BANDS {
             self.a1[band][0] = filter_coeffs.column(0)[band] / filter_coeffs.column(9)[band];
             self.a1[band][1] = filter_coeffs.column(1)[band] / filter_coeffs.column(9)[band];
