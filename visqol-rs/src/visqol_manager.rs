@@ -1,4 +1,5 @@
 use std::error::Error;
+use std::path::Path;
 
 use crate::{
     alignment,
@@ -59,10 +60,10 @@ impl<const NUM_BANDS: usize> VisqolManager<NUM_BANDS> {
     }
 
     /// Loads the audio store in `ref_signal_path` and `deg_signal_path` and computes its MOS.
-    pub fn run(
+    pub fn run<P: AsRef<Path>>(
         &mut self,
-        ref_signal_path: &str,
-        deg_signal_path: &str,
+        ref_signal_path: P,
+        deg_signal_path: P,
     ) -> Result<SimilarityResult, Box<dyn Error>> {
         let mut ref_signal = audio_utils::load_as_mono(ref_signal_path)?;
         let mut deg_signal = audio_utils::load_as_mono(deg_signal_path)?;

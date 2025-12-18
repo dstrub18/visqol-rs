@@ -1,4 +1,5 @@
 use std::error::Error;
+use std::path::Path;
 
 use crate::audio_signal::AudioSignal;
 use crate::math_utils;
@@ -46,7 +47,7 @@ fn calculate_sound_pressure_level(signal: &AudioSignal) -> f64 {
 fn to_mono_matrix(sample_matrix: &Array2<f64>) -> Array1<f64> { sample_matrix.sum_axis(Axis(1)) }
 
 /// Given a `file_path` to a wav file on disk, this file is loaded. If there are multiple channels, these are summed and normalized to 1 mono channel.
-pub fn load_as_mono(file_path: &str) -> Result<AudioSignal, Box<dyn Error>> {
+pub fn load_as_mono<P: AsRef<Path>>(file_path: P) -> Result<AudioSignal, Box<dyn Error>> {
     let wav_reader = WavFile::open(file_path)?;
 
     let data_vector_float = math_utils::normalize_int16_to_double(&wav_reader.samples);
