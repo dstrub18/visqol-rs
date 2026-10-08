@@ -27,3 +27,8 @@ log = "0.4.17"
 
 [dev-dependencies]
 approx = "0.5.1"
+criterion = "0.8"
+
+[[bench]]
+name = "metrics"
+harness = false
