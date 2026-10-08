@@ -1,4 +1,5 @@
 use crate::visqol_error;
+use std::path::Path;
 use hound::WavReader;
 use std::error::Error;
 /// Represents the metadata and contents of a wav file.
@@ -15,7 +16,7 @@ pub struct WavFile {
 impl WavFile {
     /// given a `file_path` to the desired wav file, the contents of the wav file are returned.
     /// Any possible errors are reported by `hound`.
-    pub fn open(file_path: &str) -> Result<Self, Box<dyn Error>> {
+    pub fn open<P: AsRef<Path>>(file_path: P) -> Result<Self, Box<dyn Error>> {
         let mut reader = WavReader::open(file_path)?;
         let spec = reader.spec();
 
