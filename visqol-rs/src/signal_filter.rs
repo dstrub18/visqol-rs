@@ -11,10 +11,10 @@ impl FilterResults {
 /// Applies a filter described by its numerator `numerator_coeffs` and its denominator `denominator_coeffs` on `signal` and returns a filtered copy of the signal.
 #[inline(always)]
 pub fn filter_signal(
-    numerator_coeffs: &[f64],
-    denom_coeffs: &[f64],
+    numerator_coeffs: &[f64; 3],
+    denom_coeffs: &[f64; 3],
     signal: &[f64],
-    init_conditions: &mut [f64],
+    init_conditions: &mut [f64; 2],
 ) -> FilterResults {
     let mut filtered_signal = vec![0.0f64; signal.len()];
 
