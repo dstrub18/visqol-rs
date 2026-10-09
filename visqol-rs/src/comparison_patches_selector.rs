@@ -1,5 +1,3 @@
-use std::error::Error;
-
 use crate::alignment::align_and_truncate;
 use crate::constants;
 use crate::gammatone_filterbank::GammatoneFilterbank;
@@ -325,7 +323,7 @@ impl ComparisonPatchesSelector {
         ref_signal: &AudioSignal,
         deg_signal: &AudioSignal,
         analysis_window: &AnalysisWindow,
-    ) -> Result<Vec<PatchSimilarityResult>, Box<dyn Error>> {
+    ) -> Result<Vec<PatchSimilarityResult>, VisqolError> {
         // Case: The patches are already matched.  Iterate over each pair.
         let mut realigned_results = Vec::<PatchSimilarityResult>::with_capacity(sim_results.len());
         realigned_results.resize(sim_results.len(), PatchSimilarityResult::default());

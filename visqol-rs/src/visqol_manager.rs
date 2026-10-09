@@ -1,5 +1,3 @@
-use std::error::Error;
-
 use crate::{
     alignment,
     audio_signal::AudioSignal,
@@ -63,7 +61,7 @@ impl<const NUM_BANDS: usize> VisqolManager<NUM_BANDS> {
         &mut self,
         ref_signal_path: &str,
         deg_signal_path: &str,
-    ) -> Result<SimilarityResult, Box<dyn Error>> {
+    ) -> Result<SimilarityResult, VisqolError> {
         let mut ref_signal = audio_utils::load_as_mono(ref_signal_path)?;
         let mut deg_signal = audio_utils::load_as_mono(deg_signal_path)?;
 
@@ -76,7 +74,7 @@ impl<const NUM_BANDS: usize> VisqolManager<NUM_BANDS> {
         &mut self,
         ref_signal: &mut AudioSignal,
         deg_signal: &mut AudioSignal,
-    ) -> Result<SimilarityResult, Box<dyn Error>> {
+    ) -> Result<SimilarityResult, VisqolError> {
         let (mut deg_signal, _) = alignment::globally_align(ref_signal, deg_signal)
             .ok_or(VisqolError::FailedToAlignSignals)?;
 

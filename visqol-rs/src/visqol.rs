@@ -5,10 +5,9 @@ use crate::{
     gammatone_spectrogram_builder::GammatoneSpectrogramBuilder, patch_creator::PatchCreator,
     patch_similarity_comparator::PatchSimilarityResult, similarity_result::SimilarityResult,
     similarity_to_quality_mapper::SimilarityToQualityMapper,
-    spectrogram_builder::SpectrogramBuilder,
+    spectrogram_builder::SpectrogramBuilder, visqol_error::VisqolError,
 };
 use ndarray::Array1;
-use std::error::Error;
 
 /// Perform a comparison on two audio signals. Their similarity is calculated
 /// and converted to a quality score using the given similarity to quality
@@ -20,7 +19,7 @@ pub fn calculate_similarity<const NUM_BANDS: usize>(
     selector: &ComparisonPatchesSelector,
     sim_to_qual_mapper: &dyn SimilarityToQualityMapper,
     search_window: usize,
-) -> Result<SimilarityResult, Box<dyn Error>> {
+) -> Result<SimilarityResult, VisqolError> {
     /////////////////// Stage 1: Preprocessing ///////////////////
     let deg_signal_scaled =
         audio_utils::scale_to_match_sound_pressure_level(ref_signal, deg_signal);

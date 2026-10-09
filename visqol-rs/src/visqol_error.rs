@@ -3,6 +3,9 @@ use thiserror::Error;
 #[non_exhaustive]
 #[derive(Error, Debug)]
 pub enum VisqolError {
+    #[error("Failed to read audio file: {0}")]
+    AudioFileError(#[from] hound::Error),
+
     #[error("Sample rates differ! Reference signal is sampled at {reference:?} Hz, degraded signal is sampled at {degraded:?} Hz")]
     DifferentSampleRates { reference: u32, degraded: u32 },
 
