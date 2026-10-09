@@ -28,7 +28,7 @@
 
 mod alignment;
 mod analysis_window;
-mod audio_signal;
+pub mod audio_signal;
 pub mod audio_utils;
 mod comparison_patches_selector;
 pub mod constants;
@@ -59,6 +59,7 @@ mod visqol;
 pub mod visqol_error;
 pub mod visqol_manager;
 
+pub use audio_signal::AudioSignal;
 pub use visqol_error::VisqolError;
 mod wav_reader;
 mod xcorr;
