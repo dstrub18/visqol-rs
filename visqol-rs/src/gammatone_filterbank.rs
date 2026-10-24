@@ -97,45 +97,44 @@ impl<const NUM_BANDS: usize> GammatoneFilterbank<NUM_BANDS> {
             b[1] = self.filter_coeff_b1[band];
             b[2] = self.filter_coeff_b2[band];
 
+            // The filter stages run in place on the output row, which starts as a copy of the input.
+            let mut band_row = output.row_mut(band);
+            let band_signal = band_row
+                .as_slice_mut()
+                .expect("Gammatone output rows must be contiguous");
+            band_signal.copy_from_slice(input_signal);
+
             // 1st filter
-            let mut filter_result = signal_filter::filter_signal(
+            signal_filter::filter_signal_in_place(
                 &a1,
                 &b,
-                input_signal,
+                band_signal,
                 &mut self.filter_conditions_1[band],
             );
-            self.filter_conditions_1[band] = filter_result.final_conditions;
 
             // 2nd filter
-            filter_result = signal_filter::filter_signal(
+            signal_filter::filter_signal_in_place(
                 &a2,
                 &b,
-                &filter_result.filtered_signal,
+                band_signal,
                 &mut self.filter_conditions_2[band],
             );
-            self.filter_conditions_2[band] = filter_result.final_conditions;
 
             // 3rd filter
-            filter_result = signal_filter::filter_signal(
+            signal_filter::filter_signal_in_place(
                 &a3,
                 &b,
-                &filter_result.filtered_signal,
+                band_signal,
                 &mut self.filter_conditions_3[band],
             );
-            self.filter_conditions_3[band] = filter_result.final_conditions;
 
             // 4th filter
-            filter_result = signal_filter::filter_signal(
+            signal_filter::filter_signal_in_place(
                 &a4,
                 &b,
-                &filter_result.filtered_signal,
+                band_signal,
                 &mut self.filter_conditions_4[band],
             );
-            self.filter_conditions_4[band] = filter_result.final_conditions;
-
-            for i in 0..filter_result.filtered_signal.len() {
-                output.row_mut(band)[i] = filter_result.filtered_signal[i];
-            }
         }
         output
     }
