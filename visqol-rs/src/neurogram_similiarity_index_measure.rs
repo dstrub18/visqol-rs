@@ -1,6 +1,6 @@
 use crate::convolution_2d::perform_valid_2d_conv_with_boundary;
 use crate::patch_similarity_comparator::{PatchSimilarityComparator, PatchSimilarityResult};
-use ndarray::{arr2, Array1, Axis};
+use ndarray::{arr2, Array1, Array2, Axis, Zip};
 
 /// Provides a neurogram similarity index measure (NSIM) implementation for a
 /// patch similarity comparator. NSIM is a distance metric, adapted from the
@@ -9,19 +9,25 @@ use ndarray::{arr2, Array1, Axis};
 /// spectrograms.
 pub struct NeurogramSimiliarityIndexMeasure {
     intensity_range: f64,
+    /// Gaussian window used to compute the local means and variances
+    window: Array2<f64>,
 }
 
-#[allow(unused)]
 impl NeurogramSimiliarityIndexMeasure {
-    pub fn new(intensity_range: f64) -> Self { Self { intensity_range } }
+    pub fn new(intensity_range: f64) -> Self {
+        Self {
+            intensity_range,
+            window: arr2(&[
+                [0.0113033910173052, 0.0838251475442633, 0.0113033910173052],
+                [0.0838251475442633, 0.619485845753726, 0.0838251475442633],
+                [0.0113033910173052, 0.0838251475442633, 0.0113033910173052],
+            ]),
+        }
+    }
 }
 
 impl Default for NeurogramSimiliarityIndexMeasure {
-    fn default() -> Self {
-        Self {
-            intensity_range: 1.0,
-        }
-    }
+    fn default() -> Self { Self::new(1.0) }
 }
 
 impl PatchSimilarityComparator for NeurogramSimiliarityIndexMeasure {
@@ -31,62 +37,60 @@ impl PatchSimilarityComparator for NeurogramSimiliarityIndexMeasure {
         ref_patch: &mut ndarray::Array2<f64>,
         deg_patch: &mut ndarray::Array2<f64>,
     ) -> PatchSimilarityResult {
-        let window = arr2(&[
-            [0.0113033910173052, 0.0838251475442633, 0.0113033910173052],
-            [0.0838251475442633, 0.619485845753726, 0.0838251475442633],
-            [0.0113033910173052, 0.0838251475442633, 0.0113033910173052],
-        ]);
-
         let k = [0.01, 0.03];
         let c1 = (k[0] * self.intensity_range).powf(2.0);
         let c3 = (k[1] * self.intensity_range).powf(2.0) / 2.0;
 
         // Compute mu
-        let mu_ref = perform_valid_2d_conv_with_boundary(&window, ref_patch);
-        let mu_deg = perform_valid_2d_conv_with_boundary(&window, deg_patch);
+        let mu_ref = perform_valid_2d_conv_with_boundary(&self.window, ref_patch);
+        let mu_deg = perform_valid_2d_conv_with_boundary(&self.window, deg_patch);
 
-        let ref_mu_squared = &mu_ref * &mu_ref;
-        let deg_mu_squared = &mu_deg * &mu_deg;
-        let mu_r_mu_d = &mu_ref * &mu_deg;
+        let mut ref_neuro_sq = ref_patch.mapv(|element| element * element);
+        let mut deg_neuro_sq = deg_patch.mapv(|element| element * element);
+        let mut ref_neuro_deg = &*ref_patch * &*deg_patch;
 
-        let mut ref_neuro_sq = ref_patch.clone() * ref_patch.clone();
-        let mut deg_neuro_sq = deg_patch.clone() * deg_patch.clone();
-
-        // Compute sigmas
         let conv2_ref_neuro_squared =
-            perform_valid_2d_conv_with_boundary(&window, &mut ref_neuro_sq);
-        let sigma_ref_squared = &conv2_ref_neuro_squared - &ref_mu_squared;
-
+            perform_valid_2d_conv_with_boundary(&self.window, &mut ref_neuro_sq);
         let conv2_deg_neuro_squared =
-            perform_valid_2d_conv_with_boundary(&window, &mut deg_neuro_sq);
-        let sigma_deg_squared = &conv2_deg_neuro_squared - &deg_mu_squared;
+            perform_valid_2d_conv_with_boundary(&self.window, &mut deg_neuro_sq);
+        let conv2_ref_neuro_deg =
+            perform_valid_2d_conv_with_boundary(&self.window, &mut ref_neuro_deg);
 
-        let mut ref_neuro_deg = ref_patch.clone() * deg_patch.clone();
-        let conv2_ref_neuro_deg = perform_valid_2d_conv_with_boundary(&window, &mut ref_neuro_deg);
+        // Compute the similarity map element-wise in a single pass
+        let sim_map = Zip::from(&mu_ref)
+            .and(&mu_deg)
+            .and(&conv2_ref_neuro_squared)
+            .and(&conv2_deg_neuro_squared)
+            .and(&conv2_ref_neuro_deg)
+            .map_collect(
+                |&mu_r, &mu_d, &conv2_ref_squared, &conv2_deg_squared, &conv2_ref_deg| {
+                    let ref_mu_squared = mu_r * mu_r;
+                    let deg_mu_squared = mu_d * mu_d;
+                    let mu_r_mu_d = mu_r * mu_d;
 
-        let sigma_r_d = &conv2_ref_neuro_deg - &mu_r_mu_d;
+                    // Compute sigmas
+                    let sigma_ref_squared = conv2_ref_squared - ref_mu_squared;
+                    let sigma_deg_squared = conv2_deg_squared - deg_mu_squared;
+                    let sigma_r_d = conv2_ref_deg - mu_r_mu_d;
 
-        // Compute intensity
-        let intensity_numerator = &mu_r_mu_d * 2.0 + c1;
-        let intensity_denominator = &ref_mu_squared + &deg_mu_squared + c1;
+                    // Compute intensity
+                    let intensity =
+                        (mu_r_mu_d * 2.0 + c1) / (ref_mu_squared + deg_mu_squared + c1);
 
-        let intensity = &intensity_numerator / &intensity_denominator;
+                    // Compute structure
+                    let structure_denominator = sigma_ref_squared * sigma_deg_squared;
 
-        // Compute structure
-        let structure_numerator = &sigma_r_d + c3;
-        let mut structure_denominator = &sigma_ref_squared * &sigma_deg_squared;
+                    // Avoid nans
+                    let structure_denominator = if structure_denominator < 0.0 {
+                        c3
+                    } else {
+                        structure_denominator.sqrt() + c3
+                    };
 
-        // Avoid nans
-        structure_denominator.map_inplace(|element| {
-            *element = if *element < 0.0 {
-                c3
-            } else {
-                element.sqrt() + c3
-            }
-        });
-
-        let structure = &structure_numerator / &structure_denominator;
-        let sim_map = &intensity * &structure;
+                    let structure = (sigma_r_d + c3) / structure_denominator;
+                    intensity * structure
+                },
+            );
 
         let freq_band_deg_energy: Array1<f64> = deg_patch
             .mean_axis(Axis(1))
@@ -99,10 +103,11 @@ impl PatchSimilarityComparator for NeurogramSimiliarityIndexMeasure {
             .mean()
             .expect("Failed to compute mean of means for degraded signal!");
 
+        // The 1D arrays are freshly allocated and contiguous, so their buffers can be moved out without copying.
         PatchSimilarityResult::new(
-            freq_band_means.to_vec(),
-            freq_band_std.to_vec(),
-            freq_band_deg_energy.to_vec(),
+            freq_band_means.into_raw_vec_and_offset().0,
+            freq_band_std.into_raw_vec_and_offset().0,
+            freq_band_deg_energy.into_raw_vec_and_offset().0,
             mean_freq_band_means,
         )
     }
