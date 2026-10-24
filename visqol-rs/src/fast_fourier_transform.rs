@@ -1,3 +1,4 @@
+#[cfg(test)]
 use crate::audio_utils::real_valued_complex_vec_to_float_vec;
 use crate::fft_manager::FftManager;
 use num::complex::Complex64;
@@ -16,6 +17,7 @@ pub fn forward_1d_from_matrix(
     temp_freq_buffer
 }
 /// Performs a fast fourier transform on `input_signal` using `fft_manager` and the desired number of fft_points and returns the complex signal in the frequency domain.
+#[cfg(test)]
 pub fn forward_1d_from_points(
     fft_manager: &mut FftManager,
     in_matrix: &[f64],
@@ -43,6 +45,7 @@ pub fn inverse_1d(fft_manager: &mut FftManager, input_signal: &[Complex64]) -> V
 }
 
 /// Performs an inverse fast fourier transform on `input_signal` using `fft_manager` and returns the real-valued signal in the time domain.
+#[cfg(test)]
 pub fn inverse_1d_conj_sym(fft_manager: &mut FftManager, in_matrix: &[Complex64]) -> Vec<f64> {
     let inverse = inverse_1d(fft_manager, in_matrix);
 
