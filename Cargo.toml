@@ -7,3 +7,8 @@ opt-level = 3
 strip = "symbols"
 debug = false
 lto = "fat"
+
+[profile.bench]
+debug = "full"
+strip = "none"
+lto = "fat"
