@@ -96,13 +96,12 @@ mod tests {
 
         let (_, exponent) = frexp((ref_signal_vec.len() * 2 - 1) as f64);
         let fft_points = 2i32.pow(exponent as u32) as usize;
-        let mut manager = fft_manager::FftManager::new(fft_points);
+        let manager = fft_manager::FftManager::new(fft_points);
 
         let result = calculate_fft_pointwise_product(
             &ref_signal.data_matrix.to_vec(),
             &deg_signal.data_matrix.to_vec(),
-            &mut manager,
-            fft_points,
+            &manager,
         );
 
         assert_abs_diff_eq!(result[0].re, 0.012231532484292984, epsilon = 0.001);

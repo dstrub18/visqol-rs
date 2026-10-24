@@ -22,7 +22,7 @@ pub struct FftManager {
 impl FftManager {
     /// Creates a new fft manager, computes internal variables from `samples_per_channel`
     pub fn new(samples_per_channel: usize) -> Self {
-        let fft_size = math_utils::next_pow_two(samples_per_channel).max(MIN_FFT_SIZE);
+        let fft_size = Self::fft_size_for(samples_per_channel);
 
         Self {
             planner: FftPlanner::<f64>::new(),
@@ -30,6 +30,11 @@ impl FftManager {
             samples_per_channel,
             inverse_fft_scale: 1.0f64 / (fft_size as f64),
         }
+    }
+
+    /// Returns the length of the fft used for `samples_per_channel` samples.
+    pub fn fft_size_for(samples_per_channel: usize) -> usize {
+        math_utils::next_pow_two(samples_per_channel).max(MIN_FFT_SIZE)
     }
 
     /// Zero-pads `time_channel` if necessary, transforms its contents into the frequency domain and stores it in `freq_channel`

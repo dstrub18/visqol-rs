@@ -1,77 +1,119 @@
-use crate::fast_fourier_transform;
 use crate::fft_manager::FftManager;
 use num::complex::Complex64;
+use num::Zero;
+use rustfft::FftPlanner;
 
 /// Calculate the maximum delay between to signals.
 pub fn calculate_best_lag(signal_1: &[f64], signal_2: &[f64]) -> Option<i64> {
     let max_lag = ((signal_1.len().max(signal_2.len())) - 1) as i64;
 
-    let point_wise_fft_vec =
-        calculate_inverse_fft_pointwise_product(&mut signal_1.to_vec(), &mut signal_2.to_vec());
-    // Negative errors
-    let mut corrs = point_wise_fft_vec[point_wise_fft_vec.len() - max_lag as usize..].to_vec();
-    // Positive errors
-    let mut positives = point_wise_fft_vec[0..max_lag as usize + 1].to_vec();
+    let (inverse_fft, fft_points, inverse_fft_scale) =
+        calculate_unscaled_inverse_fft_pointwise_product(signal_1, signal_2);
+    let point_wise_fft_vec = &inverse_fft[..fft_points];
 
-    corrs.append(&mut positives);
+    // Negative errors followed by positive errors
+    let corrs = point_wise_fft_vec[point_wise_fft_vec.len() - max_lag as usize..]
+        .iter()
+        .chain(&point_wise_fft_vec[0..max_lag as usize + 1])
+        .map(|element| element.re * inverse_fft_scale);
 
     // Get maximum
-    let best_corr = corrs[..].iter().max_by(|x, y| {
+    let best_corr = corrs.clone().max_by(|x, y| {
         x.abs()
             .partial_cmp(&y.abs())
             .expect("Failed to compute correlation")
     })?;
 
-    let best_corr_idx = corrs.iter().position(|&r| r == *best_corr)?;
+    let best_corr_idx = corrs.clone().position(|r| r == best_corr)?;
 
     Some(best_corr_idx as i64 - max_lag)
 }
 
 /// Calculates the pointwise inverse fft product of 2 signals
-pub fn calculate_inverse_fft_pointwise_product(
-    signal_1: &mut Vec<f64>,
-    signal_2: &mut Vec<f64>,
-) -> Vec<f64> {
+#[cfg(test)]
+pub fn calculate_inverse_fft_pointwise_product(signal_1: &[f64], signal_2: &[f64]) -> Vec<f64> {
+    let (inverse_fft, fft_points, inverse_fft_scale) =
+        calculate_unscaled_inverse_fft_pointwise_product(signal_1, signal_2);
+
+    inverse_fft[..fft_points]
+        .iter()
+        .map(|element| element.re * inverse_fft_scale)
+        .collect()
+}
+
+/// Calculates the inverse fft of the pointwise fft product of 2 signals without applying the inverse fft scaling.
+/// Returns the complex result, the number of valid points in it and the scale factor to apply to its real parts.
+fn calculate_unscaled_inverse_fft_pointwise_product(
+    signal_1: &[f64],
+    signal_2: &[f64],
+) -> (Vec<Complex64>, usize, f64) {
     let biggest_length = signal_1.len().max(signal_2.len());
-
-    match &signal_1.len().cmp(&signal_2.len()) {
-        std::cmp::Ordering::Less => {
-            signal_1.resize(biggest_length, 0.0);
-        }
-        std::cmp::Ordering::Greater => {
-            signal_2.resize(biggest_length, 0.0);
-        }
-        _ => {}
-    }
-    let (_, exp) = frexp((signal_1.len() * 2 - 1) as f64);
+    let (_, exp) = frexp((biggest_length * 2 - 1) as f64);
     let fft_points = 2usize.pow(exp as u32);
-    let mut manager = FftManager::new(fft_points);
-    let point_wise_product =
-        calculate_fft_pointwise_product(signal_1, signal_2, &mut manager, fft_points);
+    let fft_size = FftManager::fft_size_for(fft_points);
 
-    fast_fourier_transform::inverse_1d_conj_sym(&mut manager, &point_wise_product)
+    let (mut point_wise_product, mut output_buffer) =
+        calculate_fft_pointwise_product_and_spent_buffer(signal_1, signal_2, fft_size);
+
+    // The forward plan is dropped at this point, so only one plan is alive at a time.
+    let inverse_fft = FftPlanner::<f64>::new().plan_fft_inverse(fft_size);
+    let mut scratch = vec![Complex64::zero(); inverse_fft.get_outofplace_scratch_len()];
+    inverse_fft.process_outofplace_with_scratch(
+        &mut point_wise_product,
+        &mut output_buffer,
+        &mut scratch,
+    );
+
+    (output_buffer, fft_points, 1.0f64 / (fft_size as f64))
 }
 
 /// Calculates the pointwise fft product of 2 signals
+#[cfg(test)]
 pub fn calculate_fft_pointwise_product(
     signal_1: &[f64],
     signal_2: &[f64],
-    manager: &mut FftManager,
-    fft_points: usize,
+    manager: &FftManager,
 ) -> Vec<Complex64> {
-    let mut fft_signal_2 =
-        fast_fourier_transform::forward_1d_from_points(manager, signal_2, fft_points);
-    fft_signal_2
-        .iter_mut()
-        .for_each(|element| *element = element.conj());
+    calculate_fft_pointwise_product_and_spent_buffer(signal_1, signal_2, manager.fft_size).0
+}
 
-    let fft_signal_1 =
-        fast_fourier_transform::forward_1d_from_points(manager, signal_1, fft_points);
+/// Calculates the pointwise product of the spectrum of `signal_1` and the conjugated spectrum of `signal_2`, both zero-padded to `fft_size`.
+/// Also returns the spent fft input buffer, so that the caller can reuse it instead of allocating a new one.
+fn calculate_fft_pointwise_product_and_spent_buffer(
+    signal_1: &[f64],
+    signal_2: &[f64],
+    fft_size: usize,
+) -> (Vec<Complex64>, Vec<Complex64>) {
+    let forward_fft = FftPlanner::<f64>::new().plan_fft_forward(fft_size);
+    let mut scratch = vec![Complex64::zero(); forward_fft.get_outofplace_scratch_len()];
+
+    // The out-of-place fft uses its input as scratch space, so the input buffer is refilled for each signal.
+    let mut input_buffer = vec![Complex64::zero(); fft_size];
+
+    copy_zero_padded(signal_2, &mut input_buffer);
+    let mut fft_signal_2 = vec![Complex64::zero(); fft_size];
+    forward_fft.process_outofplace_with_scratch(&mut input_buffer, &mut fft_signal_2, &mut scratch);
+
+    copy_zero_padded(signal_1, &mut input_buffer);
+    let mut fft_signal_1 = vec![Complex64::zero(); fft_size];
+    forward_fft.process_outofplace_with_scratch(&mut input_buffer, &mut fft_signal_1, &mut scratch);
+
     fft_signal_1
-        .iter()
-        .zip(fft_signal_2.iter())
-        .map(|(a, b)| a * b)
-        .collect()
+        .iter_mut()
+        .zip(&fft_signal_2)
+        .for_each(|(a, b)| *a = *a * b.conj());
+
+    (fft_signal_1, input_buffer)
+}
+
+/// Copies `signal` into the real parts of `buffer` and zeroes everything else.
+fn copy_zero_padded(signal: &[f64], buffer: &mut [Complex64]) {
+    let (signal_part, padding) = buffer.split_at_mut(signal.len());
+    signal_part
+        .iter_mut()
+        .zip(signal)
+        .for_each(|(element, &sample)| *element = Complex64::new(sample, 0.0));
+    padding.fill(Complex64::zero());
 }
 
 ///
