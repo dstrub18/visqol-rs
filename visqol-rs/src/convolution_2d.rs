@@ -6,7 +6,11 @@ pub fn perform_valid_2d_conv_with_boundary(
     input_matrix: &mut Array2<f64>,
 ) -> Array2<f64> {
     let padded_matrix = add_matrix_boundary(input_matrix);
-    let padded_flattened_matrix = flatten_matrix(&padded_matrix);
+    // Row-major views of both matrices.
+    let padded_standard_layout = padded_matrix.as_standard_layout();
+    let padded_flattened_matrix = padded_standard_layout
+        .as_slice()
+        .expect("Standard layout matrix must be contiguous");
 
     let i_r_c = padded_matrix.nrows();
     let i_c_c = padded_matrix.ncols();
@@ -16,7 +20,10 @@ pub fn perform_valid_2d_conv_with_boundary(
     let o_c_c = i_c_c - f_c_c + 1;
     let filter_size = f_r_c * f_c_c;
 
-    let flattened_filter = flatten_matrix(fir_filter);
+    let filter_standard_layout = fir_filter.as_standard_layout();
+    let flattened_filter = filter_standard_layout
+        .as_slice()
+        .expect("Standard layout matrix must be contiguous");
 
     let mut out_matrix = Array2::<f64>::zeros((o_r_c, o_c_c).f());
 
@@ -36,16 +43,6 @@ pub fn perform_valid_2d_conv_with_boundary(
         }
     }
     out_matrix
-}
-
-fn flatten_matrix(input_matrix: &Array2<f64>) -> Vec<f64> {
-    let mut res = Vec::<f64>::new();
-    for i in 0..input_matrix.nrows() {
-        for j in 0..input_matrix.ncols() {
-            res.push(input_matrix[(i, j)]);
-        }
-    }
-    res
 }
 
 /// Compute zero-padded matrix and fill zero-padded boundaries with the adjacent non-zero rows and columns
