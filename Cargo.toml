@@ -12,3 +12,11 @@ lto = "fat"
 debug = "full"
 strip = "none"
 lto = "fat"
+
+# Release build with debug info for profiling with heaptrack:
+# cargo build --profile heaptrack -p visqol
+# heaptrack target/heaptrack/visqol <args>
+[profile.heaptrack]
+inherits = "release"
+strip = "none"
+debug = true
